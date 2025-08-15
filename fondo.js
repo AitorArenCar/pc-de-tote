@@ -4,18 +4,24 @@ const LS_BG = 'pokebox_bg_v1';
 const $bgInput    = document.getElementById('bgInput');
 const $bgBtn      = document.getElementById('bgBtn');
 const $bgClearBtn = document.getElementById('bgClearBtn');
+const DEFAULT_BG = 'images/fondo-default.png';
+
 
 function applyBackground(dataUrlOrNone) {
-  const v = dataUrlOrNone && dataUrlOrNone !== 'none' ? `url('${dataUrlOrNone}')` : 'none';
-  document.documentElement.style.setProperty('--app-bg-image', v);
+  // Si no llega nada o es 'none', usa el fondo por defecto del proyecto
+  const url = (dataUrlOrNone && dataUrlOrNone !== 'none') ? dataUrlOrNone : DEFAULT_BG;
+  document.documentElement.style.setProperty('--app-bg-image', `url('${url}')`);
 }
 
 function loadBackgroundFromStorage() {
   try {
-    const dataUrl = localStorage.getItem(LS_BG) || 'none';
-    applyBackground(dataUrl);
-  } catch {}
+    const dataUrl = localStorage.getItem(LS_BG); // puede ser null
+    applyBackground(dataUrl); // si es null, apply usará DEFAULT_BG
+  } catch {
+    applyBackground(null); // asegúrate de pintar el default
+  }
 }
+
 
 function setBackgroundFromFile(file) {
   if (!file) return;
@@ -30,9 +36,8 @@ function setBackgroundFromFile(file) {
 
 function clearBackground() {
   try { localStorage.removeItem(LS_BG); } catch {}
-  applyBackground('none');
+  applyBackground(null); // vuelve al default
 }
-
 // Exponer helpers para script.js
 window.getBackgroundDataUrl = () => {
   try { return localStorage.getItem(LS_BG) || null; } catch { return null; }
@@ -45,6 +50,16 @@ window.setBackgroundDataUrl = (dataUrl) => {
   applyBackground(dataUrl || 'none');
 };
 window.applyBackground = applyBackground;
+
+window.applyBackgroundFromJson = (maybeUrl) => {
+  // Si el JSON trae fondo, lo guardamos y aplicamos; si no, caemos al default/LS
+  if (maybeUrl && maybeUrl.trim() !== '') {
+    try { localStorage.setItem(LS_BG, maybeUrl); } catch {}
+    applyBackground(maybeUrl);
+  } else {
+    loadBackgroundFromStorage(); // usará lo guardado o el default
+  }
+};
 
 // Eventos UI
 if ($bgInput) {

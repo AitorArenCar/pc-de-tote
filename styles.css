@@ -1010,4 +1010,68 @@ select:focus {
   .moves-grid{
     grid-template-columns: 1fr;
   }
+
+
+    /* El propio diálogo ocupa casi todo el ancho y su contenido hace scroll */
+  #addDialog {
+    width: 96vw;
+  }
+  #addDialog .modal{
+    min-width: auto;         /* anula el min-width global de .modal */
+    max-height: 85vh;        /* alto útil en móvil */
+    display: flex;
+    flex-direction: column;
+  }
+  #addDialog .modal .content{
+    overflow: auto;          /* scroll vertical dentro del modal */
+  }
+
+  /* Filas: que puedan partirse y que los inputs crezcan */
+  #addDialog .row{
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  #addDialog .row input{
+    flex: 1 1 180px;         /* que ocupen el ancho disponible */
+    min-width: 0;            /* permite encoger sin desbordar */
+  }
+
+  /* Resultado de búsqueda: más compacto */
+  #addDialog .result{
+    grid-template-columns: 72px 1fr;
+  }
+
+  /* Rejillas: 1 columna para que nada se corte */
+  #addDialog .extras-grid{
+    grid-template-columns: 1fr;   /* izquierda + derecha apiladas */
+  }
+  #addDialog .grid3{
+    grid-template-columns: 1fr;   /* cada campo a ancho completo */
+  }
+
+  /* Inputs y selects al 100% dentro del diálogo */
+  #addDialog input[type="text"],
+  #addDialog input[type="number"],
+  #addDialog select{
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Lista de autocompletado/combos: que no desborden el viewport */
+  #addDialog .combo-list,
+  #addDialog .move-list{
+    left: 0;
+    right: 0;
+    max-width: 100%;
+  }
+
+  /* Campos de movimientos en una sola columna */
+  #addDialog .moves{
+    grid-template-columns: 1fr;
+  }
+
+  /* Ajuste de la lista de coincidencias para no ser demasiado alta */
+  #addDialog .matches{
+    max-height: 40vh;
+  }
 }
