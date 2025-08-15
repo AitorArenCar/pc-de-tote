@@ -1428,13 +1428,12 @@ async function ensureNatureIndex() {
           <span class="move-type-tag" style="background:rgba(0,0,0,.08);color:${fg};border-color:rgba(0,0,0,.15)">${mp.typeEs}</span>
         </header>
         <div class="move-body">
-          <div class="move-desc">${mp.descEs}</div>
+          <div class="move-desc">${mp.descEs}${mp.effectInfo ? ` - <span><b>${mp.effectInfo}</b></span>` : ''}</div>
           <div class="move-meta">
             <div><b>PP:</b> ${pp}</div>
             <div><b>Daño:</b> ${damage}</div>
             <div><b>Tipo de daño:</b> ${mp.classEs}</div>
             <div><b>Precisión:</b> ${mp.accuracy === null ? '—' : mp.accuracy}</div>
-            ${mp.effectInfo ? `<div>${mp.effectInfo}</div>` : ''}
           </div>
         </div>
       </div>`;
