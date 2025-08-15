@@ -1,0 +1,121 @@
+{
+  "pockets": {
+    "pokeballs": {
+      "1": {
+        "id": "1",
+        "nameEs": "Master Ball",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png"
+      },
+      "4": {
+        "id": "4",
+        "nameEs": "Poké Ball",
+        "qty": 2,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+      }
+    },
+    "medicine": {
+      "17": {
+        "id": "17",
+        "nameEs": "Poción",
+        "qty": 2,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png"
+      },
+      "24": {
+        "id": "24",
+        "nameEs": "Poción Máxima",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-potion.png"
+      },
+      "25": {
+        "id": "25",
+        "nameEs": "Hiperpoción",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hyper-potion.png"
+      },
+      "26": {
+        "id": "26",
+        "nameEs": "Superpoción",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-potion.png"
+      },
+      "31": {
+        "id": "31",
+        "nameEs": "Refresco",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soda-pop.png"
+      },
+      "34": {
+        "id": "34",
+        "nameEs": "Polvo Energía",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/energy-powder.png"
+      },
+      "126": {
+        "id": "126",
+        "nameEs": "Baya Zreza",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/cheri-berry.png"
+      },
+      "130": {
+        "id": "130",
+        "nameEs": "Baya Perasi",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/aspear-berry.png"
+      }
+    },
+    "berries": {},
+    "battle": {
+      "44": {
+        "id": "44",
+        "nameEs": "Ceniza Sagrada",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sacred-ash.png"
+      },
+      "173": {
+        "id": "173",
+        "nameEs": "Baya Drasi",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/kasib-berry.png"
+      },
+      "244": {
+        "id": "244",
+        "nameEs": "Gafas Especiales",
+        "qty": 2,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/wise-glasses.png"
+      },
+      "408": {
+        "id": "408",
+        "nameEs": "Pokéradar",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-radar.png"
+      },
+      "419": {
+        "id": "419",
+        "nameEs": "Mapa",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png"
+      },
+      "422": {
+        "id": "422",
+        "nameEs": "Caña Vieja",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/old-rod.png"
+      },
+      "713": {
+        "id": "713",
+        "nameEs": "Abomasnowita",
+        "qty": 2,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/abomasite.png"
+      },
+      "779": {
+        "id": "779",
+        "nameEs": "Bombona Devon",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/devon-scuba-gear.png"
+      }
+    },
+    "key": {},
+    "custom": {}
+  }
+}

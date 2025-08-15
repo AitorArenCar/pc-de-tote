@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pc de Tote</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <header>
+        <h1>Pc de Tote</h1>
+        <button id="teamBtn" class="btn" title="Ver equipo">Equipo (0)</button>
+        <button id="healAllBtn" class="btn btn-verde" title="Poner la vida de todos al máximo">Curar</button>
+        <input id="bgInput" type="file" accept="image/*" class="hidden-input" />
+        <button id="bagBtn" class="btn" title="Gestionar objetos">Mochila</button>
+        <div class="spacer"></div>
+    <!-- ponlo cerca de otros inputs del header -->
+<input id="openInput" type="file" accept="application/json" class="hidden-input" />
+<div class="status-wrap">
+  <button id="statusBtn" class="status" aria-haspopup="true" aria-expanded="false" title="Opciones de base">
+    Sin archivo abierto
+  </button>
+  <div id="statusMenu" class="status-menu" hidden>
+    <button id="menuOpen"  class="menu-item">📥 Importar datos</button>
+    <button id="menuSave"  class="menu-item">💾 Guardar</button>
+
+    <div class="menu-sep"></div>
+    <button id="menuBg"       class="menu-item">🖼️ Cambiar fondo</button>
+    <button id="menuBgClear"  class="menu-item danger">🧹 Quitar fondo</button>
+  </div>
+</div>
+
+        <button id="addBtn" class="btn btn-primary" title="Añadir Pokémon">＋ Añadir</button>
+
+    </header>
+
+    <main>
+        <div id="empty" class="empty" hidden>
+            Abre o crea una base. Pulsa <strong>“Añadir”</strong> para guardar tu primer Pokémon.
+        </div>
+        <div id="grid" class="grid"></div>
+    </main>
+
+    <!-- Diálogo: añadir Pokémon -->
+    <dialog id="addDialog">
+        <div class="modal">
+            <header>
+                <h2 style="margin:0;font-size:18px">Añadir Pokémon</h2>
+                <div class="spacer"></div>
+                <button id="closeDialog" class="btn" style="padding:6px 10px">Cerrar</button>
+            </header>
+            <div class="content">
+                <!-- Búsqueda de Pokémon -->
+                <div class="field">
+                    <label for="query">Busca por nombre parcial o número</label>
+                    <div class="row">
+                        <input id="query" type="text" placeholder="Pikachu" />
+                        <button id="searchBtn" class="btn">Buscar</button>
+                    </div>
+                </div>
+                <div id="feedback" class="muted"></div>
+                <div id="matches" class="matches" hidden></div>
+                <div id="searchResult" style="margin-top:12px;"></div>
+
+                <!-- Campos extra -->
+                <div id="extraFields" class="extras" hidden>
+                    <div class="extras-grid">
+                        <!-- Columna izquierda: Estadísticas -->
+                        <div class="left">
+                            <div class="stats">
+                                <div class="stat"><label>PS</label><input type="number" id="stat_hp" min="0" /></div>
+                                <div class="stat"><label>Ataque</label><input type="number" id="stat_atk" min="0" />
+                                </div>
+                                <div class="stat"><label>Defensa</label><input type="number" id="stat_def" min="0" />
+                                </div>
+                                <div class="stat"><label>At. Esp.</label><input type="number" id="stat_spa" min="0" />
+                                </div>
+                                <div class="stat"><label>Def. Esp.</label><input type="number" id="stat_spd" min="0" />
+                                </div>
+                                <div class="stat"><label>Velocidad</label><input type="number" id="stat_spe" min="0" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna derecha: resto de campos -->
+                        <div class="right">
+                            <div class="grid3">
+                                <div class="field">
+                                    <label for="numInput">Número</label>
+                                    <div class="combo">
+
+                                        <input id="numInput" type="number">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label for="nicknameInput">Mote</label>
+                                    <input id="nicknameInput" type="text" placeholder="Escribe el mote" />
+                                </div>
+                                <div class="field">
+                                    <label for="levelInput">Nivel</label>
+                                    <div class="combo">
+                                        <input id="levelInput" type="number" min="1" step="1" placeholder="" />
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label for="genderSelect">Género</label>
+                                    <div class="combo">
+
+                                        <select id="genderSelect">
+                                            <option value="unknown">Desconocido</option>
+                                            <option value="male">Macho</option>
+                                            <option value="female">Hembra</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="grid3">
+
+                                <div class="field">
+                                    <label for="ballInput">Poké Ball</label>
+                                    <div class="combo">
+                                        <input id="ballInput" type="text" placeholder="ultra ball, lujo, safari…" />
+                                        <div id="ballMatches" class="combo-list" hidden></div>
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <label for="natureInput">Naturaleza</label>
+                                    <div class="combo">
+                                        <input id="natureInput" type="text" placeholder="Firme, Miedosa, Serena…" />
+                                        <div id="natureMatches" class="combo-list" hidden></div>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label for="abilityInput">Habilidad</label>
+                                    <div class="combo">
+                                        <input id="abilityInput" type="text" placeholder="Escribe habilidad" />
+                                        <div id="abilityMatches" class="combo-list" hidden></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Ataques</label>
+                                <div class="moves">
+                                    <div class="move-field">
+                                        <input class="move-input" type="text" data-slot="0"
+                                            placeholder="Buscar movimiento" />
+                                        <div class="move-list" hidden></div>
+                                    </div>
+                                    <div class="move-field"><input class="move-input" type="text" data-slot="1"
+                                            placeholder="Buscar movimiento" />
+                                        <div class="move-list" hidden></div>
+                                    </div>
+                                    <div class="move-field"><input class="move-input" type="text" data-slot="2"
+                                            placeholder="Buscar movimiento" />
+                                        <div class="move-list" hidden></div>
+                                    </div>
+                                    <div class="move-field"><input class="move-input" type="text" data-slot="3"
+                                            placeholder="Buscar movimiento" />
+                                        <div class="move-list" hidden></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="justify-content:flex-end;margin-top:14px">
+                    <button id="confirmBtn" class="btn btn-primary" disabled>Añadir a mi base</button>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Diálogo: detalles de Pokémon -->
+    <dialog id="detailDialog">
+        <div class="modal">
+            <header>
+                <h2 id="detailTitle" style="margin:0;font-size:18px">Detalles</h2>
+                <div class="spacer"></div>
+                <button id="editDetail" class="btn btn-primary" style="padding:6px 10px">Editar</button>
+                <button id="closeDetail" class="btn" style="padding:6px 10px">Cerrar</button>
+            </header>
+            <div class="content" id="detailContent"></div>
+        </div>
+    </dialog>
+
+
+    <!-- Diálogo: equipo -->
+    <dialog id="teamDialog">
+        <div class="modal">
+            <header>
+                <h2 style="margin:0;font-size:18px">Mi equipo</h2>
+                <div class="spacer"></div>
+                <button id="closeTeam" class="btn" style="padding:6px 10px">Cerrar</button>
+            </header>
+            <div class="content">
+                <div id="teamContent" class="team-list"></div>
+            </div>
+        </div>
+    </dialog>
+
+<!-- Diálogo: mochila -->
+<dialog id="bagDialog" class="bagDialog">
+  <div class="modal modal-mochila">
+    <header>
+      <h2 style="margin:0;font-size:18px">Mochila</h2>
+      <div class="spacer"></div>
+      <button id="closeBag" class="btn" style="padding:6px 10px">Cerrar</button>
+    </header>
+
+    <!-- NUEVO: pestañas -->
+    <nav id="bagTabs" class="bag-tabs" aria-label="Bolsillos de la mochila"></nav>
+
+    <!-- Buscador -->
+    <div class="field">
+      <label>Buscar objeto</label>
+      <div class="combo">
+        <input id="itemSearchInput" type="text" />
+        <div id="itemSearchList" class="combo-list" hidden></div>
+        <input id="itemQtyInput" type="number" min="1" value="1" style="width:80px" />
+        <button id="addToBagBtn" class="btn btn-primary">Añadir a mochila</button>
+      </div>
+    </div>
+
+    <!-- NUEVO: contenedor scrolleable -->
+    <div id="bagScroll" class="bag-scroll">
+      <div id="bagContent"></div>
+    </div>
+  </div>
+</dialog>
+
+
+<script src="items.api.js"></script>
+<script src="bag.module.js"></script>
+
+    <script src="script.js"></script>
+    <script src="fondo.js"></script>
+</body>
+
+ <!-- <script>
+  (async () => {
+    await ItemsAPI.init({ lang: 'es' });
+    // Construye el cache completo y lo guarda en localStorage
+    const resumen = await ItemsAPI.buildAndPersistCache({
+      concurrency: 6, // ajusta si quieres ir más rápido o más lento
+      saveEvery: 50   // guarda cada 50 items para no perder progreso
+    });
+    console.log('Hecho:', resumen);
+    // Puedes leerlo luego así:
+    const dump = JSON.parse(localStorage.getItem('pokeapi_item_cache_v1.json'));
+    console.log('Dump cache:', dump);
+  })();
+</script> -->
+
+
+</html>

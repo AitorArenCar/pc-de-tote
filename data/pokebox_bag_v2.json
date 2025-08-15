@@ -1,0 +1,79 @@
+{
+  "pockets": {
+    "pokeballs": {
+      "1": {
+        "id": "1",
+        "nameEs": "Master Ball",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png"
+      },
+      "4": {
+        "id": "4",
+        "nameEs": "Poké Ball",
+        "qty": 2,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+      }
+    },
+    "medicine": {
+      "17": {
+        "id": "17",
+        "nameEs": "Poción",
+        "qty": 2,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png"
+      },
+      "24": {
+        "id": "24",
+        "nameEs": "Poción Máxima",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-potion.png"
+      },
+      "25": {
+        "id": "25",
+        "nameEs": "Hiperpoción",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hyper-potion.png"
+      },
+      "26": {
+        "id": "26",
+        "nameEs": "Superpoción",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-potion.png"
+      },
+      "31": {
+        "id": "31",
+        "nameEs": "Refresco",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soda-pop.png"
+      },
+      "34": {
+        "id": "34",
+        "nameEs": "Polvo Energía",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/energy-powder.png"
+      },
+      "126": {
+        "id": "126",
+        "nameEs": "Baya Zreza",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/cheri-berry.png"
+      },
+      "130": {
+        "id": "130",
+        "nameEs": "Baya Perasi",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/aspear-berry.png"
+      }
+    },
+    "berries": {},
+    "battle": {
+      "779": {
+        "id": "779",
+        "nameEs": "Bombona Devon",
+        "qty": 1,
+        "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/devon-scuba-gear.png"
+      }
+    },
+    "key": {},
+    "custom": {}
+  }
+}

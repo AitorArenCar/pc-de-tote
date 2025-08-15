@@ -1,0 +1,152 @@
+[
+  {
+    "id": "hardy",
+    "nameEs": "Fuerte",
+    "up": null,
+    "down": null
+  },
+  {
+    "id": "bold",
+    "nameEs": "Osada",
+    "up": "defense",
+    "down": "attack"
+  },
+  {
+    "id": "modest",
+    "nameEs": "Modesta",
+    "up": "special-attack",
+    "down": "attack"
+  },
+  {
+    "id": "calm",
+    "nameEs": "Serena",
+    "up": "special-defense",
+    "down": "attack"
+  },
+  {
+    "id": "timid",
+    "nameEs": "Miedosa",
+    "up": "speed",
+    "down": "attack"
+  },
+  {
+    "id": "lonely",
+    "nameEs": "Huraña",
+    "up": "attack",
+    "down": "defense"
+  },
+  {
+    "id": "docile",
+    "nameEs": "Dócil",
+    "up": null,
+    "down": null
+  },
+  {
+    "id": "mild",
+    "nameEs": "Afable",
+    "up": "special-attack",
+    "down": "defense"
+  },
+  {
+    "id": "gentle",
+    "nameEs": "Amable",
+    "up": "special-defense",
+    "down": "defense"
+  },
+  {
+    "id": "hasty",
+    "nameEs": "Activa",
+    "up": "speed",
+    "down": "defense"
+  },
+  {
+    "id": "adamant",
+    "nameEs": "Firme",
+    "up": "attack",
+    "down": "special-attack"
+  },
+  {
+    "id": "impish",
+    "nameEs": "Agitada",
+    "up": "defense",
+    "down": "special-attack"
+  },
+  {
+    "id": "bashful",
+    "nameEs": "Tímida",
+    "up": null,
+    "down": null
+  },
+  {
+    "id": "careful",
+    "nameEs": "Cauta",
+    "up": "special-defense",
+    "down": "special-attack"
+  },
+  {
+    "id": "rash",
+    "nameEs": "Alocada",
+    "up": "special-attack",
+    "down": "special-defense"
+  },
+  {
+    "id": "jolly",
+    "nameEs": "Alegre",
+    "up": "speed",
+    "down": "special-attack"
+  },
+  {
+    "id": "naughty",
+    "nameEs": "Pícara",
+    "up": "attack",
+    "down": "special-defense"
+  },
+  {
+    "id": "lax",
+    "nameEs": "Floja",
+    "up": "defense",
+    "down": "special-defense"
+  },
+  {
+    "id": "quirky",
+    "nameEs": "Rara",
+    "up": null,
+    "down": null
+  },
+  {
+    "id": "naive",
+    "nameEs": "Ingenua",
+    "up": "speed",
+    "down": "special-defense"
+  },
+  {
+    "id": "brave",
+    "nameEs": "Audaz",
+    "up": "attack",
+    "down": "speed"
+  },
+  {
+    "id": "relaxed",
+    "nameEs": "Plácida",
+    "up": "defense",
+    "down": "speed"
+  },
+  {
+    "id": "quiet",
+    "nameEs": "Mansa",
+    "up": "special-attack",
+    "down": "speed"
+  },
+  {
+    "id": "sassy",
+    "nameEs": "Grosera",
+    "up": "special-defense",
+    "down": "speed"
+  },
+  {
+    "id": "serious",
+    "nameEs": "Seria",
+    "up": null,
+    "down": null
+  }
+]

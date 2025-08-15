@@ -1,0 +1,934 @@
+:root {
+    --bg: #0b1020;
+    --card: #121a33;
+    --muted: #8ea3c6;
+    --ring: #3b82f6;
+    --ok: #34d399;
+    --bad: #f87171;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: linear-gradient(180deg, #0b1020 0%, #0f1b3a 100%);
+    color: #e6eefb;
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px clamp(12px, 3vw, 28px);
+    background-color: #0b1020;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+h1 {
+    font-size: clamp(18px, 2.8vw, 26px);
+    margin: 0;
+    font-weight: 700;
+}
+
+.spacer {
+    flex: 1
+}
+
+button,
+.btn {
+    background: #1a2448;
+    color: #e6eefb;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .05s ease, background .2s ease
+}
+
+button:hover {
+    background: #223066
+}
+
+button:active {
+    transform: translateY(1px)
+}
+
+.btn-primary {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, .25) inset
+}
+
+.hidden-input {
+    display: none
+}
+
+
+main {
+    padding: 18px clamp(12px, 3vw, 28px) 32px;
+}
+
+main {
+  background-image: var(--app-bg-image);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  background-attachment: fixed; /* opcional */
+}
+
+
+.empty {
+    opacity: .7;
+    text-align: center;
+    padding: 40px 8px;
+    border: 2px dashed rgba(255, 255, 255, .12);
+    border-radius: 16px
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px
+}
+
+.poke {
+    background: var(--card);
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 16px;
+    padding: 10px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1/1;
+    cursor: pointer
+}
+
+.poke img {
+    width: 72px;
+    height: 72px;
+    image-rendering: pixelated
+}
+
+.poke .tag {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    background: rgba(255, 255, 255, .06);
+    padding: 3px 6px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .1)
+}
+
+.poke .name {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    text-align: center;
+    font-size: 12px;
+    opacity: .85
+}
+
+.del {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    background: transparent;
+    border: none;
+    color: #e53935;
+    cursor: pointer;
+    font-size: 16px
+}
+
+/* Botón en la carta (posicionamiento y base) */
+.team {
+    position: absolute;
+    top: 0px;
+    right: 30px;
+    height: 41px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    background: transparent;
+    /* fondo del botón transparente */
+    color: #333;
+    /* color base (afecta al trazo del SVG) */
+}
+
+.team-no {
+    /* fuera del equipo */
+}
+
+.team-si {
+    /* en equipo */
+}
+
+/* SVG base */
+.pokeicon {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+/* contornos de la pokéball: siempre negros */
+.pokeicon .poke-stroke {
+    fill: none;
+    stroke: #858585;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* capa de relleno: transparente por defecto */
+.pokeicon .poke-fill {
+    fill: transparent;
+    transition: fill 160ms ease;
+}
+
+/* cuando está en el equipo, relleno rojo */
+.team-si .pokeicon .poke-fill {
+    fill: #e53935;
+    /* rojo */
+}
+
+.team-si .pokeicon .poke-stroke {
+    stroke: #fff;
+}
+
+
+
+
+/* Dialog base */
+dialog {
+    width: 90vw;
+    max-width: 1000px;
+    border: none;
+    padding: 0;
+    border-radius: 16px;
+    overflow: hidden
+}
+
+dialog::backdrop {
+    background: rgba(5, 10, 25, .6)
+}
+
+.modal {
+    background: #0e1631;
+    color: #e6eefb;
+    min-width: min(675px, 85vw);
+    border: 1px solid rgba(255, 255, 255, .12)
+}
+
+.modal header {
+    border: none;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center
+}
+
+.modal .content {
+    padding: 0 16px 16px
+}
+
+.linklike {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+.linklike:hover { text-decoration: underline; }
+
+
+.field {
+    display: grid;
+    gap: 6px;
+    margin: 10px 0 14px
+}
+
+label {
+    font-size: 13px;
+    color: var(--muted)
+}
+
+input[type=number]{
+    width: 50px;
+}
+
+input[type=text],
+input[type=number],
+select {
+    background: #0b1330;
+    color: #e6eefb;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 12px;
+    padding: 10px 12px;
+    outline: none
+}
+
+input[type=text]:focus,
+input[type=number]:focus,
+select:focus {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .25)
+}
+
+.row {
+    display: flex;
+    gap: 10px;
+    align-items: center
+}
+
+.result {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 12px;
+    align-items: center;
+    background: #0b1330;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 12px;
+    padding: 10px
+}
+
+.chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap
+}
+
+.chip {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 255, 255, .1)
+}
+
+.muted {
+    color: var(--muted);
+    font-size: 12px
+}
+
+.matches {
+    margin-top: 8px;
+    max-height: 260px;
+    overflow: auto;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 12px
+}
+
+.matches button {
+    width: 100%;
+    text-align: left;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, .06)
+}
+
+.matches button:last-child {
+    border-bottom: none
+}
+
+.matches button:hover {
+    background: rgba(255, 255, 255, .06)
+}
+
+/* Línea de nombre + iconos en detalle */
+.name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.name-row .pkname {
+    margin-right: 2px;
+}
+
+/* Icono de la Poké Ball (imagen) */
+.ball-icon {
+    width: 45px;
+    height: 45px;
+    image-rendering: pixelated;
+    /* opcional, por estilo retro de esos sprites */
+}
+
+/* Reutilizamos el mismo SVG que en los botones, pero como "icono" estático */
+.team-icon {
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+}
+
+/* contornos de la pokéball: siempre negros */
+.team-icon .poke-stroke {
+    fill: none;
+    stroke: #858585;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* capa de relleno: transparente por defecto */
+.team-icon .poke-fill {
+    fill: transparent;
+    transition: fill 160ms ease, fill-opacity 160ms ease;
+}
+
+/* cuando está en el equipo, relleno rojo */
+.team-si .pokeicon .poke-fill,
+.team-icon.team-si .poke-fill {
+    fill: #e53935;
+}
+
+
+/* Autocompletados */
+.moves {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px
+}
+
+.move-field {
+    position: relative
+}
+
+.combo {
+    position: relative;
+}
+
+.move-list,
+.combo-list {
+    padding: 5px;
+    list-style: none;
+    position: absolute;
+    z-index: 20;
+    left: 0;
+    right: 0;
+    top: calc(100% + 4px);
+    background: #0b1020;
+    color: var(--muted);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 10px;
+    max-height: 60px;
+    overflow: auto
+}
+
+.move-list button,
+.combo-list button {
+    width: 100%;
+    text-align: left;
+    padding: 8px 10px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, .06)
+}
+
+.combo-list .combo-item:hover{
+    background-color: #0f1b3a;
+    color: #fff;
+}
+.combo-list .combo-item{
+    font-size: 13px;
+}
+
+
+.move-list button:last-child,
+.combo-list button:last-child {
+    border-bottom: none
+}
+
+.move-list button:hover,
+.combo-list button:hover {
+    background: rgba(255, 255, 255, .06)
+}
+
+/* Extras layout */
+.extras {
+    margin-top: 16px;
+}
+
+.extras-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 18px;
+    align-items: start
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 8px
+}
+
+.stat {
+    display: grid;
+    gap: 6px
+}
+
+.grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px
+}
+
+.grid3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px
+}
+
+/* Detalle */
+#addDialog{
+    overflow-y: scroll;
+}
+
+.detail-head {
+    display: grid;
+    grid-template-columns: 120px 1fr 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 8px
+}
+
+.detail-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px
+}
+
+.detail-main-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-extra-info {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    margin-left: 10px;
+}
+
+.detail-extra-info .small {
+    margin: 4px 0;
+}
+
+
+.stat-badge {
+    width: 80px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 255, 255, .1)
+}
+
+.plus {
+    color: var(--ok);
+    font-weight: 700
+}
+
+.minus {
+    color: var(--bad);
+    font-weight: 700
+}
+
+.small {
+    font-size: 12px;
+    color: var(--muted)
+}
+
+.chip.type-chip {
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+
+.hp-box{
+  margin-top: 8px;
+  background: #0b1330;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.hp-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.hp-bar{
+  position:relative;
+  flex:1;
+  height:10px;
+  background: rgba(255,255,255,.08);
+  border-radius:999px;
+  overflow:hidden;
+  min-width:140px;
+}
+
+.hp-fill{
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:0%;
+  background: linear-gradient(90deg,#34d399,#3b82f6);
+}
+
+.hp-num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.hp-ctrl{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.hp-ctrl input[type=number]{
+  width:72px;
+}
+
+
+/* Lista del equipo en el diálogo */
+.team-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  max-width: calc(140px * 6 + 12px * 5); /* 6 columnas + espacios */
+  margin: 0 auto; /* centrar si hay menos columnas */
+  gap: 12px;
+  padding-top: 6px;
+}
+
+
+.team-item{
+  display: grid;
+  grid-template-rows: auto auto;
+  align-items: center;
+  justify-items: center;
+  gap: 6px;
+  padding: 10px;
+  background: #0b1330;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  cursor: pointer;
+  color: inherit;
+}
+
+.team-item:hover{
+  background: rgba(255,255,255,.06);
+}
+
+.team-item img{
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+}
+
+.team-name{
+  font-weight: 700;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* === Detalle: layout principal con stats a la derecha === */
+.detail-grid {
+  display: flex;
+  flex-direction: column; /* todo en una sola columna */
+  gap: 12px;
+}
+
+.detail-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-start; /* pegadas a la izquierda */
+}
+
+/* Cabecera del detalle: info izquierda / stats derecha */
+.detail-top {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-main-info {
+    text-align: center;
+}
+
+.name-row-header {
+    display: flex;
+    align-items: center;
+}
+
+.chips {
+    margin-top: 6px;
+}
+
+.name-row-info {
+    display: flex;
+    margin-top: 14px;
+    width: 100%;
+}
+
+.name-row-info-left, .name-row-info-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.name-row-info-left {
+    margin-right: 20px;
+}
+
+.small {
+    margin: 4px 0;
+}
+
+.moves-grid {
+    margin-top: 20px;
+}
+
+.move-card {
+    margin-bottom: 16px;
+}
+
+.move-card header {
+    padding: 10px;
+    background-color: #eee;
+}
+
+
+.detail-top .detail-main-info {
+  flex: 1; /* que la info use el espacio restante */
+}
+
+.detail-top .detail-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* dos columnas internas */
+  gap: 8px 12px;
+}
+
+
+/* Sección de ataques: dos columnas como en los juegos */
+.moves-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:12px;
+  margin-top:12px;
+}
+
+.move-card{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  overflow:hidden;
+  background:#0b1330;
+}
+
+/* Cabecera del ataque: color dinámico inline; aquí solo tipografía/espaciado */
+.move-card header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 12px;
+  font-weight:800;
+  font-size:14px;
+}
+
+.move-type-tag{
+  font-size:12px;
+  font-weight:700;
+  padding:2px 8px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.15);
+}
+
+.move-body{
+  padding:10px 12px;
+  display:grid;
+  gap:8px;
+}
+
+.move-desc{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.35;
+}
+
+.move-meta{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap:8px 12px;
+  font-size:12px;
+}
+.move-meta b{ font-weight:800; }
+
+
+/* ==mochila == */
+.bagDialog{
+    overflow-y: scroll;
+}
+
+.modal-mochila{
+    padding: 15px;
+}
+
+.bag-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:12px;
+}
+
+.bag-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  background:#0b1330;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  padding:10px;
+}
+.bag-item .name small{
+  font-weight:100;
+}
+.bag-item .name{
+  font-weight:700;
+}
+.bag-ctrl{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.badge{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  padding:2px 8px;
+  font-size:12px;
+}
+.heal-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin:8px 0 0;
+}
+
+/* dialog con clase (ahora sí aplicada) */
+.bagDialog { overflow: hidden; }
+
+/* la tarjeta de la mochila: columna + altura máxima */
+.modal-mochila{
+  display:flex;
+  flex-direction:column;
+  padding:15px;
+  max-height:80vh; /* evita que se salga de la pantalla */
+}
+
+/* el área que crecerá y hará scroll */
+.bag-scroll{
+  flex:1;
+  overflow:auto;      /* <- aquí el scroll */
+  padding-top:8px;
+}
+
+/* pestañas de bolsillos */
+.bag-tabs{
+  display:flex;
+  gap:8px;
+  padding:6px 0 8px;
+  overflow:auto;
+}
+.bag-tab{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border:1px solid rgba(255,255,255,.12);
+  background:#0b1330;
+  border-radius:999px;
+  font-size:12px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.bag-tab[aria-selected="true"]{
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px rgba(59,130,246,.25) inset;
+}
+.bag-tab .badge{
+  margin-left:2px;
+}
+
+
+/* Carta para añadir */
+.poke.add-card{
+  background: transparent;
+  border: 2px dashed rgba(255,255,255,.18);
+  outline: none;
+}
+.poke.add-card:hover{
+  background: rgba(255,255,255,.04);
+}
+.add-plus{
+  font-size: 56px;
+  line-height: 1;
+  opacity: .7;
+  user-select: none;
+}
+.add-label{
+  position: absolute;
+  bottom: 10px;
+  left: 8px; right: 8px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* --- Status dropdown --- */
+.status-wrap{ position:relative; }
+.status{ cursor:pointer; user-select:none; }
+.status:after{ content:"▾"; margin-left:6px; font-size:10px; color:var(--muted); }
+
+.status-menu{
+  position:absolute; right:0; top:calc(100% + 6px);
+  background:#0b1330; border:1px solid rgba(255,255,255,.12);
+  border-radius:12px; padding:6px; min-width:220px; z-index:10;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+.menu-item{
+  display:block; width:100%; text-align:left; background:transparent; border:none;
+  padding:10px 12px; border-radius:10px; color:#e6eefb; font-weight:600; cursor:pointer;
+}
+.menu-item:hover{ background:rgba(255,255,255,.06); }
+.menu-sep{ height:1px; background:rgba(255,255,255,.08); margin:6px; }
+.menu-item.danger{ color:#f87171; }
+
+/* Ocultar controles sueltos del header que pasan al menú */
+#openBtn, #saveBtn, #bgBtn, #bgClearBtn { display:none; }
+
+

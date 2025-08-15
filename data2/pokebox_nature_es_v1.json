@@ -1,0 +1,127 @@
+{
+  "hardy": {
+    "nameEs": "Fuerte",
+    "up": null,
+    "down": null
+  },
+  "bold": {
+    "nameEs": "Osada",
+    "up": "defense",
+    "down": "attack"
+  },
+  "modest": {
+    "nameEs": "Modesta",
+    "up": "special-attack",
+    "down": "attack"
+  },
+  "calm": {
+    "nameEs": "Serena",
+    "up": "special-defense",
+    "down": "attack"
+  },
+  "timid": {
+    "nameEs": "Miedosa",
+    "up": "speed",
+    "down": "attack"
+  },
+  "lonely": {
+    "nameEs": "Huraña",
+    "up": "attack",
+    "down": "defense"
+  },
+  "docile": {
+    "nameEs": "Dócil",
+    "up": null,
+    "down": null
+  },
+  "mild": {
+    "nameEs": "Afable",
+    "up": "special-attack",
+    "down": "defense"
+  },
+  "gentle": {
+    "nameEs": "Amable",
+    "up": "special-defense",
+    "down": "defense"
+  },
+  "hasty": {
+    "nameEs": "Activa",
+    "up": "speed",
+    "down": "defense"
+  },
+  "adamant": {
+    "nameEs": "Firme",
+    "up": "attack",
+    "down": "special-attack"
+  },
+  "impish": {
+    "nameEs": "Agitada",
+    "up": "defense",
+    "down": "special-attack"
+  },
+  "bashful": {
+    "nameEs": "Tímida",
+    "up": null,
+    "down": null
+  },
+  "careful": {
+    "nameEs": "Cauta",
+    "up": "special-defense",
+    "down": "special-attack"
+  },
+  "rash": {
+    "nameEs": "Alocada",
+    "up": "special-attack",
+    "down": "special-defense"
+  },
+  "jolly": {
+    "nameEs": "Alegre",
+    "up": "speed",
+    "down": "special-attack"
+  },
+  "naughty": {
+    "nameEs": "Pícara",
+    "up": "attack",
+    "down": "special-defense"
+  },
+  "lax": {
+    "nameEs": "Floja",
+    "up": "defense",
+    "down": "special-defense"
+  },
+  "quirky": {
+    "nameEs": "Rara",
+    "up": null,
+    "down": null
+  },
+  "naive": {
+    "nameEs": "Ingenua",
+    "up": "speed",
+    "down": "special-defense"
+  },
+  "brave": {
+    "nameEs": "Audaz",
+    "up": "attack",
+    "down": "speed"
+  },
+  "relaxed": {
+    "nameEs": "Plácida",
+    "up": "defense",
+    "down": "speed"
+  },
+  "quiet": {
+    "nameEs": "Mansa",
+    "up": "special-attack",
+    "down": "speed"
+  },
+  "sassy": {
+    "nameEs": "Grosera",
+    "up": "special-defense",
+    "down": "speed"
+  },
+  "serious": {
+    "nameEs": "Seria",
+    "up": null,
+    "down": null
+  }
+}

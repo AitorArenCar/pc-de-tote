@@ -1,0 +1,333 @@
+[
+  {
+    "id": "c9f29949-bd36-4d95-991c-301652152ee3",
+    "inTeam": true,
+    "dexId": 132,
+    "name": "ditto",
+    "types": [
+      "normal"
+    ],
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/132.png",
+    "moves": [
+      {
+        "id": "transform",
+        "nameEs": "Transformación"
+      }
+    ],
+    "ball": {
+      "id": "premier-ball",
+      "nameEs": "Honor Ball"
+    },
+    "nature": {
+      "id": "quiet",
+      "nameEs": "Mansa",
+      "up": "special-attack",
+      "down": "speed"
+    },
+    "gender": "unknown",
+    "ability": {
+      "id": "limber",
+      "nameEs": "Flexibilidad"
+    },
+    "stats": {
+      "hp": 3,
+      "atk": 3,
+      "def": 3,
+      "spa": 4,
+      "spd": 3,
+      "spe": 2
+    },
+    "num": null,
+    "nickname": null,
+    "level": 10,
+    "height": 3,
+    "weight": 40,
+    "hpCurrent": 23
+  },
+  {
+    "id": "201f2e9c-70ad-4dc0-8211-f08891d3f656",
+    "inTeam": true,
+    "dexId": 574,
+    "name": "gothita",
+    "types": [
+      "psychic"
+    ],
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/574.png",
+    "moves": [
+      {
+        "id": "pound",
+        "nameEs": "Destructor"
+      },
+      {
+        "id": "confusion",
+        "nameEs": "Confusión"
+      },
+      {
+        "id": "play-nice",
+        "nameEs": "Camaradería"
+      },
+      {
+        "id": "tickle",
+        "nameEs": "Cosquillas"
+      }
+    ],
+    "ball": {
+      "id": "poke-ball",
+      "nameEs": "Poké Ball"
+    },
+    "nature": {
+      "id": "careful",
+      "nameEs": "Cauta",
+      "up": "special-defense",
+      "down": "special-attack"
+    },
+    "gender": "male",
+    "ability": {
+      "id": "competitive",
+      "nameEs": "Tenacidad"
+    },
+    "stats": {
+      "hp": 3,
+      "atk": 2,
+      "def": 3,
+      "spa": 3,
+      "spd": 5,
+      "spe": 3
+    },
+    "num": "701",
+    "nickname": null,
+    "level": 10,
+    "height": 4,
+    "weight": 58,
+    "hpCurrent": 23
+  },
+  {
+    "id": "cb07e344-48cf-46b0-9977-8e7c85b53039",
+    "inTeam": true,
+    "dexId": 610,
+    "name": "axew",
+    "types": [
+      "dragon"
+    ],
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/610.png",
+    "moves": [
+      {
+        "id": "bite",
+        "nameEs": "Mordisco"
+      },
+      {
+        "id": "false-swipe",
+        "nameEs": "Falso Tortazo"
+      },
+      {
+        "id": "assurance",
+        "nameEs": "Buena Baza"
+      },
+      {
+        "id": "first-impression",
+        "nameEs": "Escaramuza"
+      }
+    ],
+    "ball": {
+      "id": "poke-ball",
+      "nameEs": "Poké Ball"
+    },
+    "nature": {
+      "id": "modest",
+      "nameEs": "Modesta",
+      "up": "special-attack",
+      "down": "attack"
+    },
+    "gender": "female",
+    "ability": {
+      "id": "mold-breaker",
+      "nameEs": "Rompemoldes"
+    },
+    "stats": {
+      "hp": 3,
+      "atk": 5,
+      "def": 4,
+      "spa": 3,
+      "spd": 3,
+      "spe": 4
+    },
+    "num": null,
+    "nickname": null,
+    "level": 10,
+    "height": 6,
+    "weight": 180,
+    "hpCurrent": 23
+  },
+  {
+    "id": "d12855a2-6499-4a13-aaec-7e3d309ce057",
+    "inTeam": true,
+    "dexId": 656,
+    "name": "froakie",
+    "types": [
+      "water"
+    ],
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/656.png",
+    "moves": [
+      {
+        "id": "growl",
+        "nameEs": "Gruñido"
+      },
+      {
+        "id": "water-gun",
+        "nameEs": "Pistola Agua"
+      },
+      {
+        "id": "quick-attack",
+        "nameEs": "Ataque Rápido"
+      },
+      {
+        "id": "lick",
+        "nameEs": "Lengüetazo"
+      }
+    ],
+    "ball": {
+      "id": "poke-ball",
+      "nameEs": "Poké Ball"
+    },
+    "nature": {
+      "id": "naive",
+      "nameEs": "Ingenua",
+      "up": "speed",
+      "down": "special-defense"
+    },
+    "gender": "female",
+    "ability": {
+      "id": "protean",
+      "nameEs": "Mutatipo"
+    },
+    "stats": {
+      "hp": 3,
+      "atk": 4,
+      "def": 3,
+      "spa": 4,
+      "spd": 2,
+      "spe": 6
+    },
+    "num": "792",
+    "nickname": null,
+    "level": 10,
+    "height": 3,
+    "weight": 70,
+    "hpCurrent": 23
+  },
+  {
+    "id": "880fe7e8-6d8d-4240-ae25-1a630221bb7c",
+    "inTeam": true,
+    "dexId": 674,
+    "name": "pancham",
+    "types": [
+      "fighting"
+    ],
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/674.png",
+    "moves": [
+      {
+        "id": "tackle",
+        "nameEs": "Placaje"
+      },
+      {
+        "id": "arm-thrust",
+        "nameEs": "Empujón"
+      },
+      {
+        "id": "taunt",
+        "nameEs": "Mofa"
+      },
+      {
+        "id": "power-trip",
+        "nameEs": "Chulería"
+      }
+    ],
+    "ball": {
+      "id": "poke-ball",
+      "nameEs": "Poké Ball"
+    },
+    "nature": {
+      "id": "jolly",
+      "nameEs": "Alegre",
+      "up": "speed",
+      "down": "special-attack"
+    },
+    "gender": "female",
+    "ability": {
+      "id": "mold-breaker",
+      "nameEs": "Rompemoldes"
+    },
+    "stats": {
+      "hp": 4,
+      "atk": 5,
+      "def": 4,
+      "spa": 2,
+      "spd": 3,
+      "spe": 4
+    },
+    "num": "811",
+    "nickname": null,
+    "level": 10,
+    "height": 6,
+    "weight": 80,
+    "hpCurrent": 24
+  },
+  {
+    "id": "1ca03b7d-e13e-4cba-99d8-609024c7df32",
+    "inTeam": true,
+    "dexId": 877,
+    "name": "morpeko-full-belly",
+    "types": [
+      "electric",
+      "dark"
+    ],
+    "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/877.png",
+    "moves": [
+      {
+        "id": "thunder-shock",
+        "nameEs": "Impactrueno"
+      },
+      {
+        "id": "tail-whip",
+        "nameEs": "Látigo"
+      },
+      {
+        "id": "leer",
+        "nameEs": "Malicioso"
+      },
+      {
+        "id": "power-trip",
+        "nameEs": "Chulería"
+      }
+    ],
+    "ball": {
+      "id": "poke-ball",
+      "nameEs": "Poké Ball"
+    },
+    "nature": {
+      "id": "lonely",
+      "nameEs": "Huraña",
+      "up": "attack",
+      "down": "defense"
+    },
+    "gender": "female",
+    "ability": {
+      "id": "hunger-switch",
+      "nameEs": "Mutapetito"
+    },
+    "stats": {
+      "hp": 4,
+      "atk": 7,
+      "def": 3,
+      "spa": 5,
+      "spd": 4,
+      "spe": 6
+    },
+    "num": "1059",
+    "nickname": "Morpaca",
+    "level": 11,
+    "height": 3,
+    "weight": 30,
+    "hpCurrent": 26
+  }
+]
