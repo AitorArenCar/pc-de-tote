@@ -932,3 +932,20 @@ select:focus {
 #openBtn, #saveBtn, #bgBtn, #bgClearBtn { display:none; }
 
 
+@media (max-width: 600px) {
+  header {
+    flex-wrap: wrap;
+    gap: 8px; /* un poco menos de espacio entre elementos */
+  }
+
+  header h1 {
+    flex-basis: 100%; /* que el título ocupe toda la primera línea */
+    text-align: center; /* centrado si quieres */
+  }
+
+  header button,
+  header .status-wrap {
+    flex: 1; /* que se repartan el espacio disponible */
+    min-width: 45%; /* para que no se aplasten demasiado */
+  }
+}
