@@ -1394,6 +1394,18 @@ async function ensureNatureIndex() {
         }).join('');
 
         // Detalles de movimientos
+        // función auxiliar (puedes ponerla arriba de showDetails o dentro)
+function calcDamageTier(power) {
+  if (power == null || power === '—') return '—'; // movimientos de daño fijo
+  if (power <= 50) return 1;
+  if (power <= 79) return 2;
+  if (power <= 99) return 3;
+  if (power <= 119) return 4;
+  if (power <= 140) return 5;
+  if (power <= 200) return 6;
+  return 7; // 201+
+}
+
         const movePacks = [];
         const moves = (p.moves || []).slice(0, 4);
         for (const m of moves) {
@@ -1419,8 +1431,8 @@ async function ensureNatureIndex() {
             const mmeta = TYPE_META[mp.type] || {};
             const bg = mmeta.bg || 'rgba(255,255,255,.06)';
             const fg = mmeta.fg || '#e6eefb';
-            const pp = mp.pp > 5 ? 'inf' : mp.pp;
-            const damage = mp.power !== '—' ? Math.floor(mp.power / 50) + 1 : '—';
+const pp = mp.pp > 5 ? 'inf' : mp.pp;
+const damage = calcDamageTier(mp.power);
             return `
       <div class="move-card">
         <header style="background:${bg};color:${fg}">
