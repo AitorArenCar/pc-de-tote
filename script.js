@@ -84,7 +84,7 @@
     let natureIdList = null; // ['adamant','timid',...]
 
     window.Bag?.init?.();
-
+    window.POKE_INDEX = new Map();
 
     // ===== UI REFS =====
     const $grid = document.getElementById('grid');
@@ -339,131 +339,118 @@
     }
 
 
-    // ===== Render caja =====
-    function render() {
-        $grid.innerHTML = '';
-        if (!db.length) {
-            $empty.hidden = false;
-            updateTeamBtnLabel();
-            return;
-        }
-        $empty.hidden = true;
+// ===== Render caja =====
+function render() {
+  $grid.innerHTML = '';
+  if (!db.length) {
+    $empty.hidden = false;
+    updateTeamBtnLabel();
+    return;
+  }
+  $empty.hidden = true;
 
+  for (const p of db) {
+    // Asegura EXP/Nv y indexa para refrescos inline
+    ensureExpFields?.(p);
+    window.POKE_INDEX?.set(p.id, p);
 
-        for (const p of db) {
-            const card = document.createElement('div');
-            card.className = 'poke';
-            const typesEs = (p.types || []).map(typeEs).join(' / ');
-            card.title = `#${p.dexId} · ${cap(p.name)} ( ${typesEs} )`;
+    const card = document.createElement('div');
+    card.className = 'poke';
+    card.setAttribute('data-pid', p.id);   // <-- para refrescar nivel en vivo
 
-            const img = document.createElement('img');
-            img.alt = p.name;
-            img.loading = 'lazy';
-            img.src = p.sprite || '';
+    const typesEs = (p.types || []).map(typeEs).join(' / ');
+    card.title = `#${p.dexId} · ${cap(p.name)} ( ${typesEs} )`;
 
-            const tag = document.createElement('div');
-            tag.className = 'tag';
-            tag.textContent = (p.num && String(p.num).length) ? p.num : `#${p.dexId}`;
-            tag.title = 'Doble clic para editar número personal';
-            tag.addEventListener('dblclick', (ev) => {
-                ev.stopPropagation();
-                const current = p.num ?? '';
-                const next = prompt('Nuevo número personal (deja vacío para quitarlo):', current);
-                if (next === null) return;
-                const clean = (next || '').trim();
-                p.num = clean.length ? clean : null;
-                setDirty(true);
-                render();
-            });
+    const img = document.createElement('img');
+    img.alt = p.name;
+    img.loading = 'lazy';
+    img.src = p.sprite || '';
 
-            const name = document.createElement('div');
-            name.className = 'name';
+    const tag = document.createElement('div');
+    tag.className = 'tag';
+    tag.textContent = (p.num && String(p.num).length) ? p.num : `#${p.dexId}`;
+    tag.title = 'Doble clic para editar número personal';
+    tag.addEventListener('dblclick', (ev) => {
+      ev.stopPropagation();
+      const current = p.num ?? '';
+      const next = prompt('Nuevo número personal (deja vacío para quitarlo):', current);
+      if (next === null) return;
+      const clean = (next || '').trim();
+      p.num = clean.length ? clean : null;
+      setDirty(true);
+      render();
+    });
 
-            // Mote o nombre oficial
-            let displayName = p.nickname?.trim() ? p.nickname : cap(p.name);
+    const name = document.createElement('div');
+    name.className = 'name';
 
-            // Nivel
-            if (p.level) {
-                displayName += `  Nv.: ${p.level}`;
-            }
+    // Mote o nombre oficial
+    const baseName = p.nickname?.trim() ? p.nickname : cap(p.name);
 
-            // Género
-            if (p.gender === 'male') {
-                displayName += ' ♂️';
-            } else if (p.gender === 'female') {
-                displayName += ' ♀️';
-            }
+    // Nivel (envuelto para refresco inline)
+    const levelHtml = (typeof p.level === 'number' && !isNaN(p.level))
+      ? `  Nv.: <span class="poke-level">${p.level}</span>`
+      : '';
 
-            name.textContent = displayName;
+    // Género
+    const genderSymbol =
+      p.gender === 'male'   ? ' ♂️' :
+      p.gender === 'female' ? ' ♀️' : '';
 
+    // Importante: usar innerHTML para que el span de nivel exista en el DOM
+    name.innerHTML = `${baseName}${levelHtml}${genderSymbol}`;
 
-            // Botón equipo (solo clases; sin estilos inline)
-            const tbtn = document.createElement('button');
-            tbtn.className = p.inTeam ? 'team team-si' : 'team team-no';
-            tbtn.title = p.inTeam ? 'Quitar del equipo' : 'Añadir al equipo';
-            tbtn.setAttribute('aria-label', p.inTeam ? 'Quitar del equipo' : 'Añadir al equipo');
+    // Botón equipo (solo clases; sin estilos inline)
+    const tbtn = document.createElement('button');
+    tbtn.className = p.inTeam ? 'team team-si' : 'team team-no';
+    tbtn.title = p.inTeam ? 'Quitar del equipo' : 'Añadir al equipo';
+    tbtn.setAttribute('aria-label', p.inTeam ? 'Quitar del equipo' : 'Añadir al equipo');
 
-            // Icono pokéball (el relleno se controla por CSS)
-            tbtn.innerHTML = `
+    // Icono pokéball (el relleno se controla por CSS)
+    tbtn.innerHTML = `
 <svg class="pokeicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-  <!-- capa de relleno: transparente por defecto; se llena en .team-si -->
-  <circle class="poke-fill" cx="12" cy="12" r="9"/>
-  <!-- contornos -->
-  <circle class="poke-stroke" cx="12" cy="12" r="9"/>
-  <path class="poke-stroke" d="M3 12h7"/>
-  <path class="poke-stroke" d="M14 12h7"/>
-  <circle class="poke-stroke" cx="12" cy="12" r="3"/>
+  <circle class="poke-fill" cx="12" cy="12" r="9"></circle>
+  <circle class="poke-stroke" cx="12" cy="12" r="9"></circle>
+  <path class="poke-stroke" d="M3 12h7"></path>
+  <path class="poke-stroke" d="M14 12h7"></path>
+  <circle class="poke-stroke" cx="12" cy="12" r="3"></circle>
 </svg>
 `;
+    tbtn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      toggleTeam(p);
+    });
 
-            tbtn.addEventListener('click', (ev) => {
-                ev.stopPropagation();
-                toggleTeam(p);
-            });
+    const del = document.createElement('button');
+    del.className = 'del';
+    del.setAttribute('aria-label', 'Eliminar');
+    del.innerHTML = '✕';
+    del.addEventListener('click', (ev) => {
+      ev.stopPropagation();
 
+      // Confirm con nombre+nivel+género actualizados
+      const displayName =
+        (p.nickname?.trim() ? p.nickname : cap(p.name)) +
+        (typeof p.level === 'number' ? ` Nv.: ${p.level}` : '') +
+        (p.gender === 'male' ? ' ♂️' : p.gender === 'female' ? ' ♀️' : '');
 
-            const del = document.createElement('button');
-            del.className = 'del';
-            del.setAttribute('aria-label', 'Eliminar');
-            del.innerHTML = '✕';
+      if (confirm(`¿Eliminar ${displayName}?`)) {
+        db = db.filter(x => x.id !== p.id);
+        setDirty(true);
+        render();
+      }
+    });
 
+    card.addEventListener('click', () => showDetails(p));
+    card.style.position = 'relative';
+    card.append(tag, img, name, tbtn, del);
+    $grid.appendChild(card);
+  }
 
+  appendAddCard();
+  updateTeamBtnLabel();
+}
 
-            del.addEventListener('click', (ev) => {
-                ev.stopPropagation();
-                // Mote o nombre oficial
-                let displayName = p.nickname?.trim() ? p.nickname : cap(p.name);
-
-                // Nivel
-                if (p.level) {
-                    displayName += ` Nv.: ${p.level}`;
-                }
-
-                // Género
-                if (p.gender === 'male') {
-                    displayName += ' ♂️';
-                } else if (p.gender === 'female') {
-                    displayName += ' ♀️';
-                }
-
-                name.textContent = displayName;
-
-                if (confirm(`¿Eliminar ${displayName}?`)) {
-                    db = db.filter(x => x.id !== p.id);
-                    setDirty(true);
-                    render();
-                }
-            });
-
-            card.addEventListener('click', () => showDetails(p));
-            card.style.position = 'relative'; // (si quieres, puedes mover esto a CSS)
-            card.append(tag, img, name, tbtn, del);
-            $grid.appendChild(card);
-        }
-
-        appendAddCard();
-        updateTeamBtnLabel();
-    }
 
     const $bagBtn = document.getElementById('bagBtn');
     if ($bagBtn) $bagBtn.addEventListener('click', () => {
@@ -1357,12 +1344,17 @@ async function ensureNatureIndex() {
     }
 
     async function showDetails(p) {
+
+  // asegura campos EXP/Nivel y lo indexa
+  ensureExpFields(p);
+  window.POKE_INDEX?.set(p.id, p);
+
         // Nombre mostrado (mote/nombre + nivel/género)
-        let displayName = p.nickname?.trim() ? p.nickname : cap(p.name);
-        if (p.level) displayName += `  Nv.: ${p.level}`;
-        if (p.gender === 'male') displayName += ' ♂️';
-        else if (p.gender === 'female') displayName += ' ♀️';
-        $detailTitle.textContent = displayName;
+  let displayName = p.nickname?.trim() ? p.nickname : cap(p.name);
+  if (p.gender === 'male')   displayName += ' ♂️';
+  else if (p.gender === 'female') displayName += ' ♀️';
+  $detailTitle.innerHTML = `${displayName} <span class="chip">Nv. <span class="detail-level detail-level-title">${p.level}</span></span>`;
+
 
         const natUp = p.nature?.up || null, natDown = p.nature?.down || null;
         const natName = p.nature?.nameEs || '—';
@@ -1493,7 +1485,7 @@ const damage = calcDamageTier(mp.power);
               <span class="muted">#${p.dexId}</span>
               ${ballHtml}
               ${teamHtml}
-            </div>
+            </div>${renderExpBlock(p)}
             <div class="chips" style="margin-top:6px">${(p.types || []).map(typeChip).join('')}</div>
             ${hpSection}
             <div class="name-row-info">
@@ -1528,6 +1520,10 @@ const damage = calcDamageTier(mp.power);
       ${moveCards || ''}
     </div>
   `;
+
+  // marca el detalle con el id para refrescos
+  $detailContent.setAttribute('data-pid', p.id);
+
 
         // --- Lógica de la barra de vida y curación ---
         const box = $detailContent.querySelector('.hp-box');
@@ -1808,6 +1804,239 @@ $detailDialog.showModal();
         redrawHpUI();
     }
 
+// === EXP helpers ===
+// Asegura que el Pokémon tenga campos de EXP consistentes al cargar/crear
+function ensureExpFields(p) {
+  if (typeof p.exp !== 'number' || isNaN(p.exp)) p.exp = 0;
+  // expMax fijo en 10 por tu regla; se puede omitir si no lo quieres persistir
+  if (typeof p.expMax !== 'number' || isNaN(p.expMax)) p.expMax = 10;
+  if (typeof p.level !== 'number' || isNaN(p.level)) p.level = 1;
+  return p;
+}
+
+// Concede EXP con “carry-over” y subida de nivel cuando exp >= 10
+function grantExp(p, amount) {
+  ensureExpFields(p);
+  p.exp = Math.max(0, p.exp + amount);
+
+  // Subidas múltiples si hay exceso
+  while (p.exp >= p.expMax) {
+    p.exp -= p.expMax;    // arrastre
+    p.level += 1;
+  }
+  return p;
+}
+
+// --- REFRESH HELPERS ---
+
+function refreshDetailIfOpen(p) {
+  const dialog = document.querySelector('#detailDialog');
+  const isOpen = dialog && dialog.open;
+  if (!isOpen) return;
+
+  // Si tienes una función oficial de render del detalle, úsala
+  if (typeof window.renderDetail === 'function') {
+    window.renderDetail(p);
+    return;
+  }
+
+  // Fallback: actualizar solo el nivel y la barra de EXP en el detalle actual
+  const root = document.querySelector('#detailContent[data-pid]');
+  if (!root) return;
+  if (root.getAttribute('data-pid') !== p.id) return;
+
+  const lvlEl = root.querySelector('.detail-level');
+  if (lvlEl) lvlEl.textContent = p.level;
+
+  // también refrescamos la barra de exp para reflejar el “carry-over”
+  updateExpUI(p.id, p);
+}
+
+function refreshGrid() {
+  // Si tienes renderizado global del grid, úsalo
+  if (typeof window.renderGrid === 'function') {
+    window.renderGrid();
+    return;
+  }
+
+  // Fallback: actualizar SOLO el número de nivel en cada card del grid
+  // usando el índice actual (POKE_INDEX)
+  document.querySelectorAll('.poke[data-pid]').forEach(card => {
+    const pid = card.getAttribute('data-pid');
+    const poke = window.POKE_INDEX.get(pid);
+    if (!poke) return;
+    const lvlEl = card.querySelector('.poke-level');
+    if (lvlEl) lvlEl.textContent = poke.level;
+  });
+}
+
+function refreshGridInline() {
+  document.querySelectorAll('.poke[data-pid]').forEach(card => {
+    const pid = card.getAttribute('data-pid');
+    const poke = window.POKE_INDEX.get(pid);
+    if (!poke) return;
+    const lvlEl = card.querySelector('.poke-level');
+    if (lvlEl) lvlEl.textContent = poke.level;
+  });
+}
+
+
+// Opcional: evento por si quieres enganchar otras partes de la app
+function emitLevelUpEvent(p, levelsUp) {
+  document.dispatchEvent(new CustomEvent('pokemon:levelup', {
+    detail: { pokemon: p, levelsUp }
+  }));
+}
+
+// --- Parchea grantExp para disparar los refrescos ---
+
+// Guarda la versión anterior por si ya existía
+const __grantExp_original = typeof grantExp === 'function' ? grantExp : null;
+
+// Reemplaza/define grantExp con detección de level-ups y refrescos
+function grantExp(p, amount) {
+  ensureExpFields(p);
+  const expMax = p.expMax || 10;
+  let levelsUp = 0;
+
+  p.exp = Math.max(0, (p.exp ?? 0) + amount);
+
+  while (p.exp >= expMax) {
+    p.exp -= expMax;
+    p.level += 1;
+    levelsUp += 1;
+  }
+
+  // Siempre actualiza barra/contador de EXP al instante
+  updateExpUI(p.id, p);
+
+  // Si subió de nivel, refresco "in place" detalle + grid
+  if (levelsUp > 0) {
+    refreshDetailInline(p);  // <- aquí ves subir el nivel sin salir del detalle
+    refreshGridInline();     // <- actualiza niveles en todas las tarjetas
+    // save?.(); // si quieres persistir al momento
+  }
+
+  return p;
+}
+
+
+function refreshDetailInline(p) {
+  const dialog = document.querySelector('#detailDialog');
+  if (!dialog || !dialog.open) return;
+
+  const root = document.querySelector('#detailContent');
+  if (!root) return;
+  if (root.getAttribute('data-pid') !== p.id) return; // no es el que está abierto
+
+  // Actualiza todos los sitios donde muestras el nivel en el detalle
+  root.querySelectorAll('.detail-level').forEach(el => { el.textContent = p.level; });
+
+  // Actualiza el título si pusiste el span en el título
+  const titleLvl = document.querySelector('.detail-level-title');
+  if (titleLvl) titleLvl.textContent = p.level;
+
+  // Refresca la barra de EXP (para que se vea el “carry-over”)
+  updateExpUI(p.id, p);
+}
+
+function refreshGridInline() {
+  document.querySelectorAll('.poke[data-pid]').forEach(card => {
+    const pid = card.getAttribute('data-pid');
+    const poke = window.POKE_INDEX.get(pid);
+    if (!poke) return;
+    const lvlEl = card.querySelector('.poke-level');
+    if (lvlEl) lvlEl.textContent = poke.level;
+  });
+}
+
+
+// Setea EXP exacta (por si quieres sincronizar desde inputs)
+function setExp(p, value) {
+  ensureExpFields(p);
+  p.exp = Math.max(0, Math.min(p.expMax, Number(value) || 0));
+  return p;
+}
+
+// === Render de la barra de EXP ===
+// Llama a esta función dentro del render de tu “detail view” del Pokémon.
+function renderExpBlock(p) {
+  // ← añade esta línea para que el índice siempre esté sincronizado
+  window.POKE_INDEX.set(p.id, p);
+
+  ensureExpFields(p);
+  const pct = Math.max(0, Math.min(100, (p.exp / p.expMax) * 100));
+  return `
+    <div class="exp-box" data-pid="${p.id}">
+      <div class="exp-row">
+        <div class="exp-bar">
+          <div class="exp-fill" style="width:${pct}%"></div>
+        </div>
+        <div class="exp-num">${p.exp} / ${p.expMax}</div>
+        <div class="exp-ctrl">
+          <input type="number" class="exp-add" value="1" min="1" max="${p.expMax}" />
+          <button class="btn btn-primary exp-add-btn">+EXP</button>
+          <button class="btn exp-lvlup-btn">Subir nivel (+10)</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+
+// Si ya tienes una función que compone el HTML del detalle, inserta `renderExpBlock(p)`
+// justo debajo de tu bloque de vida. Por ejemplo:
+// detailContent.innerHTML = `... ${renderHpBlock(p)} ${renderExpBlock(p)} ...`
+
+// === Event delegation para los botones de EXP en el detalle ===
+document.addEventListener('click', (e) => {
+  // +EXP
+  const addBtn = e.target.closest('.exp-add-btn');
+  if (addBtn) {
+    const box = addBtn.closest('.exp-box');
+    const pid = box?.getAttribute('data-pid');
+    const input = box?.querySelector('.exp-add');
+    const delta = Number(input?.value || 1);
+    const p = window.POKE_INDEX.get(pid);
+    if (!p) return;
+
+    grantExp(p, delta);
+    updateExpUI(pid, p);
+    // si tienes algo que refresque el nivel en la UI:
+    // updateLevelUI?.(pid, p);
+    // y si guardas en disco:
+    // save();
+    return;
+  }
+
+  // Subir nivel (equivale a +10 exp)
+  const lvlBtn = e.target.closest('.exp-lvlup-btn');
+  if (lvlBtn) {
+    const box = lvlBtn.closest('.exp-box');
+    const pid = box?.getAttribute('data-pid');
+    const p = window.POKE_INDEX.get(pid);
+    if (!p) return;
+
+    grantExp(p, (p.expMax || 10));
+    updateExpUI(pid, p);
+    // updateLevelUI?.(pid, p);
+    // save();
+  }
+});
+
+
+// Pequeña utilidad para refrescar solo la barra/contador sin redibujar todo
+function updateExpUI(pid, pObj) {
+  const box = document.querySelector(`.exp-box[data-pid="${pid}"]`);
+  const p = pObj || state.list?.find(x => x.id === pid);
+  if (!box || !p) return;
+  ensureExpFields(p);
+  const fill = box.querySelector('.exp-fill');
+  const num = box.querySelector('.exp-num');
+  const pct = Math.max(0, Math.min(100, (p.exp / p.expMax) * 100));
+  if (fill) fill.style.width = pct + '%';
+  if (num) num.textContent = `${p.exp} / ${p.expMax}`;
+}
 
 
     $closeDetail.addEventListener('click', () => $detailDialog.close());

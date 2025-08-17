@@ -615,6 +615,50 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
 }
 
 
+/* === EXP bar === */
+.exp-box {
+  margin-top: 6px;
+  background: #0b1330;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  padding: 6px 8px;
+}
+.exp-row {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.exp-bar {
+  position:relative;
+  flex:1;
+  height:8px;
+  background: rgba(255,255,255,.08);
+  border-radius:999px;
+  overflow:hidden;
+  min-width:140px;
+}
+.exp-fill {
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:0%;
+  background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%); /* azul */
+}
+.exp-num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.exp-ctrl {
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.exp-ctrl input[type=number]{
+  width:72px;
+}
+
+
+
 /* Lista del equipo en el diálogo */
 .team-list {
   display: grid;
