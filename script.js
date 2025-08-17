@@ -435,7 +435,11 @@ function render() {
         (p.gender === 'male' ? ' ♂️' : p.gender === 'female' ? ' ♀️' : '');
 
       if (confirm(`¿Eliminar ${displayName}?`)) {
-        db = db.filter(x => x.id !== p.id);
+                // Devolver objeto equipado (si lo hay) a la mochila antes de borrar
+        if (p.heldItem && window.Bag && typeof window.Bag.equipRelease === 'function') {
+          try { window.Bag.equipRelease(p.heldItem); } catch (e) { /* noop */ }
+        }
+x => x.id !== p.id;
         setDirty(true);
         render();
       }
@@ -1207,7 +1211,12 @@ async function ensureNatureIndex() {
         const ability = abId ? { id: abId, nameEs: $abilityInput?.dataset.selectedEs || $abilityInput?.value || abId } : null;
 
         const heldInp = document.getElementById('heldItemInput');
-        const nextHeldId = heldInp?.dataset?.selectedId || null;
+        let nextHeldId = heldInp?.dataset?.selectedId || null;
+        // Si el usuario borró el texto, interpretamos que quiere desequipar
+        if (heldInp && !((heldInp.value || '').trim())) {
+          nextHeldId = null;
+          if (heldInp.dataset) heldInp.dataset.selectedId = '';
+        }
 
         const stats = {
             hp: Number(document.getElementById('stat_hp').value || 0),
