@@ -596,8 +596,8 @@ select:focus {
   position:absolute;
   left:0; top:0; bottom:0;
   width:0%;
-  background: linear-gradient(90deg,#34d399,#3b82f6);
-}
+background: #d6ff8f;
+background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 1) 100%);}
 
 .hp-num {
   font-variant-numeric: tabular-nums;

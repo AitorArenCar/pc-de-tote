@@ -744,6 +744,7 @@ async function ensureNatureIndex() {
         setupBallAutocomplete();
         setupNatureAutocomplete();
         setupAbilityAutocomplete();
+        setupHeldItemAutocomplete();
     }
 
     function startEdit(p) {
@@ -821,7 +822,20 @@ async function ensureNatureIndex() {
             abilityInput.dataset.selectedEs = p.ability?.nameEs || '';
         }
 
-        // stats
+        
+
+        // objeto equipado
+        const heldInp = document.getElementById('heldItemInput');
+        if (heldInp) {
+            if (p.heldItem) {
+                heldInp.value = p.heldItem.nameEs || '';
+                heldInp.dataset.selectedId = p.heldItem.id || '';
+            } else {
+                heldInp.value = '';
+                heldInp.dataset.selectedId = '';
+            }
+        }
+// stats
         const stats = p.stats || {};
         ['hp', 'atk', 'def', 'spa', 'spd', 'spe'].forEach(k => {
             const el = document.getElementById('stat_' + k);
@@ -1101,12 +1115,22 @@ async function ensureNatureIndex() {
         };
     }
 
+    // ---------- Objeto equipado (autocompletado desde Mochila) ----------
+    function setupHeldItemAutocomplete() {
+        const inputEl = document.getElementById('heldItemInput');
+        const listEl = document.getElementById('heldItemMatches');
+        if (!inputEl || !listEl || !window.Bag || !window.Bag.setupBagAutocomplete) return;
+        window.Bag.setupBagAutocomplete(inputEl, listEl, { minLength: 0, maxResults: 12 });
+    }
+
+
     // ---------- Inicialización segura ----------
     document.addEventListener('DOMContentLoaded', () => {
         try { setupMoveAutocompleteES(); } catch (e) { console.error('setupMoveAutocompleteES()', e); }
         try { setupNatureAutocomplete(); } catch (e) { console.error('setupNatureAutocomplete()', e); }
         try { setupBallAutocomplete(); } catch (e) { console.error('setupBallAutocomplete()', e); }
-        try { setupAbilityAutocomplete(); } catch (e) { console.error('setupAbilityAutocomplete()', e); }
+        try { setupAbilityAutocomplete();
+        setupHeldItemAutocomplete(); } catch (e) { console.error('setupAbilityAutocomplete()', e); }
 
         // refs del dropdown (hazlas con let arriba si no existen)
         $statusBtn = document.getElementById('statusBtn');
@@ -1195,6 +1219,9 @@ async function ensureNatureIndex() {
         const abId = $abilityInput?.dataset.selectedId || null;
         const ability = abId ? { id: abId, nameEs: $abilityInput?.dataset.selectedEs || $abilityInput?.value || abId } : null;
 
+        const heldInp = document.getElementById('heldItemInput');
+        const nextHeldId = heldInp?.dataset?.selectedId || null;
+
         const stats = {
             hp: Number(document.getElementById('stat_hp').value || 0),
             atk: Number(document.getElementById('stat_atk').value || 0),
@@ -1213,6 +1240,8 @@ async function ensureNatureIndex() {
             const idx = db.findIndex(x => x.id === editingId);
             if (idx !== -1) {
                 const old = db[idx];
+                const heldItemNew = window.Bag && window.Bag.equipDiff ? window.Bag.equipDiff(old.heldItem || null, nextHeldId) : (old.heldItem || null);
+
                 db[idx] = {
                     ...old,
                     dexId: pendingBase.dexId,
@@ -1221,7 +1250,7 @@ async function ensureNatureIndex() {
                     sprite: pendingBase.sprite,
                     height: pendingBase.height,
                     weight: pendingBase.weight,
-                    moves, ball, nature, gender, ability, stats, num,
+                    moves, ball, nature, gender, ability, heldItem: heldItemNew, stats, num,
                     nickname, level
                 };
 
@@ -1248,6 +1277,7 @@ async function ensureNatureIndex() {
         }
 
         // --- AÑADIR ---
+                const heldItemNewAdd = window.Bag && window.Bag.equipDiff ? window.Bag.equipDiff(null, nextHeldId) : null;
         const entry = {
             id: uuid(),
             dexId: pendingBase.dexId,
@@ -1256,7 +1286,7 @@ async function ensureNatureIndex() {
             sprite: pendingBase.sprite,
             height: pendingBase.height,
             weight: pendingBase.weight,
-            moves, ball, nature, gender, ability, stats, num,
+            moves, ball, nature, gender, ability, heldItem: heldItemNew, stats, num,
             nickname, level,
             inTeam: false
         };
@@ -1475,9 +1505,14 @@ const damage = calcDamageTier(mp.power);
                 </div>
               </div>
               <div class="name-row-info-right">
-                <div class="small">Altura: <strong>${height} m</strong></div>
-                <div class="small">Peso: <strong>${weight} kg</strong></div>
-              </div>
+                <div class="small" style="margin-top:6px">Altura: <strong>${height} m</strong></div>
+                <div class="small" style="margin-top:6px">Peso: <strong>${weight} kg</strong></div>
+                              <div class="small" style="margin-top:6px">Objeto:
+                  ${p.heldItem?.id
+                    ? `<button class="helditem-link linklike" data-id="${p.heldItem.id}" type="button">${p.heldItem.nameEs || "—"}</button>`
+                    : `<span>${p.heldItem?.nameEs || "—"}</span>`}
+                </div>
+</div>
             </div>
           </div>
           <div style="margin-left: 50px;">
@@ -1565,7 +1600,155 @@ const damage = calcDamageTier(mp.power);
         });
 
         // Tooltip de habilidad
+        function setupItemTooltip() {
+            const btn = $detailContent.querySelector('.item-link');
+            if (!btn) return;
+            const old = $detailDialog.querySelector('.item-tooltip'); if (old) old.remove();
+            const tip = document.createElement('div');
+            tip.className = 'item-tooltip muted';
+            tip.style.position = 'absolute';
+            tip.style.display = 'none';
+            tip.style.maxWidth = '320px';
+            tip.style.padding = '10px 12px';
+            tip.style.borderRadius = '10px';
+            tip.style.background = 'rgba(12, 18, 45, .98)';
+            tip.style.border = '1px solid rgba(255,255,255,.12)';
+            tip.style.fontSize = '12px';
+            tip.style.lineHeight = '1.4';
+            tip.style.zIndex = '9999';
+            $detailDialog.appendChild(tip);
+
+            let pinned = false;
+            function effectText() {
+                return (p.heldItem && p.heldItem.effectText) ? p.heldItem.effectText : 'Sin efecto';
+            }
+            function show() {
+                tip.textContent = effectText();
+                const br = btn.getBoundingClientRect();
+                const dr = $detailDialog.getBoundingClientRect();
+                const left = Math.min(br.left - dr.left, $detailDialog.clientWidth - 340);
+                const top = br.bottom - dr.top + 8;
+                tip.style.left = left + 'px';
+                tip.style.top = top + 'px';
+                tip.style.display = 'block';
+            }
+            function hide() { if (!pinned) tip.style.display = 'none'; }
+
+            btn.addEventListener('mouseenter', show);
+            btn.addEventListener('mouseleave', hide);
+            btn.addEventListener('focus', show);
+            btn.addEventListener('blur', hide);
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (pinned) { pinned = false; tip.style.display = 'none'; return; }
+                show(); pinned = true;
+            });
+            $detailDialog.addEventListener('click', (e) => {
+                if (!pinned) return;
+                if (e.target !== btn && !tip.contains(e.target)) {
+                    pinned = false; tip.style.display = 'none';
+                }
+            });
+        }
         setupAbilityTooltip();
+        // Tooltip de objeto equipado
+        setupHeldItemTooltip();
+        function setupHeldItemTooltip() {
+            const btn = $detailContent.querySelector('.helditem-link');
+            if (!btn || !p.heldItem) return;
+            const old = $detailDialog.querySelector('.helditem-tooltip'); if (old) old.remove();
+            const tip = document.createElement('div');
+            tip.className = 'helditem-tooltip muted';
+            tip.style.position = 'absolute';
+            tip.style.display = 'none';
+            tip.style.maxWidth = '320px';
+            tip.style.padding = '10px 12px';
+            tip.style.borderRadius = '10px';
+            tip.style.background = 'rgba(12, 18, 45, .98)';
+            tip.style.border = '1px solid rgba(255,255,255,.12)';
+            tip.style.fontSize = '12px';
+            tip.style.lineHeight = '1.4';
+            tip.style.zIndex = '9999';
+            $detailDialog.appendChild(tip);
+
+            let pinned = false;
+            function show() {
+                const text = (p.heldItem && p.heldItem.effectText || '').replace(/\s+/g,' ').trim() || 'Sin descripción disponible.';
+                tip.textContent = text;
+                const br = btn.getBoundingClientRect();
+                const dr = $detailDialog.getBoundingClientRect();
+                const left = Math.min(br.left - dr.left, $detailDialog.clientWidth - 340);
+                const top = br.bottom - dr.top + 8;
+                tip.style.left = left + 'px';
+                tip.style.top = top + 'px';
+                tip.style.display = 'block';
+            }
+            function hide() { if (!pinned) tip.style.display = 'none'; }
+            btn.addEventListener('mouseenter', show);
+            btn.addEventListener('mouseleave', hide);
+            btn.addEventListener('focus', show);
+            btn.addEventListener('blur', hide);
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (pinned) { pinned = false; tip.style.display = 'none'; return; }
+                show(); pinned = true;
+            });
+            $detailDialog.addEventListener('click', (e) => {
+                if (!pinned) return;
+                if (e.target !== btn && !tip.contains(e.target)) {
+                    pinned = false; tip.style.display = 'none';
+                }
+            });
+        }
+        // Tooltip de objeto equipado
+        setupHeldItemTooltip();
+        function setupHeldItemTooltip() {
+            const btn = $detailContent.querySelector('.helditem-link');
+            if (!btn || !p.heldItem) return;
+            const old = $detailDialog.querySelector('.helditem-tooltip'); if (old) old.remove();
+            const tip = document.createElement('div');
+            tip.className = 'helditem-tooltip muted';
+            tip.style.position = 'absolute';
+            tip.style.display = 'none';
+            tip.style.maxWidth = '320px';
+            tip.style.padding = '10px 12px';
+            tip.style.borderRadius = '10px';
+            tip.style.background = 'rgba(12, 18, 45, .98)';
+            tip.style.border = '1px solid rgba(255,255,255,.12)';
+            tip.style.fontSize = '12px';
+            tip.style.lineHeight = '1.4';
+            tip.style.zIndex = '9999';
+            $detailDialog.appendChild(tip);
+
+            let pinned = false;
+            function show() {
+                const text = (p.heldItem.effectText || '').replace(/\s+/g,' ').trim() || 'Sin descripción disponible.';
+                tip.textContent = text;
+                const br = btn.getBoundingClientRect();
+                const dr = $detailDialog.getBoundingClientRect();
+                const left = Math.min(br.left - dr.left, $detailDialog.clientWidth - 340);
+                const top = br.bottom - dr.top + 8;
+                tip.style.left = left + 'px';
+                tip.style.top = top + 'px';
+                tip.style.display = 'block';
+            }
+            function hide() { if (!pinned) tip.style.display = 'none'; }
+            btn.addEventListener('mouseenter', show);
+            btn.addEventListener('mouseleave', hide);
+            btn.addEventListener('focus', show);
+            btn.addEventListener('blur', hide);
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (pinned) { pinned = false; tip.style.display = 'none'; return; }
+                show(); pinned = true;
+            });
+            $detailDialog.addEventListener('click', (e) => {
+                if (!pinned) return;
+                if (e.target !== btn && !tip.contains(e.target)) {
+                    pinned = false; tip.style.display = 'none';
+                }
+            });
+        }
         function setupAbilityTooltip() {
             const btn = $detailContent.querySelector('.ability-link');
             if (!btn) return;
@@ -1597,7 +1780,8 @@ const damage = calcDamageTier(mp.power);
                 tip.style.top = top + 'px';
                 tip.style.display = 'block';
             }
-            function hide() { if (!pinned) tip.style.display = 'none'; }
+
+                function hide() { if (!pinned) tip.style.display = 'none'; }
             btn.addEventListener('mouseenter', show);
             btn.addEventListener('mouseleave', hide);
             btn.addEventListener('focus', show);
@@ -1615,7 +1799,9 @@ const damage = calcDamageTier(mp.power);
             });
         }
 
-        $detailDialog.showModal();
+                setupAbilityTooltip();
+        setupHeldItemTooltip();
+$detailDialog.showModal();
         if ($editDetail) $editDetail.onclick = () => startEdit(p);
 
         // Inicializa la UI de vida al final (cuando todo está enganchado)

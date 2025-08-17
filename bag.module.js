@@ -2,7 +2,7 @@
 // Depende de: items.api.js (ItemsAPI)
 
 (() => {
-  /** @typedef {{ id:string, nameEs:string, qty:number, sprite?:string|null, effectText?:string|null, desc?:string|null }} ItemPack */
+  /** @typedef {{ id:string, nameEs:string, qty:number, sprite?:string|null, effectText?:string|null, desc?:null, pocket?:string }} ItemPack */
   /** @typedef {{
    *   pokeballs: Record<string, ItemPack>;
    *   medicine:  Record<string, ItemPack>;
@@ -47,7 +47,8 @@
             qty,
             sprite: it.sprite ?? null,
             effectText: it.effectText ?? null,
-            desc: it.desc ?? null, // <- NUEVO: descripción para custom
+            desc: null, // desc ya no se usa
+            pocket: it.pocket ?? undefined,
           };
         }
         fresh.pockets[k] = clean;
@@ -125,14 +126,16 @@
       qty: 0,
       sprite: item.sprite ?? null,
       effectText: item.effectText ?? null,
-      desc: item.desc ?? null,
+      desc: null,
+      pocket,
     };
     bucket[item.id] = {
       ...prev,
       qty: Math.min(999, prev.qty + (item.qty || 1)),
       sprite: item.sprite ?? prev.sprite ?? null,
       effectText: item.effectText ?? prev.effectText ?? null,
-      desc: item.desc ?? prev.desc ?? null,
+      desc: null,
+      pocket,
     };
     notify();
   }
@@ -148,15 +151,22 @@
       qty,
       sprite: full.sprite,
       effectText: full.effectText || null,
-      pocket: full.pocket || '',
+      pocket: pocketReal || full.pocket || '',
     });
   }
 
-  // NUEVO: admite descripción para objetos custom
+  // Custom: descripción va en effectText; desc siempre null
   function addCustom(name, desc = '', qty = 1) {
     const base = slugify(name);
     const slug = base ? `custom-${base}` : `custom-${Date.now()}`;
-    addItemPack('custom', { id: slug, nameEs: name || 'Custom', qty, sprite: null, desc: (desc || '').trim() });
+    addItemPack('custom', {
+      id: slug,
+      nameEs: name || 'Custom',
+      qty,
+      sprite: null,
+      effectText: (desc || '').trim(),
+      pocket: 'custom',
+    });
   }
 
   function inc(pocket, id) {
@@ -173,15 +183,16 @@
     notify();
   }
 
-  // ===== Reserva para Equipar (API pública para futuro) =====
+  // ===== Reserva para Equipar (API pública) =====
   function equipReserve(id) {
     for (const [pocket, dict] of Object.entries(bag.pockets)) {
       if (dict[id]?.qty > 0) {
-        const nameEs = dict[id]?.nameEs || id; // leer antes de tocar qty
+        const pack = dict[id];
+        const out = { id, nameEs: pack.nameEs || id, pocket, effectText: pack.effectText ?? null, sprite: pack.sprite ?? null };
         dict[id].qty -= 1;
         if (dict[id].qty === 0) delete dict[id];
         notify();
-        return { id, nameEs, pocket };
+        return out;
       }
     }
     return null;
@@ -190,21 +201,107 @@
     if (!item) return;
     const pocket = item.pocket || (item.id.startsWith('custom-') ? 'custom' : 'battle');
     const nameEs = item.nameEs || item.id;
-    addItemPack(pocket, { id: item.id, nameEs, qty: 1, sprite: null });
+    addItemPack(pocket, { id: item.id, nameEs, qty: 1, sprite: item.sprite ?? null, effectText: item.effectText ?? null, pocket });
+  }
+
+  // ===== Listados / búsquedas para equipar =====
+  function listEquipables() {
+    /** @type {ItemPack[]} */
+    const all = [];
+    for (const [pocket, dict] of Object.entries(bag.pockets)) {
+      for (const it of Object.values(dict)) {
+        if ((it?.qty || 0) > 0) all.push({ ...it, pocket });
+      }
+    }
+    return all.sort((a,b) => a.nameEs.localeCompare(b.nameEs, 'es'));
+  }
+
+  function getItemById(id) {
+    for (const [pocket, dict] of Object.entries(bag.pockets)) {
+      if (dict[id]) return { ...dict[id], pocket };
+    }
+    return null;
+  }
+
+  // Autocompletado para elegir objeto equipado (sin depender de ItemsAPI)
+  function setupBagAutocomplete(inp, list, { maxResults = 10, minLength = 0, onSelect } = {}) {
+    if (!inp || !list) return;
+    const closeList = () => { list.hidden = true; list.innerHTML = ''; };
+    const render = (query = '') => {
+      const q = norm(query);
+      const items = listEquipables().filter(it => !q || norm(it.nameEs).includes(q)).slice(0, maxResults);
+      if (!items.length) { closeList(); return; }
+      const html = items.map(it => `
+        <button class="combo-item" data-id="${it.id}" title="${(it.effectText||'').replace(/\\s+/g,' ').trim()}">
+          <span class="label">${it.nameEs}</span>
+          <span class="muted">(${it.pocket} · x${it.qty})</span>
+        </button>
+      `).join('');
+      list.innerHTML = html;
+      list.hidden = false;
+      list.querySelectorAll('.combo-item').forEach(btn => {
+        btn.onclick = () => {
+          const id = btn.dataset.id;
+          const chosen = getItemById(id);
+          inp.value = chosen ? chosen.nameEs : '';
+          inp.dataset.selectedId = id || '';
+          list.hidden = true;
+          list.innerHTML = '';
+          onSelect && onSelect(chosen || null);
+        };
+      });
+    };
+    inp.addEventListener('input', () => {
+      const val = inp.value || '';
+      if (val.length < minLength) { closeList(); return; }
+      render(val);
+    });
+    inp.addEventListener('focus', () => {
+      if ((inp.value || '').length >= minLength) render(inp.value);
+    });
+    document.addEventListener('click', (e) => {
+      if (!list.contains(e.target) && e.target !== inp) closeList();
+    });
+  }
+
+  /**
+   * Aplica el diff de equipado: quita prev (si lo hay) y reserva next (si existe).
+   * @param {{id:string,nameEs:string,pocket?:string,effectText?:string,sprite?:string}|null} prevItem
+   * @param {string|undefined|null} nextItemId
+   * @returns {{id:string,nameEs:string,pocket?:string,effectText?:string,sprite?:string}|null}
+   */
+  function equipDiff(prevItem, nextItemId) {
+    const prevId = prevItem?.id || null;
+    const nextId = nextItemId || null;
+
+    if (prevId && nextId && prevId === nextId) {
+      return prevItem;
+    }
+
+    if (prevItem) {
+      equipRelease(prevItem);
+    }
+
+    if (nextId) {
+      const reserved = equipReserve(nextId);
+      if (reserved) {
+        const meta = getItemById(nextId) || reserved;
+        return { id: nextId, nameEs: meta.nameEs || reserved.nameEs, pocket: meta.pocket || reserved.pocket, effectText: meta.effectText || reserved.effectText || null, sprite: meta.sprite || reserved.sprite || null };
+      }
+    }
+    return null;
   }
 
   // ===== UI =====
-  const $dialog = () => $('#bagDialog');
-  const $content = () => $('#bagContent');
-  const $scroll = () => $('#bagScroll');
-  const $tabs = () => $('#bagTabs');
-  const $searchInput = () => $('#itemSearchInput');
-  const $searchList = () => $('#itemSearchList');
-  const $qtyInput = () => $('#itemQtyInput');
-  const $addBtn = () => $('#addToBagBtn');
-  const $closeBtn = () => $('#closeBag');
+  const $dialog = () => document.querySelector('#bagDialog');
+  const $content = () => document.querySelector('#bagContent');
+  const $tabs = () => document.querySelector('#bagTabs');
+  const $searchInput = () => document.querySelector('#itemSearchInput');
+  const $searchList = () => document.querySelector('#itemSearchList');
+  const $qtyInput = () => document.querySelector('#itemQtyInput');
+  const $addBtn = () => document.querySelector('#addToBagBtn');
+  const $closeBtn = () => document.querySelector('#closeBag');
 
-  // meta para pestañas
   const POCKET_META = {
     pokeballs: { title: 'Poké Balls', icon: '🟠' },
     medicine:  { title: 'Medicina',   icon: '💊' },
@@ -230,7 +327,7 @@
     }).join('');
     $tabs().innerHTML = html;
 
-    $$('#bagTabs .bag-tab').forEach(btn => {
+    document.querySelectorAll('#bagTabs .bag-tab').forEach(btn => {
       btn.onclick = () => {
         activePocket = btn.dataset.pocket;
         renderTabs();
@@ -241,8 +338,7 @@
 
   function itemRow(pocket, pack){
     const qty = Number(pack.qty||0);
-    const effect = (pack.effectText || '').replace(/\s+/g,' ').trim();
-    const desc = (pack.desc || '').replace(/\s+/g,' ').trim();
+    const effect = (pack.effectText || '').replace(/\\s+/g,' ').trim();
 
     return `
       <div class="bag-item" data-pocket="${pocket}" data-id="${pack.id}">
@@ -250,7 +346,6 @@
           ${pack.sprite ? `<img loading="lazy" src="${pack.sprite}" alt="${pack.nameEs}" />` : ''}
           <span>${pack.nameEs}</span><br>
           ${effect ? `<small class="effect">${effect}</small>` : ''}
-          ${desc && pocket === 'custom' ? `<small class="effect">${desc}</small>` : ''}
         </div>
         <div class="qty">
           <button class="dec" aria-label="Quitar uno">−</button>
@@ -261,7 +356,6 @@
     `;
   }
 
-  // NUEVO: formulario para crear un objeto custom (solo para pestaña 'custom')
   function customForm() {
     return `
       <section class="custom-form">
@@ -293,17 +387,16 @@
     </section>`;
 
     if (pocket === 'custom') {
-      // Inserta el formulario arriba de la lista
       return customForm() + listHtml;
     }
     return listHtml;
   }
 
   function wireCustomFormHandlers() {
-    const nameInp = $('#customName');
-    const descInp = $('#customDesc');
-    const btn = $('#customCreateBtn');
-    const err = $('#customError');
+    const nameInp = document.querySelector('#customName');
+    const descInp = document.querySelector('#customDesc');
+    const btn = document.querySelector('#customCreateBtn');
+    const err = document.querySelector('#customError');
     if (!nameInp || !descInp || !btn) return;
 
     btn.onclick = () => {
@@ -313,12 +406,11 @@
         if (err) err.textContent = 'Ponle un nombre al objeto.';
         return;
       }
-      // Si ya existe un id con ese nombre, solo suma 1 a qty y actualiza desc si está vacío
       const id = `custom-${slugify(name)}`;
       const existing = bag.pockets.custom[id];
       if (existing) {
         bag.pockets.custom[id].qty = Math.min(999, (existing.qty || 0) + 1);
-        if (!existing.desc && desc) bag.pockets.custom[id].desc = desc;
+        if (!existing.effectText && desc) bag.pockets.custom[id].effectText = desc;
         notify();
       } else {
         addCustom(name, desc, 1);
@@ -337,8 +429,7 @@
     const html = section(meta.title, activePocket);
     $content().innerHTML = html;
 
-    // Listeners de items
-    $$('#bagContent .bag-item').forEach(row => {
+    document.querySelectorAll('#bagContent .bag-item').forEach(row => {
       const pocket = row.dataset.pocket;
       const id = row.dataset.id;
       const $cnt = row.querySelector('.cnt');
@@ -346,7 +437,6 @@
       row.querySelector('.dec').onclick = () => { dec(pocket, id); render(); };
     });
 
-    // Listeners del formulario custom (si procede)
     if (activePocket === 'custom') {
       wireCustomFormHandlers();
     }
@@ -356,7 +446,7 @@
     const hasItems = Object.keys(bag.pockets).find(k => Object.keys(bag.pockets[k] || {}).length);
     if (!Object.keys(bag.pockets[activePocket] || {}).length && hasItems) activePocket = hasItems;
     render();
-    $dialog().showModal();
+    document.querySelector('#bagDialog').showModal();
   }
 
   async function setupSearch() {
@@ -376,21 +466,23 @@
   }
 
   function init() {
-    bag = loadBagFromStorage(); // rehidrata por si acaso
+    bag = loadBagFromStorage();
     setupSearch();
-    const c = $closeBtn(); if (c) c.onclick = () => $dialog().close();
+    const c = $closeBtn(); if (c) c.onclick = () => document.querySelector('#bagDialog').close();
   }
 
-  // API pública
   window.Bag = {
     init, open, render,
-    addCustom,                // ahora acepta (name, desc, qty)
+    addCustom,
     equipReserve, equipRelease,
-    getState: () => bag,      // -> incluirá desc de objetos custom
+    listEquipables, getItemById,
+    setupBagAutocomplete,
+    equipDiff,
+    getState: () => bag,
     setState: (state) => {
       if (state && state.pockets) {
-        bag = sanitizeLoadedBag(state);  // normaliza (incluye desc)
-        saveBagToStorage(bag);           // persistimos lo importado
+        bag = sanitizeLoadedBag(state);
+        saveBagToStorage(bag);
         render();
         notify();
       }
