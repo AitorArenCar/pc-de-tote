@@ -975,6 +975,21 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
 /* Ocultar controles sueltos del header que pasan al menú */
 #openBtn, #saveBtn, #bgBtn, #bgClearBtn { display:none; }
 
+/* --- Detalle: scroll vertical en desktop también --- */
+#detailDialog { 
+  overflow: hidden;                 /* oculta desbordes del propio <dialog> */
+}
+#detailDialog .modal{
+  display: flex;                    /* cabecera fija + contenido flexible */
+  flex-direction: column;
+  max-height: 85vh;                 /* limita el alto del modal */
+}
+#detailDialog .modal .content{
+  overflow: auto;                   /* <- aquí el scroll vertical */
+  /* opcional: */
+  /* padding-right: 12px;  evita “salto” por scrollbar según SO */
+}
+
 
 @media (max-width: 600px) {
   header {
@@ -999,9 +1014,6 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
     display: flex;
     flex-direction: column;
     max-height: 85vh;           /* alto máximo del modal */
-  }
-  #detailDialog .modal .content{
-    overflow: auto;             /* scroll vertical dentro del contenido */
   }
 
   /* Cabecera del detalle: 1 sola columna (imagen, luego info, luego stats) */

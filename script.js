@@ -1528,7 +1528,32 @@ const damage = calcDamageTier(mp.power);
     <div class="moves-grid">
       ${moveCards || ''}
     </div>
+
+    <h3 style="margin:14px 0 6px;font-size:14px">Notas</h3>
+    <textarea id="notesBox" placeholder="Escribe tus notas..." style="width:95%;min-height:140px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:inherit;resize:vertical;"></textarea>
+
   `;
+      // Inicializar y auto-guardado de notas
+      const $notes = document.getElementById('notesBox');
+      if ($notes) {
+        $notes.value = p.notes || '';
+        $notes.addEventListener('input', (e) => {
+          const val = e.target.value;
+          p.notes = val;
+          // Persistir en el array db también (por si p es una copia)
+          const idx = db.findIndex(x => x.id === p.id);
+          if (idx !== -1) db[idx].notes = val;
+          setDirty(true);
+          // Guardado suave en localStorage (sin molestar al usuario)
+          try {
+            const bg = (window.getBackgroundDataUrl && window.getBackgroundDataUrl()) || null;
+            const bagState = window.Bag?.getState?.() || null;
+            const payload = { version: 2, entries: db, bg, bag: bagState };
+            localStorage.setItem('pokebox_autosave_v2', JSON.stringify(payload));
+          } catch {}
+        });
+      }
+
 
   // marca el detalle con el id para refrescos
   $detailContent.setAttribute('data-pid', p.id);
