@@ -23,16 +23,45 @@ function loadBackgroundFromStorage() {
 }
 
 
+// function setBackgroundFromFile(file) {
+//   if (!file) return;
+//   const reader = new FileReader();
+//   reader.onload = () => {
+//     const dataUrl = reader.result;
+//     try { localStorage.setItem(LS_BG, dataUrl); } catch {}
+//     applyBackground(dataUrl);
+//   };
+//   reader.readAsDataURL(file);
+// }
+
 function setBackgroundFromFile(file) {
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const dataUrl = reader.result;
-    try { localStorage.setItem(LS_BG, dataUrl); } catch {}
-    applyBackground(dataUrl);
-  };
-  reader.readAsDataURL(file);
+
+  // Si hay Supabase y usuario, sube al bucket y guarda la URL
+  (async () => {
+    try {
+      const user = await window.Supa?.getUser?.();
+      if (user) {
+        const url = await window.Supa.uploadBg(file);
+        try { localStorage.setItem(LS_BG, url); } catch {}
+        applyBackground(url);
+        return;
+      }
+    } catch (e) {
+      console.warn('No se pudo subir a Supabase (se usará base64 local):', e);
+    }
+
+    // Fallback: dataURL en localStorage (como antes)
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      try { localStorage.setItem(LS_BG, dataUrl); } catch {}
+      applyBackground(dataUrl);
+    };
+    reader.readAsDataURL(file);
+  })();
 }
+
 
 function clearBackground() {
   try { localStorage.removeItem(LS_BG); } catch {}

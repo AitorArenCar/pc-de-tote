@@ -10,11 +10,25 @@
 
 <body>
     <header>
-        <h1>Pc de Tote - hola</h1>
+        <h1>Pc de Tote - PRUEBAS</h1>
         <button id="teamBtn" class="btn" title="Ver equipo">Equipo (0)</button>
         <button id="healAllBtn" class="btn btn-verde" title="Poner la vida de todos al máximo">Curar</button>
         <input id="bgInput" type="file" accept="image/*" class="hidden-input" />
         <button id="bagBtn" class="btn" title="Gestionar objetos">Mochila</button>
+        <!-- Auth -->
+<div id="authBox" class="auth-box">
+  <input id="emailInput" type="email" placeholder="email" />
+  <input id="passInput" type="password" placeholder="password" />
+  <button id="signupBtn" class="btn">Registrarse</button>
+  <button id="signinBtn" class="btn">Entrar</button>
+  <button id="signoutBtn" class="btn" hidden>Salir</button>
+  <span id="authStatus" class="muted"></span>
+</div>
+
+<!-- Acciones contra Supabase -->
+<button id="cloudSaveBtn" class="btn">Guardar en la nube</button>
+<button id="cloudLoadBtn" class="btn">Cargar de la nube</button>
+
         <div class="spacer"></div>
     <!-- ponlo cerca de otros inputs del header -->
 <input id="openInput" type="file" accept="application/json" class="hidden-input" />
@@ -247,11 +261,15 @@
 </dialog>
 
 
+<!-- Cliente oficial Supabase (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script src="items.api.js"></script>
 <script src="bag.module.js"></script>
+<script src="supabase.js"></script> <!-- NUEVO -->
+<script src="script.js"></script>
+<script src="fondo.js"></script>
 
-    <script src="script.js"></script>
-    <script src="fondo.js"></script>
 </body>
 
  <!-- <script>

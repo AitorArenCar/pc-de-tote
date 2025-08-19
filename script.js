@@ -2314,6 +2314,60 @@ function updateExpUI(pid, pObj) {
         });
     }
 
+// === Auth UI ===
+const $email = document.getElementById('emailInput');
+const $pass = document.getElementById('passInput');
+const $signup = document.getElementById('signupBtn');
+const $signin = document.getElementById('signinBtn');
+const $signout = document.getElementById('signoutBtn');
+const $authStatus = document.getElementById('authStatus');
+
+function setAuthUi(logged, email) {
+  if ($signup) $signup.hidden = logged;
+  if ($signin) $signin.hidden = logged;
+  if ($signout) $signout.hidden = !logged;
+  if ($email) $email.hidden = logged;
+  if ($pass) $pass.hidden = logged;
+  if ($authStatus) $authStatus.textContent = logged ? `Conectado: ${email || ''}` : 'Sin sesión';
+}
+
+(async () => {
+  try {
+    const usr = await window.Supa?.getUser?.();
+    setAuthUi(!!usr, usr?.email);
+  } catch { setAuthUi(false, ''); }
+})();
+
+$signup?.addEventListener('click', async () => {
+  try {
+    const { value: email } = $email, { value: pass } = $pass;
+    await window.Supa.signUp(email, pass);
+    alert('Registro iniciado. Verifica el email si tu proyecto lo requiere.');
+  } catch (e) { alert(e.message); }
+});
+
+$signin?.addEventListener('click', async () => {
+  try {
+    const { value: email } = $email, { value: pass } = $pass;
+    await window.Supa.signIn(email, pass);
+    setAuthUi(true, email);
+    alert('Sesión iniciada.');
+  } catch (e) { alert(e.message); }
+});
+
+$signout?.addEventListener('click', async () => {
+  try {
+    await window.Supa.signOut();
+    setAuthUi(false, '');
+  } catch (e) { alert(e.message); }
+});
+
+// === Botones nube ===
+document.getElementById('cloudSaveBtn')?.addEventListener('click', saveToSupabase);
+document.getElementById('cloudLoadBtn')?.addEventListener('click', loadFromSupabase);
+
+
+
     // abrir/cerrar
     $statusBtn?.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -2373,6 +2427,71 @@ function updateExpUI(pid, pObj) {
             aL.innerHTML = '';
         }
     });
+
+    // === Guardar en Supabase (DB JSON) ===
+async function saveToSupabase() {
+  try {
+    // Asegura que si el fondo en LS es dataURL, lo subimos primero y guardamos su URL
+    let bg = (window.getBackgroundDataUrl && window.getBackgroundDataUrl()) || null;
+    if (bg && bg.startsWith('data:')) {
+      // convierte dataURL -> Blob y súbelo
+      const res = await fetch(bg);
+      const blob = await res.blob();
+      const file = new File([blob], 'background.png', { type: blob.type || 'image/png' });
+      try {
+        const url = await window.Supa.uploadBg(file);
+        bg = url;
+        // reflecta también en LS para siguientes sesiones
+        window.setBackgroundDataUrl?.(url);
+      } catch (e) {
+        console.warn('No se pudo subir base64 a Storage. Se guarda base64 en la DB:', e);
+      }
+    }
+
+    const bagState = window.Bag?.getState?.() || null;
+    const payload = { version: 2, entries: db, bg, bag: bagState };
+
+    const id = await window.Supa.saveBox(payload, 'Mi caja');
+    alert('Guardado en la nube: ' + id);
+    // marca como no sucio
+    setDirty(false);
+  } catch (e) {
+    alert('Error al guardar en la nube: ' + e.message);
+  }
+}
+
+// === Cargar desde Supabase (DB JSON) ===
+async function loadFromSupabase() {
+  try {
+    const row = await window.Supa.loadBox();
+    if (!row) { alert('Aún no tienes datos guardados.'); return; }
+    const data = row.data || {};
+
+    if (Array.isArray(data.entries)) {
+      db = data.entries.map(p => ({ id: p.id || (crypto?.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)), ...p }));
+    } else {
+      db = [];
+    }
+
+    // Fondo (puede venir como URL pública)
+    if (data.bg && typeof window.applyBackground === 'function' && typeof window.setBackgroundDataUrl === 'function') {
+      window.setBackgroundDataUrl(data.bg);
+    }
+
+    // Mochila
+    if (data.bag && typeof data.bag === 'object') {
+      try { window.Bag?.setState?.(data.bag); } catch {}
+    }
+
+    render();
+    updateStatus();
+    setDirty(false);
+    alert('Datos cargados de la nube.');
+  } catch (e) {
+    alert('Error al cargar de la nube: ' + e.message);
+  }
+}
+
 
     // ===== Inicio =====
     (async () => {
