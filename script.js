@@ -1282,7 +1282,7 @@ async function ensureNatureIndex() {
             sprite: pendingBase.sprite,
             height: pendingBase.height,
             weight: pendingBase.weight,
-            moves, ball, nature, gender, ability, heldItem: heldItemNew, stats, num,
+            moves, ball, nature, gender, ability, heldItem: heldItemNewAdd, stats, num,
             nickname, level,
             inTeam: false
         };
