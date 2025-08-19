@@ -8,16 +8,26 @@
   window.sb = sb; // expón para que el resto pueda usarlo
 
   // === Helpers Auth ===
-  async function signUp(email, password) {
-    const { data, error } = await sb.auth.signUp({ email, password });
-    if (error) throw error;
-    return data;
+async function signUp(email, password) {
+  const { data, error } = await sb.auth.signUp({ email, password });
+  if (error) {
+    console.error('SIGNUP error:', error); // 👈 aquí verás más info en la consola del navegador
+    throw error;
   }
-  async function signIn(email, password) {
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    return data;
+  console.log('SIGNUP ok:', data);
+  return data;
+}
+
+async function signIn(email, password) {
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) {
+    console.error('SIGNIN error:', error); // 👈 lo mismo para login
+    throw error;
   }
+  console.log('SIGNIN ok:', data);
+  return data;
+}
+
   async function signOut() {
     await sb.auth.signOut();
   }
