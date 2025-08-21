@@ -362,6 +362,36 @@ const $authClose  = document.getElementById('closeAuth');
         $grid.appendChild(add);
     }
 
+    // ---- Toast helper ----
+let __toastTimer = null;
+function toast(message, variant = 'success', ms = 2200) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  // limpia estado previo
+  el.className = 'toast';
+  // asigna variante
+  el.classList.add(variant);
+  // contenido
+  el.textContent = message;
+  // muestra
+  el.classList.add('show');
+
+  // reinicia temporizador si está activo
+  if (__toastTimer) clearTimeout(__toastTimer);
+  __toastTimer = setTimeout(() => {
+    el.classList.remove('show');
+  }, ms);
+}
+
+// opcional: cerrar al pulsar ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const el = document.getElementById('toast');
+    if (el) el.classList.remove('show');
+    if (__toastTimer) clearTimeout(__toastTimer);
+  }
+});
+
 
 // ===== Render caja =====
 function render() {
@@ -2407,7 +2437,9 @@ $signin?.addEventListener('click', async () => {
     const { value: email } = $email, { value: pass } = $pass;
     await window.Supa.signIn(email, pass);
     setAuthUi(true, email);
-    alert('Sesión iniciada.');
+    // alert('Sesión iniciada.');
+    toast('Sesión iniciada', 'info');
+
   } catch (e) { alert(e.message); }
 });
 
@@ -2451,7 +2483,9 @@ $authIn?.addEventListener('click', async () => {
     startAutosave?.();
     updateCloudStatus();
     $authDialog.close();
-    alert('Sesión iniciada.');
+    // alert('Sesión iniciada.');
+    toast('Sesión iniciada', 'info');
+
   } catch (e) { alert(e.message); }
 });
 
@@ -2643,8 +2677,12 @@ async function saveToSupabase() {
 
 updateCloudStatus();
   } catch (e) {
-    alert('Error al guardar en la nube: ' + e.message);
+    // alert('Error al guardar en la nube: ' + e.message);
+    toast('Error al guardar: ' + (e?.message || e), 'error', 4000);
+
   }
+  toast('Se ha guardado correctamente', 'success');
+
 }
 
 // === Cargar desde Supabase (DB JSON) ===
