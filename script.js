@@ -2368,7 +2368,7 @@ document.getElementById('cloudLoadBtn')?.addEventListener('click', loadFromSupab
 
 // === AUTOSAVE A SUPABASE ===
 // Cada cuánto guardar automáticamente (en ms)
-const AUTOSAVE_EVERY_MS = 900;
+const AUTOSAVE_EVERY_MS = 300000;
 
 let __autosaveTimer = null;
 let __autosaveInFlight = false;
