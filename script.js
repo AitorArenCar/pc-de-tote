@@ -439,9 +439,10 @@ function render() {
         if (p.heldItem && window.Bag && typeof window.Bag.equipRelease === 'function') {
           try { window.Bag.equipRelease(p.heldItem); } catch (e) { /* noop */ }
         }
-x => x.id !== p.id;
-        setDirty(true);
-        render();
+  db = db.filter(x => x.id !== p.id);
+
+  setDirty(true);
+  render();
       }
     });
 
