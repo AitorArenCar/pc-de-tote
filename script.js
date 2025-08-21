@@ -2671,7 +2671,7 @@ async function saveToSupabase() {
     const payload = { version: 2, entries: db, bg, bag: bagState };
 
     const id = await window.Supa.saveBox(payload, 'Mi caja');
-    alert('Guardado en la nube: ' + id);
+    // alert('Guardado en la nube: ' + id);
     // marca como no sucio
     setDirty(false);
 

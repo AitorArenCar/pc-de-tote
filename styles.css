@@ -54,7 +54,7 @@ header {
 /* variantes */
 .toast.success { background: #20b266; color: #fff; }
 .toast.error   { background: #e74c3c; color: #fff; }
-.toast.info    { background: #2d7ff9; color: #fff; }
+.toast.info    { background: #fcba03; color: #fff; }
 
 /* visible */
 .toast.show {
