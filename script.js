@@ -96,6 +96,21 @@
     const $addBtn = document.getElementById('addBtn');
     const $teamBtn = document.getElementById('teamBtn');
 
+// ----- Nube (UI) -----
+const $cloudBtn  = document.getElementById('cloudBtn');
+const $cloudMenu = document.getElementById('cloudMenu');
+const $cloudSave = document.getElementById('cloudMenuSave');
+const $cloudLoad = document.getElementById('cloudMenuLoad');
+const $cloudOut  = document.getElementById('cloudMenuSignout');
+
+// Auth dialog
+const $authDialog = document.getElementById('authDialog');
+const $authEmail  = document.getElementById('authEmail');
+const $authPass   = document.getElementById('authPass');
+const $authIn     = document.getElementById('authSignin');
+const $authUp     = document.getElementById('authSignup');
+const $authClose  = document.getElementById('closeAuth');
+
     // Dialog Añadir
     const $dialog = document.getElementById('addDialog');
     const $closeDialog = document.getElementById('closeDialog');
@@ -258,7 +273,7 @@
 
 
 
-    function setDirty(v) { dirty = v; updateStatus(); backup(); }
+    function setDirty(v) { dirty = v; updateStatus(); backup(); updateCloudStatus(); }
     function updateStatus() {
         const text = currentFileName
             ? `${currentFileName}${dirty ? ' • cambios sin guardar' : ''}`
@@ -269,6 +284,15 @@
             $statusBtn.title = text;
         }
     }
+
+        function updateCloudStatus() {
+  const base = __cloudEmail ? `Nube: ${__cloudEmail}` : 'Nube: desconectado';
+  const text = dirty ? `${base} • cambios sin guardar` : base;
+  if ($cloudBtn) {
+    $cloudBtn.textContent = text;
+    $cloudBtn.title = text;
+  }
+}
 
 
     // ===== Helpers Equipo =====
@@ -1157,6 +1181,37 @@ async function ensureNatureIndex() {
                 $statusBtn.setAttribute('aria-expanded', 'false');
             }
         });
+
+// abrir / cerrar nube
+        $cloudBtn?.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  // si NO hay sesión, abre diálogo auth
+  const usr = await window.Supa?.getUser?.();
+  if (!usr) { $authDialog.showModal(); return; }
+
+  // hay sesión -> togglear menú
+  const open = !$cloudMenu?.hidden;
+  $cloudMenu.hidden = open;
+  $cloudBtn.setAttribute('aria-expanded', open ? 'false' : 'true');
+});
+
+document.addEventListener('click', (e) => {
+  if ($cloudMenu && !$cloudMenu.hidden) {
+    const within = el => el && (el === e.target || el.contains(e.target));
+    if (!within($cloudMenu) && !within($cloudBtn)) {
+      $cloudMenu.hidden = true;
+      $cloudBtn.setAttribute('aria-expanded', 'false');
+    }
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && $cloudMenu && !$cloudMenu.hidden) {
+    $cloudMenu.hidden = true;
+    $cloudBtn.setAttribute('aria-expanded', 'false');
+  }
+});
+
 
         // acciones del menú
         document.getElementById('menuOpen')?.addEventListener('click', () => {
@@ -2367,6 +2422,66 @@ $signout?.addEventListener('click', async () => {
 document.getElementById('cloudSaveBtn')?.addEventListener('click', saveToSupabase);
 document.getElementById('cloudLoadBtn')?.addEventListener('click', loadFromSupabase);
 
+$cloudSave?.addEventListener('click', async () => {
+  $cloudMenu.hidden = true; $cloudBtn.setAttribute('aria-expanded', 'false');
+  await saveToSupabase();    // esto ya hace setDirty(false)
+  updateCloudStatus();       // refresca texto del botón
+});
+
+$cloudLoad?.addEventListener('click', async () => {
+  $cloudMenu.hidden = true; $cloudBtn.setAttribute('aria-expanded', 'false');
+  await loadFromSupabase();
+  updateCloudStatus();
+});
+
+$cloudOut?.addEventListener('click', async () => {
+  $cloudMenu.hidden = true; $cloudBtn.setAttribute('aria-expanded', 'false');
+  try { await window.Supa?.signOut?.(); } catch {}
+  __cloudEmail = '';
+  stopAutosave?.();
+  updateCloudStatus();
+});
+
+$authClose?.addEventListener('click', () => $authDialog.close());
+
+$authIn?.addEventListener('click', async () => {
+  try {
+    await window.Supa.signIn($authEmail.value, $authPass.value);
+    __cloudEmail = $authEmail.value || '';
+    startAutosave?.();
+    updateCloudStatus();
+    $authDialog.close();
+    alert('Sesión iniciada.');
+  } catch (e) { alert(e.message); }
+});
+
+$authUp?.addEventListener('click', async () => {
+  try {
+    await window.Supa.signUp($authEmail.value, $authPass.value);
+    alert('Registro iniciado. Verifica el email si tu proyecto lo requiere.');
+  } catch (e) { alert(e.message); }
+});
+
+try {
+  window.sb?.auth?.onAuthStateChange(async (_event, session) => {
+    __isLoggedIn = !!session?.user;
+    __cloudEmail = session?.user?.email || '';
+    if (__isLoggedIn) startAutosave?.(); else stopAutosave?.();
+    updateCloudStatus();
+  });
+} catch {}
+
+(async () => {
+  try {
+    const usr = await window.Supa?.getUser?.();
+    __isLoggedIn = !!usr;
+    __cloudEmail = usr?.email || '';
+    updateCloudStatus();
+  } catch {}
+})();
+
+
+
 // === AUTOSAVE A SUPABASE ===
 // Cada cuánto guardar automáticamente (en ms)
 const AUTOSAVE_EVERY_MS = 300000;
@@ -2498,6 +2613,7 @@ window.addEventListener('beforeunload', (e) => {
     });
 
     // === Guardar en Supabase (DB JSON) ===
+
 async function saveToSupabase() {
   try {
     // Asegura que si el fondo en LS es dataURL, lo subimos primero y guardamos su URL
@@ -2524,6 +2640,8 @@ async function saveToSupabase() {
     alert('Guardado en la nube: ' + id);
     // marca como no sucio
     setDirty(false);
+
+updateCloudStatus();
   } catch (e) {
     alert('Error al guardar en la nube: ' + e.message);
   }
@@ -2554,6 +2672,7 @@ async function loadFromSupabase() {
 
     render();
     updateStatus();
+updateCloudStatus();
     setDirty(false);
     alert('Datos cargados de la nube.');
   } catch (e) {

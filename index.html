@@ -28,19 +28,18 @@
         <button id="healAllBtn" class="btn btn-verde" title="Poner la vida de todos al máximo">Curar</button>
         <input id="bgInput" type="file" accept="image/*" class="hidden-input" />
         <button id="bagBtn" class="btn" title="Gestionar objetos">Mochila</button>
-        <!-- Auth -->
-<div id="authBox" class="auth-box">
-  <input id="emailInput" type="email" placeholder="email" />
-  <input id="passInput" type="password" placeholder="password" />
-  <button id="signupBtn" class="btn">Registrarse</button>
-  <button id="signinBtn" class="btn">Entrar</button>
-  <button id="signoutBtn" class="btn" hidden>Salir</button>
-  <span id="authStatus" class="muted"></span>
+<!-- Menú Nube -->
+<div class="status-wrap">
+  <button id="cloudBtn" class="status" aria-haspopup="true" aria-expanded="false" title="Opciones de nube">
+    Nube: desconectado
+  </button>
+  <div id="cloudMenu" class="status-menu" hidden>
+    <button id="cloudMenuSave"  class="menu-item">📤 Guardar</button>
+    <button id="cloudMenuLoad"  class="menu-item">📥 Cargar</button>
+    <div class="menu-sep"></div>
+    <button id="cloudMenuSignout" class="menu-item danger">🚪 Salir</button>
+  </div>
 </div>
-
-<!-- Acciones contra Supabase -->
-<button id="cloudSaveBtn" class="btn">Guardar en la nube</button>
-<button id="cloudLoadBtn" class="btn">Cargar de la nube</button>
 
         <div class="spacer"></div>
     <!-- ponlo cerca de otros inputs del header -->
@@ -214,6 +213,32 @@
             </div>
         </div>
     </dialog>
+
+    <!-- Diálogo: iniciar sesión -->
+<dialog id="authDialog">
+  <div class="modal">
+    <header>
+      <h2 style="margin:0;font-size:18px">Iniciar sesión</h2>
+      <div class="spacer"></div>
+      <button id="closeAuth" class="btn" style="padding:6px 10px">Cerrar</button>
+    </header>
+    <div class="content">
+      <div class="field">
+        <label for="authEmail">Email</label>
+        <input id="authEmail" type="email" placeholder="tucorreo@ejemplo.com" />
+      </div>
+      <div class="field">
+        <label for="authPass">Contraseña</label>
+        <input id="authPass" type="password" placeholder="••••••••" />
+      </div>
+      <div class="row" style="justify-content:flex-end;margin-top:14px;gap:8px">
+        <button id="authSignup" class="btn">Registrarse</button>
+        <button id="authSignin" class="btn btn-primary">Entrar</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
 
     <!-- Diálogo: detalles de Pokémon -->
     <dialog id="detailDialog">
