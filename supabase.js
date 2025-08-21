@@ -31,10 +31,16 @@ async function signIn(email, password) {
   async function signOut() {
     await sb.auth.signOut();
   }
-  async function getUser() {
-    const { data } = await sb.auth.getUser();
-    return data.user || null;
-  }
+async function getUser() {
+  // 1) mira la sesión guardada (no llama a red si no hay)
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return null;
+
+  // 2) valida/refresca el usuario (aquí sí puede ir a red)
+  const { data, error } = await sb.auth.getUser();
+  if (error) return null;
+  return data.user || null;
+}
 
   // === Helpers Storage: subir imagen de fondo ===
   // Guarda en: images/backgrounds/<userId>/<uuid>.png

@@ -2366,6 +2366,74 @@ $signout?.addEventListener('click', async () => {
 document.getElementById('cloudSaveBtn')?.addEventListener('click', saveToSupabase);
 document.getElementById('cloudLoadBtn')?.addEventListener('click', loadFromSupabase);
 
+// === AUTOSAVE A SUPABASE ===
+// Cada cuánto guardar automáticamente (en ms)
+const AUTOSAVE_EVERY_MS = 90_000;
+
+let __autosaveTimer = null;
+let __autosaveInFlight = false;
+let __isLoggedIn = false;
+
+// Sigue el estado de auth en tiempo real
+try {
+  window.sb?.auth?.onAuthStateChange((_event, session) => {
+    __isLoggedIn = !!session?.user;
+  });
+} catch {}
+
+// También actualiza el flag cuando se monta la UI
+(async () => {
+  try { __isLoggedIn = !!(await window.Supa?.getUser?.()); } catch {}
+})();
+
+function canAutosave() {
+  // Solo si hay sesión y hay cambios locales pendientes
+  return __isLoggedIn && typeof dirty !== 'undefined' && !!dirty;
+}
+
+async function autosaveTick() {
+  if (!canAutosave()) return;
+  if (__autosaveInFlight) return; // evita solapes
+
+  __autosaveInFlight = true;
+  try {
+    // Reutiliza guardado manual (ya limpia el dirty por dentro)
+    await saveToSupabase();
+  } catch (e) {
+    // No molestamos al usuario: solo log
+    console.warn('[autosave] fallo guardando:', e);
+  } finally {
+    __autosaveInFlight = false;
+  }
+}
+
+function startAutosave() {
+  if (__autosaveTimer) return;
+  __autosaveTimer = setInterval(autosaveTick, AUTOSAVE_EVERY_MS);
+  // Primer intento rápido al comenzar (no bloqueante)
+  setTimeout(autosaveTick, 5_000);
+}
+function stopAutosave() {
+  if (!__autosaveTimer) return;
+  clearInterval(__autosaveTimer);
+  __autosaveTimer = null;
+}
+
+// Arranca al iniciar la app
+startAutosave();
+
+// Intenta guardado al volver a la pestaña
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') autosaveTick();
+});
+
+// Antes de salir, si quedan cambios y hay sesión, intenta un guardado rápido
+window.addEventListener('beforeunload', (e) => {
+  if (canAutosave() && !__autosaveInFlight) {
+    navigator.sendBeacon && console.debug('[autosave] intento al salir');
+  }
+});
+
 
 
     // abrir/cerrar
