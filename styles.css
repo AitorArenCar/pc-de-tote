@@ -528,6 +528,18 @@ select:focus {
     gap: 16px
 }
 
+.field-checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.field-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
 /* Detalle */
 #addDialog{
     overflow-y: scroll;

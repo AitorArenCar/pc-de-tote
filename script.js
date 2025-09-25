@@ -121,6 +121,7 @@ const $authClose  = document.getElementById('closeAuth');
     const $result = document.getElementById('searchResult');
     const $extra = document.getElementById('extraFields');
     const $gender = document.getElementById('genderSelect');
+    const $shinyToggle = document.getElementById('shinyToggle');
 
     const $ballInput = document.getElementById('ballInput');
     const $ballMatches = document.getElementById('ballMatches');
@@ -158,6 +159,13 @@ const $authClose  = document.getElementById('closeAuth');
     const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
     const uuid = () => (crypto?.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36));
     const norm = s => (s || '').toLowerCase();
+
+    const spriteUrlOf = (p) => {
+        if (!p) return '';
+        const shinyUrl = p.spriteShiny || p.sprite_shiny || '';
+        if (p.shiny && shinyUrl) return shinyUrl;
+        return p.sprite || '';
+    };
 
     // ==== Sprites de Poké Ball (PokeAPI) ====
     const BALL_SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
@@ -244,7 +252,9 @@ const $authClose  = document.getElementById('closeAuth');
                     db = arr.map(x => ({
                         id: x.id || (crypto?.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)),
                         inTeam: !!x.inTeam,
-                        ...x
+                        ...x,
+                        shiny: !!x.shiny,
+                        spriteShiny: x.spriteShiny || x.sprite_shiny || ''
                     }));
                 }
             }
@@ -324,12 +334,16 @@ const $authClose  = document.getElementById('closeAuth');
         if (!team.length) {
             $teamContent.innerHTML = `<div class="muted" style="padding:12px">No tienes Pokémon en el equipo todavía.</div>`;
         } else {
-            $teamContent.innerHTML = team.map(p => `
+            $teamContent.innerHTML = team.map(p => {
+                const shinySymbol = p.shiny ? ' ★' : '';
+                const sprite = spriteUrlOf(p);
+                return `
       <button class="team-item" data-id="${p.id}" title="#${p.dexId}">
-        <img src="${p.sprite}" alt="${p.name}" width="64" height="64" />
-        <div class="team-name">${cap(p.name)} <span class="muted">#${p.dexId}</span></div>
+        <img src="${sprite}" alt="${p.name}" width="64" height="64" />
+        <div class="team-name">${cap(p.name)}${shinySymbol} <span class="muted">#${p.dexId}</span></div>
       </button>
-    `).join('');
+    `;
+            }).join('');
         }
 
         // Abrir
@@ -418,7 +432,8 @@ function render() {
     const img = document.createElement('img');
     img.alt = p.name;
     img.loading = 'lazy';
-    img.src = p.sprite || '';
+    const cardSprite = spriteUrlOf(p);
+    img.src = cardSprite;
 
     const tag = document.createElement('div');
     tag.className = 'tag';
@@ -450,9 +465,10 @@ function render() {
     const genderSymbol =
       p.gender === 'male'   ? ' ♂️' :
       p.gender === 'female' ? ' ♀️' : '';
+    const shinySymbol = p.shiny ? ' ★' : '';
 
     // Importante: usar innerHTML para que el span de nivel exista en el DOM
-    name.innerHTML = `${baseName}${levelHtml}${genderSymbol}`;
+    name.innerHTML = `${baseName}${levelHtml}${genderSymbol}${shinySymbol}`;
 
     // Botón equipo (solo clases; sin estilos inline)
     const tbtn = document.createElement('button');
@@ -486,7 +502,8 @@ function render() {
       const displayName =
         (p.nickname?.trim() ? p.nickname : cap(p.name)) +
         (typeof p.level === 'number' ? ` Nv.: ${p.level}` : '') +
-        (p.gender === 'male' ? ' ♂️' : p.gender === 'female' ? ' ♀️' : '');
+        (p.gender === 'male' ? ' ♂️' : p.gender === 'female' ? ' ♀️' : '') +
+        (p.shiny ? ' ★' : '');
 
       if (confirm(`¿Eliminar ${displayName}?`)) {
                 // Devolver objeto equipado (si lo hay) a la mochila antes de borrar
@@ -725,12 +742,16 @@ async function ensureNatureIndex() {
             || d.sprites.other?.['official-artwork']?.front_default
             || d.sprites.other?.dream_world?.front_default
             || '';
+        const spriteShiny = d.sprites.front_shiny
+            || d.sprites.other?.['official-artwork']?.front_shiny
+            || '';
 
         return {
             dexId: d.id,
             name: d.name,
             types: d.types.map(t => t.type.name),
             sprite,
+            spriteShiny,
             abilities: d.abilities.map(a => a.ability.name),
             height: d.height,  // en decímetros
             weight: d.weight   // en hectogramos
@@ -768,18 +789,45 @@ async function ensureNatureIndex() {
 
     let pendingBase = null; // snapshot del pokémon elegido
 
+    const currentPendingSprite = () => {
+        if (!pendingBase) return '';
+        const wantsShiny = !!$shinyToggle?.checked;
+        if (wantsShiny) {
+            const shinyUrl = pendingBase.spriteShiny || pendingBase.sprite_shiny || '';
+            if (shinyUrl) return shinyUrl;
+        }
+        return pendingBase.sprite || '';
+    };
+
+    const renderPendingPreview = () => {
+        if (!$result) return;
+        if (!pendingBase) {
+            $result.innerHTML = '';
+            return;
+        }
+        const sprite = currentPendingSprite();
+        $result.innerHTML = `
+    <div class="result">
+      <img class="result-img" width="96" height="96" alt="${pendingBase.name}" src="${sprite}" />
+      <div>
+        <div style="font-weight:700;font-size:16px">${cap(pendingBase.name)} <span class="muted">#${pendingBase.dexId}</span></div>
+        <div class="chips" style="margin-top:6px">${(pendingBase.types || []).map(typeChip).join('')}</div>
+      </div>
+    </div>`;
+    };
+
+    if ($shinyToggle) $shinyToggle.addEventListener('change', renderPendingPreview);
+
     function showPreview(p) {
-        pendingBase = p;
+        pendingBase = {
+            ...p,
+            spriteShiny: p.spriteShiny || p.sprite_shiny || ''
+        };
         const moveInputs = Array.from(document.querySelectorAll('.move-input'));
         moveInputs.forEach(i => { i.value = ''; i.dataset.selectedId = ''; i.dataset.selectedEs = ''; });
 
-        $result.innerHTML = `<div class="result">
-      <img width="96" height="96" alt="${p.name}" src="${p.sprite}" />
-      <div>
-        <div style="font-weight:700;font-size:16px">${cap(p.name)} <span class="muted">#${p.dexId}</span></div>
-        <div class="chips" style="margin-top:6px">${p.types.map(typeChip).join('')}</div>
-      </div>
-    </div>`;
+        if ($shinyToggle) $shinyToggle.checked = false;
+        renderPendingPreview();
 
         document.getElementById('numInput').value = '';
         $gender.value = 'unknown';
@@ -817,18 +865,33 @@ async function ensureNatureIndex() {
             dexId: p.dexId,
             name: p.name,
             types: p.types || [],
-            sprite: p.sprite || ''
+            sprite: p.sprite || '',
+            spriteShiny: p.spriteShiny || p.sprite_shiny || '',
+            height: p.height,
+            weight: p.weight
         };
 
-        // Previsualización
-        $result.innerHTML = `
-    <div class="result">
-      <img width="96" height="96" alt="${p.name}" src="${p.sprite}" />
-      <div>
-        <div style="font-weight:700;font-size:16px">${cap(p.name)} <span class="muted">#${p.dexId}</span></div>
-        <div class="chips" style="margin-top:6px">${(p.types || []).map(typeChip).join('')}</div>
-      </div>
-    </div>`;
+        if ($shinyToggle) $shinyToggle.checked = !!p.shiny;
+
+        renderPendingPreview();
+
+        if (!pendingBase.spriteShiny) {
+            try {
+                const currentEdit = p.id;
+                fetchPokemonCore(p.dexId || p.name).then(fresh => {
+                    if (!editMode || editingId !== currentEdit) return;
+                    pendingBase = {
+                        ...pendingBase,
+                        sprite: pendingBase.sprite || fresh.sprite || '',
+                        spriteShiny: pendingBase.spriteShiny || fresh.spriteShiny || '',
+                        types: (pendingBase.types && pendingBase.types.length) ? pendingBase.types : (fresh.types || pendingBase.types),
+                        height: pendingBase.height ?? fresh.height ?? pendingBase.height,
+                        weight: pendingBase.weight ?? fresh.weight ?? pendingBase.weight
+                    };
+                    renderPendingPreview();
+                }).catch(() => { });
+            } catch { }
+        }
 
         // Muestra extras y habilita confirmar
         $extra.hidden = false;
@@ -1316,6 +1379,7 @@ document.addEventListener('keydown', (e) => {
         const num = (document.getElementById('numInput')?.value || '').trim() || null;
         const nickname = (document.getElementById('nicknameInput')?.value || '').trim() || null;
         const level = Number(document.getElementById('levelInput')?.value || 0) || null;
+        const shiny = !!$shinyToggle?.checked;
 
         // --- EDITAR ---
         if (editMode && editingId) {
@@ -1329,11 +1393,13 @@ document.addEventListener('keydown', (e) => {
                     dexId: pendingBase.dexId,
                     name: pendingBase.name,
                     types: pendingBase.types,
-                    sprite: pendingBase.sprite,
+                    sprite: pendingBase.sprite || old.sprite || '',
+                    spriteShiny: pendingBase.spriteShiny || old.spriteShiny || '',
                     height: pendingBase.height,
                     weight: pendingBase.weight,
                     moves, ball, nature, gender, ability, heldItem: heldItemNew, stats, num,
-                    nickname, level
+                    nickname, level,
+                    shiny
                 };
 
                 // Ajuste de vida para no superar el nuevo máximo
@@ -1366,11 +1432,13 @@ document.addEventListener('keydown', (e) => {
             name: pendingBase.name,
             types: pendingBase.types,
             sprite: pendingBase.sprite,
+            spriteShiny: pendingBase.spriteShiny || '',
             height: pendingBase.height,
             weight: pendingBase.weight,
             moves, ball, nature, gender, ability, heldItem: heldItemNewAdd, stats, num,
             nickname, level,
-            inTeam: false
+            inTeam: false,
+            shiny
         };
 
         // Inicializa vida actual = vida máxima
@@ -1448,6 +1516,7 @@ document.addEventListener('keydown', (e) => {
   let displayName = p.nickname?.trim() ? p.nickname : cap(p.name);
   if (p.gender === 'male')   displayName += ' ♂️';
   else if (p.gender === 'female') displayName += ' ♀️';
+  if (p.shiny) displayName += ' ★';
   $detailTitle.innerHTML = `${displayName} <span class="chip">Nv. <span class="detail-level detail-level-title">${p.level}</span></span>`;
 
 
@@ -1573,10 +1642,10 @@ const damage = calcDamageTier(mp.power);
     <div class="detail-top">
       <div class="detail-main-info">
         <div class="detail-head">
-          <img width="120" height="120" alt="${p.name}" src="${p.sprite}" />
+          <img width="120" height="120" alt="${p.name}" src="${spriteUrlOf(p)}" />
           <div>
             <div class="name-row-header">
-              <span class="pkname">${cap(p.name)}</span>
+              <span class="pkname">${cap(p.name)}${p.shiny ? ' ★' : ''}</span>
               <span class="muted">#${p.dexId}</span>
               ${ballHtml}
               ${teamHtml}
@@ -2398,6 +2467,10 @@ function updateExpUI(pid, pObj) {
             const listEl = inp.parentElement.querySelector('.move-list');
             if (listEl) listEl.innerHTML = '';
         });
+
+        pendingBase = null;
+        if ($result) $result.innerHTML = '';
+        if ($shinyToggle) $shinyToggle.checked = false;
     }
 
 // === Auth UI ===
@@ -2693,7 +2766,13 @@ async function loadFromSupabase() {
     const data = row.data || {};
 
     if (Array.isArray(data.entries)) {
-      db = data.entries.map(p => ({ id: p.id || (crypto?.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)), ...p }));
+      db = data.entries.map(p => ({
+        id: p.id || (crypto?.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)),
+        inTeam: !!p.inTeam,
+        ...p,
+        shiny: !!p.shiny,
+        spriteShiny: p.spriteShiny || p.sprite_shiny || ''
+      }));
     } else {
       db = [];
     }
