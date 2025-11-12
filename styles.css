@@ -33,6 +33,50 @@ header {
     z-index: 5;
 }
 
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.menu-toggle {
+    display: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 0;
+}
+
+.menu-toggle span {
+    width: 22px;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    display: block;
+}
+
+.menu-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .55);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+    z-index: 4;
+}
+
 h1 {
     font-size: clamp(18px, 2.8vw, 26px);
     margin: 0;
@@ -972,6 +1016,70 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
 .menu-sep{ height:1px; background:rgba(255,255,255,.08); margin:6px; }
 .menu-item.danger{ color:#f87171; }
 
+@media (max-width: 720px) {
+  header {
+    justify-content: center;
+  }
+
+  .header-brand {
+    width: 100%;
+  }
+
+  .header-brand h1 {
+    flex: 1;
+    text-align: center;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+  }
+
+  .header-actions {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(320px, 82vw);
+    padding: 24px 20px 32px;
+    background: #080d1c;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform .3s ease;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, .45);
+    z-index: 6;
+  }
+
+  .header-actions .spacer {
+    display: none;
+  }
+
+  .header-actions > .btn,
+  .header-actions > .status-wrap {
+    width: 100%;
+  }
+
+  .status-wrap .status {
+    width: 100%;
+    text-align: left;
+  }
+
+  .header-actions.is-open {
+    transform: translateX(0);
+  }
+
+  body.menu-open {
+    overflow: hidden;
+  }
+
+  body.menu-open .menu-overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 /* Ocultar controles sueltos del header que pasan al menú */
 #openBtn, #saveBtn, #bgBtn, #bgClearBtn { display:none; }
 
@@ -992,23 +1100,6 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
 
 
 @media (max-width: 600px) {
-  header {
-    flex-wrap: wrap;
-    gap: 8px; /* un poco menos de espacio entre elementos */
-  }
-
-  header h1 {
-    flex-basis: 100%; /* que el título ocupe toda la primera línea */
-    text-align: center; /* centrado si quieres */
-  }
-
-  header button,
-  header .status-wrap {
-    flex: 1; /* que se repartan el espacio disponible */
-    min-width: 45%; /* para que no se aplasten demasiado */
-  }
-
-
   /* El diálogo de detalle debe poder hacer scroll */
   #detailDialog .modal{
     display: flex;
