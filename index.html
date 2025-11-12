@@ -10,31 +10,41 @@
 
 <body>
     <header>
-        <h1>Pc de Tote</h1>
-        <button id="teamBtn" class="btn" title="Ver equipo">Equipo (0)</button>
-        <button id="healAllBtn" class="btn btn-verde" title="Poner la vida de todos al máximo">Curar</button>
-        <input id="bgInput" type="file" accept="image/*" class="hidden-input" />
-        <button id="bagBtn" class="btn" title="Gestionar objetos">Mochila</button>
-        <div class="spacer"></div>
-    <!-- ponlo cerca de otros inputs del header -->
-<input id="openInput" type="file" accept="application/json" class="hidden-input" />
-<div class="status-wrap">
-  <button id="statusBtn" class="status" aria-haspopup="true" aria-expanded="false" title="Opciones de base">
-    Sin archivo abierto
-  </button>
-  <div id="statusMenu" class="status-menu" hidden>
-    <button id="menuOpen"  class="menu-item">📥 Importar datos</button>
-    <button id="menuSave"  class="menu-item">💾 Guardar</button>
+        <div class="header-brand">
+            <button id="menuToggle" class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false"
+                aria-controls="headerMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1>Pc de Tote</h1>
+        </div>
+        <div id="headerMenu" class="header-actions">
+            <button id="teamBtn" class="btn" title="Ver equipo">Equipo (0)</button>
+            <button id="healAllBtn" class="btn btn-verde" title="Poner la vida de todos al máximo">Curar</button>
+            <input id="bgInput" type="file" accept="image/*" class="hidden-input" />
+            <button id="bagBtn" class="btn" title="Gestionar objetos">Mochila</button>
+            <div class="spacer"></div>
+            <!-- ponlo cerca de otros inputs del header -->
+            <input id="openInput" type="file" accept="application/json" class="hidden-input" />
+            <div class="status-wrap">
+                <button id="statusBtn" class="status" aria-haspopup="true" aria-expanded="false"
+                    title="Opciones de base">
+                    Sin archivo abierto
+                </button>
+                <div id="statusMenu" class="status-menu" hidden>
+                    <button id="menuOpen" class="menu-item">📥 Importar datos</button>
+                    <button id="menuSave" class="menu-item">💾 Guardar</button>
 
-    <div class="menu-sep"></div>
-    <button id="menuBg"       class="menu-item">🖼️ Cambiar fondo</button>
-    <button id="menuBgClear"  class="menu-item danger">🧹 Quitar fondo</button>
-  </div>
-</div>
-
-        <button id="addBtn" class="btn btn-primary" title="Añadir Pokémon">＋ Añadir</button>
-
+                    <div class="menu-sep"></div>
+                    <button id="menuBg" class="menu-item">🖼️ Cambiar fondo</button>
+                    <button id="menuBgClear" class="menu-item danger">🧹 Quitar fondo</button>
+                </div>
+            </div>
+            <button id="addBtn" class="btn btn-primary" title="Añadir Pokémon">＋ Añadir</button>
+        </div>
     </header>
+    <div id="menuOverlay" class="menu-overlay" aria-hidden="true"></div>
 
     <main>
         <div id="empty" class="empty" hidden>

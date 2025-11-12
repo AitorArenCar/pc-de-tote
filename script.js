@@ -95,6 +95,51 @@
     const $saveBtn = document.getElementById('saveBtn');
     const $addBtn = document.getElementById('addBtn');
     const $teamBtn = document.getElementById('teamBtn');
+    const $menuToggle = document.getElementById('menuToggle');
+    const $headerMenu = document.getElementById('headerMenu');
+    const $menuOverlay = document.getElementById('menuOverlay');
+    const mobileQuery = window.matchMedia?.('(max-width: 720px)');
+
+    const closeMobileMenu = (focusToggle = false) => {
+        if (!$headerMenu) return;
+        $headerMenu.classList.remove('is-open');
+        document.body.classList.remove('menu-open');
+        $menuToggle?.setAttribute('aria-expanded', 'false');
+        if (focusToggle) $menuToggle?.focus();
+        $menuOverlay?.setAttribute('aria-hidden', 'true');
+    };
+
+    const openMobileMenu = () => {
+        if (!$headerMenu) return;
+        if (mobileQuery && !mobileQuery.matches) return;
+        $headerMenu.classList.add('is-open');
+        document.body.classList.add('menu-open');
+        $menuToggle?.setAttribute('aria-expanded', 'true');
+        $menuOverlay?.setAttribute('aria-hidden', 'false');
+    };
+
+    $menuToggle?.addEventListener('click', () => {
+        const isOpen = document.body.classList.contains('menu-open');
+        (isOpen ? closeMobileMenu : openMobileMenu)();
+    });
+
+    $menuOverlay?.addEventListener('click', () => closeMobileMenu());
+
+    window.addEventListener('keydown', evt => {
+        if (evt.key === 'Escape' && document.body.classList.contains('menu-open')) {
+            closeMobileMenu(true);
+        }
+    });
+
+    if (mobileQuery?.addEventListener) {
+        mobileQuery.addEventListener('change', e => {
+            if (!e.matches) closeMobileMenu();
+        });
+    } else if (mobileQuery?.addListener) { // Safari antiguo
+        mobileQuery.addListener(e => {
+            if (!e.matches) closeMobileMenu();
+        });
+    }
 
     // Dialog Añadir
     const $dialog = document.getElementById('addDialog');
