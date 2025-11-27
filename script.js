@@ -1309,6 +1309,7 @@ async function ensureNatureIndex() {
         // Cargar lista de usuarios
         try {
             const users = await window.Supa?.listUsers?.();
+            console.log('Usuarios disponibles:', users);
             if (!users || users.length === 0) {
                 toast('No hay otros jugadores disponibles', 'info');
                 return;
