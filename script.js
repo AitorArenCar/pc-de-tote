@@ -96,6 +96,19 @@
     const $addBtn = document.getElementById('addBtn');
     const $teamBtn = document.getElementById('teamBtn');
 
+// ----- Menú Hamburguesa -----
+const $hamburgerBtn = document.getElementById('hamburgerBtn');
+const $sideMenu = document.getElementById('sideMenu');
+const $menuOverlay = document.getElementById('menuOverlay');
+const $sideMenuOpen = document.getElementById('sideMenuOpen');
+const $sideMenuSave = document.getElementById('sideMenuSave');
+const $sideMenuBg = document.getElementById('sideMenuBg');
+const $sideMenuBgClear = document.getElementById('sideMenuBgClear');
+const $sideCloudStatus = document.getElementById('sideCloudStatus');
+const $sideCloudSave = document.getElementById('sideCloudSave');
+const $sideCloudLoad = document.getElementById('sideCloudLoad');
+const $sideCloudSignout = document.getElementById('sideCloudSignout');
+
 // ----- Nube (UI) -----
 const $cloudBtn  = document.getElementById('cloudBtn');
 const $cloudMenu = document.getElementById('cloudMenu');
@@ -151,6 +164,40 @@ const $authClose  = document.getElementById('closeAuth');
     const $teamDialog = document.getElementById('teamDialog');
     const $teamContent = document.getElementById('teamContent');
     const $closeTeam = document.getElementById('closeTeam');
+
+    // Dialog Intercambios
+    const $tradeInitDialog = document.getElementById('tradeInitDialog');
+    const $closeTradeInit = document.getElementById('closeTradeInit');
+    const $tradePendingDialog = document.getElementById('tradePendingDialog');
+    const $closeTradePending = document.getElementById('closeTradePending');
+
+    // Elementos de Step 1 (seleccionar usuario)
+    const $tradeUserSelect = document.getElementById('tradeUserSelect');
+    const $tradeUserInfo = document.getElementById('tradeUserInfo');
+    const $tradeUserName = document.getElementById('tradeUserName');
+    const $tradeUserPokemon = document.getElementById('tradeUserPokemon');
+    const $tradeStep1 = document.getElementById('tradeStep1');
+    const $tradeStep1Next = document.getElementById('tradeStep1Next');
+
+    // Elementos de Step 2 (seleccionar pokémon)
+    const $tradeStep2 = document.getElementById('tradeStep2');
+    const $tradeMyPokemon = document.getElementById('tradeMyPokemon');
+    const $tradeTargetPokemon = document.getElementById('tradeTargetPokemon');
+    const $tradeMyPokemonInfo = document.getElementById('tradeMyPokemonInfo');
+    const $tradeTargetPokemonInfo = document.getElementById('tradeTargetPokemonInfo');
+    const $tradeStep2Back = document.getElementById('tradeStep2Back');
+    const $tradeStep2Next = document.getElementById('tradeStep2Next');
+
+    // Elementos de Resumen
+    const $tradeSummary = document.getElementById('tradeSummary');
+    const $summaryMyPokemon = document.getElementById('summaryMyPokemon');
+    const $summaryTargetPokemon = document.getElementById('summaryTargetPokemon');
+    const $summaryTargetUser = document.getElementById('summaryTargetUser');
+    const $tradeConfirmBack = document.getElementById('tradeConfirmBack');
+    const $tradeConfirmSend = document.getElementById('tradeConfirmSend');
+
+    // Lista de solicitudes pendientes
+    const $tradePendingList = document.getElementById('tradePendingList');
 
 
 
@@ -1232,6 +1279,374 @@ async function ensureNatureIndex() {
         window.Bag.setupBagAutocomplete(inputEl, listEl, { minLength: 0, maxResults: 12 });
     }
 
+    // ===== SISTEMA DE INTERCAMBIOS =====
+    let currentTradeState = {
+        selectedUserId: null,
+        selectedUserEmail: null,
+        selectedUserPokemonList: [],
+        myPokemonId: null,
+        targetPokemonId: null,
+        targetUserId: null
+    };
+
+    function resetTradeState() {
+        currentTradeState = {
+            selectedUserId: null,
+            selectedUserEmail: null,
+            selectedUserPokemonList: [],
+            myPokemonId: null,
+            targetPokemonId: null,
+            targetUserId: null
+        };
+    }
+
+    async function initiateTrade() {
+        resetTradeState();
+        $tradeStep1.hidden = false;
+        $tradeStep2.hidden = true;
+        $tradeSummary.hidden = true;
+        
+        // Cargar lista de usuarios
+        try {
+            const users = await window.Supa?.listUsers?.();
+            if (!users || users.length === 0) {
+                toast('No hay otros jugadores disponibles', 'info');
+                return;
+            }
+
+            $tradeUserSelect.innerHTML = '<option value="">-- Selecciona un jugador --</option>';
+            
+            // Para cada usuario, intentar obtener su información
+            for (const user of users) {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = user.email || `Usuario ${user.id.slice(0, 8)}`;
+                $tradeUserSelect.appendChild(option);
+            }
+
+            $tradeInitDialog.showModal();
+        } catch (e) {
+            toast('Error cargando usuarios: ' + e.message, 'error');
+        }
+    }
+
+    async function loadUserPokemon(userId) {
+        try {
+            // Obtener la caja del usuario desde Supabase
+            const { data, error } = await window.sb
+                .from('poke_boxes')
+                .select('data')
+                .eq('user_id', userId)
+                .order('updated_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+            if (error || !data) {
+                toast('Este usuario no tiene una caja de Pokémon registrada', 'info');
+                return [];
+            }
+
+            const boxData = data.data || {};
+            const pokemonList = boxData.entries || [];
+            return pokemonList;
+        } catch (e) {
+            toast('Error cargando Pokémon del usuario: ' + e.message, 'error');
+            return [];
+        }
+    }
+
+    function renderUserPokemon(pokemonList) {
+        if (!pokemonList || pokemonList.length === 0) {
+            $tradeUserPokemon.innerHTML = '<p class="muted">Este usuario no tiene Pokémon.</p>';
+            return;
+        }
+
+        const html = `
+            <p style="margin:0 0 6px; font-size:12px; color:var(--muted);">Pokémon disponibles (${pokemonList.length}):</p>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                ${pokemonList.slice(0, 6).map(p => `
+                    <span class="chip" style="font-size:11px;">
+                        ${cap(p.nickname || p.name)} ${p.shiny ? '★' : ''} Nv.${p.level || '?'}
+                    </span>
+                `).join('')}
+                ${pokemonList.length > 6 ? `<span class="chip" style="font-size:11px; opacity:.7;">+${pokemonList.length - 6} más</span>` : ''}
+            </div>
+        `;
+        $tradeUserPokemon.innerHTML = html;
+    }
+
+    // Evento: seleccionar usuario
+    $tradeUserSelect?.addEventListener('change', async (e) => {
+        const userId = e.target.value;
+        if (!userId) {
+            $tradeUserInfo.style.display = 'none';
+            $tradeStep1Next.disabled = true;
+            return;
+        }
+
+        const userEmail = e.target.selectedOptions[0].textContent;
+        currentTradeState.selectedUserId = userId;
+        currentTradeState.selectedUserEmail = userEmail;
+
+        $tradeUserName.textContent = `Usuario: ${userEmail}`;
+        const pokemonList = await loadUserPokemon(userId);
+        currentTradeState.selectedUserPokemonList = pokemonList;
+        renderUserPokemon(pokemonList);
+        $tradeUserInfo.style.display = 'block';
+        $tradeStep1Next.disabled = pokemonList.length === 0;
+    });
+
+    // Siguiente desde Step 1
+    $tradeStep1Next?.addEventListener('click', () => {
+        if (!currentTradeState.selectedUserId) return;
+        
+        // Cargar Pokémon del usuario actual
+        $tradeMyPokemon.innerHTML = '<option value="">-- Selecciona --</option>';
+        db.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.id;
+            const name = p.nickname || cap(p.name);
+            option.textContent = `${name} Nv.${p.level || '?'} (${p.dexId})`;
+            $tradeMyPokemon.appendChild(option);
+        });
+
+        // Cargar Pokémon del otro usuario
+        $tradeTargetPokemon.innerHTML = '<option value="">-- Selecciona --</option>';
+        currentTradeState.selectedUserPokemonList.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.id;
+            const name = p.nickname || cap(p.name);
+            option.textContent = `${name} Nv.${p.level || '?'} (${p.dexId})`;
+            $tradeTargetPokemon.appendChild(option);
+        });
+
+        $tradeStep1.hidden = true;
+        $tradeStep2.hidden = false;
+    });
+
+    // Mostrar info de mi Pokémon
+    $tradeMyPokemon?.addEventListener('change', (e) => {
+        const pokemonId = e.target.value;
+        if (!pokemonId) {
+            $tradeMyPokemonInfo.style.display = 'none';
+            return;
+        }
+
+        const pokemon = db.find(p => p.id === pokemonId);
+        if (pokemon) {
+            currentTradeState.myPokemonId = pokemonId;
+            const info = `
+                <strong>${cap(pokemon.nickname || pokemon.name)}</strong> #${pokemon.dexId}<br>
+                Nv. ${pokemon.level || '?'} ${pokemon.gender === 'male' ? '♂️' : pokemon.gender === 'female' ? '♀️' : ''}${pokemon.shiny ? ' ★' : ''}<br>
+                ${(pokemon.types || []).map(t => cap(t)).join(' / ')}
+            `;
+            $tradeMyPokemonInfo.innerHTML = info;
+            $tradeMyPokemonInfo.style.display = 'block';
+            checkTradeStep2Ready();
+        }
+    });
+
+    // Mostrar info del Pokémon a recibir
+    $tradeTargetPokemon?.addEventListener('change', (e) => {
+        const pokemonId = e.target.value;
+        if (!pokemonId) {
+            $tradeTargetPokemonInfo.style.display = 'none';
+            return;
+        }
+
+        const pokemon = currentTradeState.selectedUserPokemonList.find(p => p.id === pokemonId);
+        if (pokemon) {
+            currentTradeState.targetPokemonId = pokemonId;
+            const info = `
+                <strong>${cap(pokemon.nickname || pokemon.name)}</strong> #${pokemon.dexId}<br>
+                Nv. ${pokemon.level || '?'} ${pokemon.gender === 'male' ? '♂️' : pokemon.gender === 'female' ? '♀️' : ''}${pokemon.shiny ? ' ★' : ''}<br>
+                ${(pokemon.types || []).map(t => cap(t)).join(' / ')}
+            `;
+            $tradeTargetPokemonInfo.innerHTML = info;
+            $tradeTargetPokemonInfo.style.display = 'block';
+            checkTradeStep2Ready();
+        }
+    });
+
+    function checkTradeStep2Ready() {
+        $tradeStep2Next.disabled = !currentTradeState.myPokemonId || !currentTradeState.targetPokemonId;
+    }
+
+    // Atrás desde Step 2
+    $tradeStep2Back?.addEventListener('click', () => {
+        $tradeStep2.hidden = true;
+        $tradeStep1.hidden = false;
+    });
+
+    // Confirmar desde Step 2
+    $tradeStep2Next?.addEventListener('click', () => {
+        const myPokemon = db.find(p => p.id === currentTradeState.myPokemonId);
+        const targetPokemon = currentTradeState.selectedUserPokemonList.find(p => p.id === currentTradeState.targetPokemonId);
+
+        $summaryMyPokemon.textContent = `${cap(myPokemon?.nickname || myPokemon?.name)} Nv.${myPokemon?.level || '?'}`;
+        $summaryTargetPokemon.textContent = `${cap(targetPokemon?.nickname || targetPokemon?.name)} Nv.${targetPokemon?.level || '?'}`;
+        $summaryTargetUser.textContent = `📬 Enviando a: ${currentTradeState.selectedUserEmail}`;
+
+        $tradeStep2.hidden = true;
+        $tradeSummary.hidden = false;
+    });
+
+    // Atrás desde resumen
+    $tradeConfirmBack?.addEventListener('click', () => {
+        $tradeSummary.hidden = true;
+        $tradeStep2.hidden = false;
+    });
+
+    // Enviar solicitud de intercambio
+    $tradeConfirmSend?.addEventListener('click', async () => {
+        try {
+            await window.Supa?.createTrade?.({
+                targetUserId: currentTradeState.selectedUserId,
+                initiatorPokemonId: currentTradeState.myPokemonId,
+                targetPokemonId: currentTradeState.targetPokemonId
+            });
+
+            toast('Solicitud de intercambio enviada', 'success');
+            $tradeInitDialog.close();
+            resetTradeState();
+        } catch (e) {
+            toast('Error enviando solicitud: ' + e.message, 'error');
+        }
+    });
+
+    // Cerrar diálogos
+    $closeTradeInit?.addEventListener('click', () => {
+        $tradeInitDialog.close();
+        resetTradeState();
+    });
+
+    $closeTradePending?.addEventListener('click', () => {
+        $tradePendingDialog.close();
+    });
+
+    async function loadPendingTrades() {
+        try {
+            const trades = await window.Supa?.getPendingTrades?.();
+            if (!trades || trades.length === 0) {
+                $tradePendingList.innerHTML = '<p class="muted">No tienes solicitudes pendientes.</p>';
+                return;
+            }
+
+            let html = '';
+            for (const trade of trades) {
+                // Obtener info del iniciador y sus Pokémon
+                const { data: initiatorBox } = await window.sb
+                    .from('poke_boxes')
+                    .select('data')
+                    .eq('user_id', trade.initiator_id)
+                    .maybeSingle();
+
+                const initiatorData = initiatorBox?.data || {};
+                const myPokemon = initiatorData.entries?.find(p => p.id === trade.initiator_pokemon_id);
+                const targetPokemon = db.find(p => p.id === trade.target_pokemon_id);
+
+                // Obtener email del iniciador
+                const { data: { user: initiator } } = await window.sb.auth.admin?.getUserById?.(trade.initiator_id) || { data: { user: null } };
+                const initiatorEmail = initiator?.email || `Usuario ${trade.initiator_id.slice(0, 8)}`;
+
+                html += `
+                    <div class="trade-card">
+                        <div class="trade-card-header">
+                            <div>
+                                <p style="margin:0; font-weight:700;">${initiatorEmail}</p>
+                                <p style="margin:4px 0 0; font-size:12px; color:var(--muted);">solicita un intercambio</p>
+                            </div>
+                        </div>
+                        <div class="trade-card-info">
+                            <div class="trade-card-pokemon">
+                                <strong>${cap(myPokemon?.nickname || myPokemon?.name || '?')}</strong><br>
+                                <span style="font-size:11px; opacity:.8;">Nv.${myPokemon?.level || '?'}</span>
+                            </div>
+                            <div style="text-align:center; align-self:center;">⇄</div>
+                            <div class="trade-card-pokemon" style="border-left-color:#34d399; background:rgba(52,211,153,.1);">
+                                <strong>${cap(targetPokemon?.nickname || targetPokemon?.name || '?')}</strong><br>
+                                <span style="font-size:11px; opacity:.8;">Nv.${targetPokemon?.level || '?'}</span>
+                            </div>
+                        </div>
+                        <div class="trade-card-actions">
+                            <button class="btn accept-trade" data-trade-id="${trade.id}">✓ Aceptar</button>
+                            <button class="btn deny-trade" data-trade-id="${trade.id}">✕ Rechazar</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            $tradePendingList.innerHTML = html;
+
+            // Agregar event listeners
+            $tradePendingList.querySelectorAll('.accept-trade').forEach(btn => {
+                btn.addEventListener('click', () => acceptPendingTrade(btn.dataset.tradeId));
+            });
+
+            $tradePendingList.querySelectorAll('.deny-trade').forEach(btn => {
+                btn.addEventListener('click', () => rejectPendingTrade(btn.dataset.tradeId));
+            });
+        } catch (e) {
+            console.error('Error cargando solicitudes:', e);
+            $tradePendingList.innerHTML = '<p class="muted">Error cargando solicitudes.</p>';
+        }
+    }
+
+    async function acceptPendingTrade(tradeId) {
+        try {
+            const trade = await window.Supa?.getTradeById?.(tradeId);
+            if (!trade) throw new Error('Intercambio no encontrado');
+
+            // Obtener Pokémon del iniciador
+            const { data: initiatorBox } = await window.sb
+                .from('poke_boxes')
+                .select('data')
+                .eq('user_id', trade.initiator_id)
+                .maybeSingle();
+
+            const initiatorData = initiatorBox?.data || {};
+            const initiatorPokemon = initiatorData.entries?.find(p => p.id === trade.initiator_pokemon_id);
+
+            // Mi Pokémon que voy a dar
+            const myPokemon = db.find(p => p.id === trade.target_pokemon_id);
+
+            if (!initiatorPokemon || !myPokemon) {
+                throw new Error('No se encontraron los Pokémon');
+            }
+
+            // Realizar el intercambio
+            // 1. Quitar Pokémon del iniciador y agregar el mío
+            initiatorData.entries = (initiatorData.entries || []).filter(p => p.id !== trade.initiator_pokemon_id);
+            initiatorData.entries.push(myPokemon);
+
+            // 2. Actualizar caja del iniciador
+            await window.Supa?.saveBox?.(initiatorData, 'Mi caja');
+
+            // 3. Quitar mi Pokémon y agregar el del iniciador
+            db = db.filter(p => p.id !== trade.target_pokemon_id);
+            db.push(initiatorPokemon);
+            setDirty(true);
+            render();
+
+            // 4. Marcar intercambio como completado
+            await window.Supa?.completeTrade?.(tradeId);
+
+            toast('Intercambio completado', 'success');
+            loadPendingTrades();
+        } catch (e) {
+            toast('Error completando intercambio: ' + e.message, 'error');
+        }
+    }
+
+    async function rejectPendingTrade(tradeId) {
+        try {
+            await window.Supa?.rejectTrade?.(tradeId);
+            toast('Intercambio rechazado', 'info');
+            loadPendingTrades();
+        } catch (e) {
+            toast('Error rechazando intercambio: ' + e.message, 'error');
+        }
+    }
 
     // ---------- Inicialización segura ----------
     document.addEventListener('DOMContentLoaded', () => {
@@ -1244,9 +1659,111 @@ async function ensureNatureIndex() {
         // refs del dropdown (hazlas con let arriba si no existen)
         $statusBtn = document.getElementById('statusBtn');
         $statusMenu = document.getElementById('statusMenu');
-        updateStatus();
+        if ($statusBtn) updateStatus();
         try { window.Bag?.init?.(); window.Bag?.onChange?.(() => { setDirty(true); }); } catch (e) { console.error('Bag init/onChange', e); }
 
+        // ===== Menú Hamburguesa =====
+        function toggleMenu() {
+            const isOpen = !$sideMenu.hidden;
+            if (isOpen) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        }
+
+        function openMenu() {
+            $sideMenu.hidden = false;
+            $menuOverlay.hidden = false;
+            $hamburgerBtn.setAttribute('aria-expanded', 'true');
+            document.body.style.overflow = 'hidden'; // evita scroll de fondo
+        }
+
+        function closeMenu() {
+            $sideMenu.hidden = true;
+            $menuOverlay.hidden = true;
+            $hamburgerBtn.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+        }
+
+        // Click en hamburguesa
+        $hamburgerBtn?.addEventListener('click', toggleMenu);
+
+        // Click en overlay
+        $menuOverlay?.addEventListener('click', closeMenu);
+
+        // Escape para cerrar
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !$sideMenu.hidden) {
+                closeMenu();
+            }
+        });
+
+        // Cerrar menú al clicar en un botón del menú
+        const menuButtons = $sideMenu?.querySelectorAll('.menu-btn') || [];
+        menuButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Espera un tick para que se ejecute el handler antes de cerrar
+                setTimeout(closeMenu, 100);
+            });
+        });
+
+        // ===== Eventos del menú lateral =====
+        $sideMenuOpen?.addEventListener('click', () => {
+            document.getElementById('openInput')?.click();
+        });
+        $sideMenuSave?.addEventListener('click', () => {
+            if (typeof saveToDownload === 'function') saveToDownload();
+        });
+        $sideMenuBg?.addEventListener('click', () => {
+            document.getElementById('bgInput')?.click();
+        });
+        $sideMenuBgClear?.addEventListener('click', () => {
+            if (typeof window.setBackgroundDataUrl === 'function') window.setBackgroundDataUrl(null);
+        });
+
+        // Eventos de intercambio
+        document.getElementById('sideTradeBtn')?.addEventListener('click', async () => {
+            const usr = await window.Supa?.getUser?.();
+            if (!usr) {
+                toast('Debes iniciar sesión para usar intercambios', 'info');
+                $authDialog.showModal();
+            } else {
+                initiateTrade();
+            }
+        });
+
+        document.getElementById('sidePendingTradesBtn')?.addEventListener('click', async () => {
+            const usr = await window.Supa?.getUser?.();
+            if (!usr) {
+                toast('Debes iniciar sesión para ver solicitudes', 'info');
+                $authDialog.showModal();
+            } else {
+                loadPendingTrades();
+                $tradePendingDialog.showModal();
+            }
+        });
+
+        // Nube en el menú lateral
+        $sideCloudStatus?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const usr = await window.Supa?.getUser?.();
+            if (!usr) {
+                $authDialog.showModal();
+            }
+            // Si ya está autenticado, no hace nada aquí (botones de guardar/cargar disponibles)
+        });
+
+        $sideCloudSave?.addEventListener('click', saveToSupabase);
+        $sideCloudLoad?.addEventListener('click', loadFromSupabase);
+        $sideCloudSignout?.addEventListener('click', async () => {
+            try {
+                await window.Supa?.signOut?.();
+                __cloudEmail = '';
+                stopAutosave?.();
+                updateCloudStatus();
+            } catch {}
+        });
 
         // abrir/cerrar
         $statusBtn?.addEventListener('click', (e) => {
@@ -1262,7 +1779,7 @@ async function ensureNatureIndex() {
                 const within = el => el && (el === e.target || el.contains(e.target));
                 if (!within($statusMenu) && !within($statusBtn)) {
                     $statusMenu.hidden = true;
-                    $statusBtn.setAttribute('aria-expanded', 'false');
+                    if ($statusBtn) $statusBtn.setAttribute('aria-expanded', 'false');
                 }
             }
         });
@@ -1271,7 +1788,7 @@ async function ensureNatureIndex() {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && $statusMenu && !$statusMenu.hidden) {
                 $statusMenu.hidden = true;
-                $statusBtn.setAttribute('aria-expanded', 'false');
+                if ($statusBtn) $statusBtn.setAttribute('aria-expanded', 'false');
             }
         });
 
@@ -2528,19 +3045,22 @@ document.getElementById('cloudSaveBtn')?.addEventListener('click', saveToSupabas
 document.getElementById('cloudLoadBtn')?.addEventListener('click', loadFromSupabase);
 
 $cloudSave?.addEventListener('click', async () => {
-  $cloudMenu.hidden = true; $cloudBtn.setAttribute('aria-expanded', 'false');
+  if ($cloudMenu) $cloudMenu.hidden = true;
+  if ($cloudBtn) $cloudBtn.setAttribute('aria-expanded', 'false');
   await saveToSupabase();    // esto ya hace setDirty(false)
   updateCloudStatus();       // refresca texto del botón
 });
 
 $cloudLoad?.addEventListener('click', async () => {
-  $cloudMenu.hidden = true; $cloudBtn.setAttribute('aria-expanded', 'false');
+  if ($cloudMenu) $cloudMenu.hidden = true;
+  if ($cloudBtn) $cloudBtn.setAttribute('aria-expanded', 'false');
   await loadFromSupabase();
   updateCloudStatus();
 });
 
 $cloudOut?.addEventListener('click', async () => {
-  $cloudMenu.hidden = true; $cloudBtn.setAttribute('aria-expanded', 'false');
+  if ($cloudMenu) $cloudMenu.hidden = true;
+  if ($cloudBtn) $cloudBtn.setAttribute('aria-expanded', 'false');
   try { await window.Supa?.signOut?.(); } catch {}
   __cloudEmail = '';
   stopAutosave?.();
@@ -2662,6 +3182,7 @@ window.addEventListener('beforeunload', (e) => {
     // abrir/cerrar
     $statusBtn?.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (!$statusMenu) return;
         const open = $statusMenu.hasAttribute('hidden') ? false : true;
         if (open) {
             $statusMenu.hidden = true;

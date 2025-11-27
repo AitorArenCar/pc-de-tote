@@ -105,6 +105,119 @@ async function getUser() {
     return data; // puede ser null si aún no hay caja
   }
 
+  // === Helpers DB: usuarios (para búsqueda de compañeros) ===
+  async function listUsers() {
+    const currentUser = await getUser();
+    if (!currentUser) throw new Error('Debes iniciar sesión');
+    
+    // Obtener todos los usuarios excepto el actual
+    const { data, error } = await sb
+      .from('auth.users')
+      .select('id, email')
+      .neq('id', currentUser.id);
+    
+    // Si hay error al acceder a auth.users, usar tabla alternativa
+    if (error) {
+      // Fallback: listar usuarios con cajas
+      const { data: boxes, error: boxError } = await sb
+        .from('poke_boxes')
+        .select('user_id')
+        .neq('user_id', currentUser.id)
+        .limit(100);
+      
+      if (boxError) throw boxError;
+      return (boxes || []).map(b => ({ id: b.user_id }));
+    }
+    
+    return data || [];
+  }
+
+  // === Helpers DB: trades (intercambios) ===
+  async function createTrade(tradeData) {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+
+    const { data, error } = await sb
+      .from('trades')
+      .insert({
+        initiator_id: user.id,
+        target_user_id: tradeData.targetUserId,
+        initiator_pokemon_id: tradeData.initiatorPokemonId,
+        target_pokemon_id: tradeData.targetPokemonId,
+        status: 'pending', // pending, accepted, rejected, completed
+        created_at: new Date().toISOString()
+      })
+      .select('id')
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async function getPendingTrades() {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+
+    const { data, error } = await sb
+      .from('trades')
+      .select('*')
+      .eq('target_user_id', user.id)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function acceptTrade(tradeId) {
+    const { data, error } = await sb
+      .from('trades')
+      .update({ status: 'accepted', updated_at: new Date().toISOString() })
+      .eq('id', tradeId)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async function rejectTrade(tradeId) {
+    const { data, error } = await sb
+      .from('trades')
+      .update({ status: 'rejected', updated_at: new Date().toISOString() })
+      .eq('id', tradeId);
+
+    if (error) throw error;
+    return data;
+  }
+
+  async function completeTrade(tradeId) {
+    const { data, error } = await sb
+      .from('trades')
+      .update({ status: 'completed', updated_at: new Date().toISOString() })
+      .eq('id', tradeId)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async function getTradeById(tradeId) {
+    const { data, error } = await sb
+      .from('trades')
+      .select('*')
+      .eq('id', tradeId)
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
   // expone helpers
-  window.Supa = { signUp, signIn, signOut, getUser, uploadBg, saveBox, loadBox };
+  window.Supa = { 
+    signUp, signIn, signOut, getUser, uploadBg, saveBox, loadBox,
+    listUsers, createTrade, getPendingTrades, acceptTrade, rejectTrade, 
+    completeTrade, getTradeById 
+  };
 })();
