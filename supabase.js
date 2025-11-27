@@ -123,6 +123,13 @@ async function getUser() {
     // Si hay error al acceder a auth.users, usar tabla alternativa (poke_boxes)
     if (error) {
       console.log('listUsers: fallback a poke_boxes');
+      
+      // Primero obtener TODAS las cajas para debuggear
+      const { data: allBoxes } = await sb
+        .from('poke_boxes')
+        .select('user_id, name, updated_at');
+      console.log('listUsers: TODAS las cajas =', allBoxes);
+      
       // Fallback: listar usuarios que tengan cajas (excepto el actual)
       const { data: boxes, error: boxError } = await sb
         .from('poke_boxes')
@@ -130,6 +137,8 @@ async function getUser() {
         .neq('user_id', currentUser.id)
         .order('updated_at', { ascending: false })
         .limit(100);
+      
+      console.log('listUsers: cajas después de filtro =', boxes);
       
       if (boxError) {
         console.error('listUsers: boxError =', boxError);
