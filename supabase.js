@@ -110,25 +110,47 @@ async function getUser() {
     const currentUser = await getUser();
     if (!currentUser) throw new Error('Debes iniciar sesión');
     
-    // Obtener todos los usuarios excepto el actual
+    console.log('listUsers: currentUser.id =', currentUser.id);
+    
+    // Intentar obtener todos los usuarios excepto el actual desde auth.users
     const { data, error } = await sb
       .from('auth.users')
       .select('id, email')
       .neq('id', currentUser.id);
     
-    // Si hay error al acceder a auth.users, usar tabla alternativa
+    console.log('listUsers: auth.users error =', error);
+    
+    // Si hay error al acceder a auth.users, usar tabla alternativa (poke_boxes)
     if (error) {
-      // Fallback: listar usuarios con cajas
+      console.log('listUsers: fallback a poke_boxes');
+      // Fallback: listar usuarios que tengan cajas (excepto el actual)
       const { data: boxes, error: boxError } = await sb
         .from('poke_boxes')
-        .select('user_id')
+        .select('user_id, name, updated_at')
         .neq('user_id', currentUser.id)
+        .order('updated_at', { ascending: false })
         .limit(100);
       
-      if (boxError) throw boxError;
-      return (boxes || []).map(b => ({ id: b.user_id }));
+      if (boxError) {
+        console.error('listUsers: boxError =', boxError);
+        throw boxError;
+      }
+      
+      // Deduplicar por user_id (puede haber múltiples cajas del mismo usuario)
+      const uniqueUsers = [];
+      const seen = new Set();
+      for (const box of (boxes || [])) {
+        if (!seen.has(box.user_id)) {
+          seen.add(box.user_id);
+          uniqueUsers.push({ id: box.user_id, email: `Usuario ${box.user_id.slice(0, 8)}` });
+        }
+      }
+      
+      console.log('listUsers: fallback users =', uniqueUsers);
+      return uniqueUsers;
     }
     
+    console.log('listUsers: users from auth.users =', data);
     return data || [];
   }
 
