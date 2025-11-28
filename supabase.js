@@ -112,14 +112,30 @@ async function getUser() {
     
     console.log('listUsers: currentUser.id =', currentUser.id);
     
+    // Primero intenta leer una tabla pública `profiles` (recomendada)
+    try {
+      const { data: profiles, error: profilesError } = await sb
+        .from('profiles')
+        .select('id, email, display_name')
+        .neq('id', currentUser.id)
+        .limit(100);
+      if (!profilesError && profiles && profiles.length) {
+        console.log('listUsers: profiles =', profiles);
+        return profiles.map(p => ({ id: p.id, email: p.email || null, name: p.display_name || `Usuario ${p.id.slice(0,8)}` }));
+      }
+      if (profilesError) console.log('listUsers: profiles error =', profilesError);
+    } catch (e) {
+      console.log('listUsers: profiles fetch exception =', e);
+    }
+
     // Intentar obtener todos los usuarios excepto el actual desde auth.users
     const { data, error } = await sb
       .from('auth.users')
       .select('id, email')
       .neq('id', currentUser.id);
-    
+
     console.log('listUsers: auth.users error =', error);
-    
+
     // Si hay error al acceder a auth.users, usar tabla alternativa (poke_boxes)
     if (error) {
       console.log('listUsers: fallback a poke_boxes');
@@ -140,13 +156,13 @@ async function getUser() {
       for (const box of (allBoxes || [])) {
         if (box.user_id !== currentUser.id && !seen.has(box.user_id)) {
           seen.add(box.user_id);
-          uniqueUsers.push({ id: box.user_id, email: `Usuario ${box.user_id.slice(0, 8)}` });
+          uniqueUsers.push({ id: box.user_id, email: `Usuario ${box.user_id.slice(0, 8)}`, name: box.name || `Usuario ${box.user_id.slice(0,8)}` });
         }
       }
       console.log('listUsers: fallback users =', uniqueUsers);
       return uniqueUsers;
     }
-    
+
     console.log('listUsers: users from auth.users =', data);
     return data || [];
   }
