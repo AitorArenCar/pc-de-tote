@@ -342,13 +342,29 @@ const $authClose  = document.getElementById('closeAuth');
         }
     }
 
-        function updateCloudStatus() {
-  const base = __cloudEmail ? `Nube: ${__cloudEmail}` : 'Nube: desconectado';
-  const text = dirty ? `${base} • cambios sin guardar` : base;
-  if ($cloudBtn) {
-    $cloudBtn.textContent = text;
-    $cloudBtn.title = text;
-  }
+                function updateCloudStatus() {
+    const base = __cloudEmail ? `Nube: ${__cloudEmail}` : 'Nube: desconectado';
+    const text = dirty ? `${base} • cambios sin guardar` : base;
+
+    // Botón de la cabecera / menú desplegable
+    if ($cloudBtn) {
+        $cloudBtn.textContent = text;
+        $cloudBtn.title = text;
+        $cloudBtn.classList.toggle('disabled', !__isLoggedIn);
+    }
+
+    // Estado en el menú lateral
+    if ($sideCloudStatus) {
+        const prefix = '☁️ ';
+        $sideCloudStatus.textContent = `${prefix}${__cloudEmail ? base : 'Nube: desconectado'}`;
+        $sideCloudStatus.title = base;
+        $sideCloudStatus.classList.toggle('disabled', !__isLoggedIn);
+    }
+
+    // Mostrar/ocultar acciones en el menú lateral según estado
+    if ($sideCloudSave) $sideCloudSave.hidden = !__isLoggedIn;
+    if ($sideCloudLoad) $sideCloudLoad.hidden = !__isLoggedIn;
+    if ($sideCloudSignout) $sideCloudSignout.hidden = !__isLoggedIn;
 }
 
 
