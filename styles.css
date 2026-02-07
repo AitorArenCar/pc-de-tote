@@ -35,7 +35,7 @@ header {
 
 /* Botón Hamburguesa */
 .hamburger-btn {
-    display: none;
+    display: flex;
     flex-direction: column;
     background: transparent;
     border: none;
@@ -74,7 +74,7 @@ header {
     left: -100%;
     top: 0;
     width: 280px;
-    height: 100vh;
+    height: 100dvh;
     background: #0b1020;
     border-right: 1px solid rgba(255, 255, 255, .12);
     overflow-y: auto;
@@ -1055,6 +1055,12 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
   border-radius:10px;
   padding:10px;
 }
+
+.bag-item .qty{
+  display: flex;
+  flex-direction: column-reverse;
+}
+
 .bag-item .name small{
   font-weight:100;
 }
