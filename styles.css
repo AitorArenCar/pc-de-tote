@@ -418,7 +418,7 @@ dialog::backdrop {
 .modal {
     background: #0e1631;
     color: #e6eefb;
-    min-width: min(675px, 85vw);
+    /*min-width: min(675px, 85vw);*/
     border: 1px solid rgba(255, 255, 255, .12)
 }
 
@@ -1111,12 +1111,14 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
   gap:8px;
   padding:6px 0 8px;
   overflow:auto;
+  min-height: 50px;
+  max-height: 50px;
 }
 .bag-tab{
   display:inline-flex;
   align-items:center;
   gap:6px;
-  padding:6px 10px;
+  padding:20px 10px;
   border:1px solid rgba(255,255,255,.12);
   background:#0b1330;
   border-radius:999px;

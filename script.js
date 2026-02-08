@@ -1604,9 +1604,8 @@ async function ensureNatureIndex() {
                 const myPokemon = initiatorData.entries?.find(p => p.id === trade.initiator_pokemon_id);
                 const targetPokemon = db.find(p => p.id === trade.target_pokemon_id);
 
-                // Obtener email del iniciador
-                const { data: { user: initiator } } = await window.sb.auth.admin?.getUserById?.(trade.initiator_id) || { data: { user: null } };
-                const initiatorEmail = initiator?.email || `Usuario ${trade.initiator_id.slice(0, 8)}`;
+                // Usar el email guardado en la solicitud de intercambio
+                const initiatorEmail = trade.initiator_email || `Usuario ${trade.initiator_id.slice(0, 8)}`;
 
                 html += `
                     <div class="trade-card">

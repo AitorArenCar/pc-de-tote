@@ -141,6 +141,7 @@ async function getUser() {
       .from('trades')
       .insert({
         initiator_id: user.id,
+        initiator_email: user.email,
         target_user_id: tradeData.targetUserId,
         initiator_pokemon_id: tradeData.initiatorPokemonId,
         target_pokemon_id: tradeData.targetPokemonId,
