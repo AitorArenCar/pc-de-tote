@@ -1559,10 +1559,15 @@ async function ensureNatureIndex() {
     // Enviar solicitud de intercambio
     $tradeConfirmSend?.addEventListener('click', async () => {
         try {
+            const myPokemon = db.find(p => p.id === currentTradeState.myPokemonId);
+            const targetPokemon = currentTradeState.selectedUserPokemonList.find(p => p.id === currentTradeState.targetPokemonId);
+
             await window.Supa?.createTrade?.({
                 targetUserId: currentTradeState.selectedUserId,
                 initiatorPokemonId: currentTradeState.myPokemonId,
-                targetPokemonId: currentTradeState.targetPokemonId
+                targetPokemonId: currentTradeState.targetPokemonId,
+                initiator_pokemon_data: myPokemon || null,
+                target_pokemon_data: targetPokemon || null
             });
 
             toast('Solicitud de intercambio enviada', 'success');
@@ -1585,6 +1590,7 @@ async function ensureNatureIndex() {
 
     async function loadPendingTrades() {
         try {
+            const currentUser = await window.Supa?.getUser?.();
             const trades = await window.Supa?.getPendingTrades?.();
             if (!trades || trades.length === 0) {
                 $tradePendingList.innerHTML = '<p class="muted">No tienes solicitudes pendientes.</p>';
@@ -1593,32 +1599,51 @@ async function ensureNatureIndex() {
 
             let html = '';
             for (const trade of trades) {
-                // Obtener info del iniciador y sus Pokémon
-                const { data: initiatorBox } = await window.sb
-                    .from('poke_boxes')
-                    .select('data')
-                    .eq('user_id', trade.initiator_id)
-                    .maybeSingle();
+                // Determinar rol del usuario actual en esta solicitud
+                const isReceiver = trade.target_user_id === currentUser?.id;
+                const isInitiator = trade.initiator_id === currentUser?.id;
 
-                const initiatorData = initiatorBox?.data || {};
-                const myPokemon = initiatorData.entries?.find(p => p.id === trade.initiator_pokemon_id);
-                const targetPokemon = db.find(p => p.id === trade.target_pokemon_id);
-
-                // Usar el email guardado en la solicitud de intercambio
+                // Preferimos usar los datos embebidos en la solicitud si existen
+                const initiatorPokemon = trade.initiator_pokemon_data || null;
+                const targetPokemon = trade.target_pokemon_data || null;
                 const initiatorEmail = trade.initiator_email || `Usuario ${trade.initiator_id.slice(0, 8)}`;
+
+                // Texto y botones según rol/estado
+                let actionsHtml = '';
+                let subtitle = '';
+                if (isReceiver) {
+                    subtitle = 'te ha enviado una solicitud';
+                    actionsHtml = `
+                        <button class="btn accept-trade" data-trade-id="${trade.id}" data-role="receiver">✓ Aceptar</button>
+                        <button class="btn deny-trade" data-trade-id="${trade.id}">✕ Rechazar</button>
+                    `;
+                } else if (isInitiator) {
+                    if (trade.receiver_status === 'accepted' && trade.initiator_status === 'pending') {
+                        subtitle = 'tu solicitud ha sido aceptada — confirma el intercambio';
+                        actionsHtml = `<button class="btn accept-trade" data-trade-id="${trade.id}" data-role="initiator">✓ Aceptar</button>`;
+                    } else if (trade.receiver_status === 'pending') {
+                        subtitle = 'Esperando a que el receptor acepte';
+                        actionsHtml = `<button class="btn deny-trade" data-trade-id="${trade.id}">✕ Cancelar</button>`;
+                    } else {
+                        subtitle = 'Estado: ' + (trade.receiver_status || 'pendiente');
+                    }
+                } else {
+                    // no es parte — mostrar sólo info mínima
+                    subtitle = 'Solicitud entre otros usuarios';
+                }
 
                 html += `
                     <div class="trade-card">
                         <div class="trade-card-header">
                             <div>
                                 <p style="margin:0; font-weight:700;">${initiatorEmail}</p>
-                                <p style="margin:4px 0 0; font-size:12px; color:var(--muted);">solicita un intercambio</p>
+                                <p style="margin:4px 0 0; font-size:12px; color:var(--muted);">${subtitle}</p>
                             </div>
                         </div>
                         <div class="trade-card-info">
                             <div class="trade-card-pokemon">
-                                <strong>${cap(myPokemon?.nickname || myPokemon?.name || '?')}</strong><br>
-                                <span style="font-size:11px; opacity:.8;">Nv.${myPokemon?.level || '?'}</span>
+                                <strong>${cap(initiatorPokemon?.nickname || initiatorPokemon?.name || '?')}</strong><br>
+                                <span style="font-size:11px; opacity:.8;">Nv.${initiatorPokemon?.level || '?'}</span>
                             </div>
                             <div style="text-align:center; align-self:center;">⇄</div>
                             <div class="trade-card-pokemon" style="border-left-color:#34d399; background:rgba(52,211,153,.1);">
@@ -1627,18 +1652,16 @@ async function ensureNatureIndex() {
                             </div>
                         </div>
                         <div class="trade-card-actions">
-                            <button class="btn accept-trade" data-trade-id="${trade.id}">✓ Aceptar</button>
-                            <button class="btn deny-trade" data-trade-id="${trade.id}">✕ Rechazar</button>
+                            ${actionsHtml}
                         </div>
                     </div>
                 `;
             }
-
-            $tradePendingList.innerHTML = html;
+                $tradePendingList.innerHTML = html;
 
             // Agregar event listeners
             $tradePendingList.querySelectorAll('.accept-trade').forEach(btn => {
-                btn.addEventListener('click', () => acceptPendingTrade(btn.dataset.tradeId));
+                btn.addEventListener('click', () => acceptPendingTrade(btn.dataset.tradeId, btn.dataset.role || 'receiver'));
             });
 
             $tradePendingList.querySelectorAll('.deny-trade').forEach(btn => {
@@ -1650,49 +1673,74 @@ async function ensureNatureIndex() {
         }
     }
 
-    async function acceptPendingTrade(tradeId) {
+    async function acceptPendingTrade(tradeId, role = 'receiver') {
         try {
+            // Marca la aceptación para el rol correspondiente
+            const updated = await window.Supa?.acceptTrade?.(tradeId, role);
+            if (!updated) throw new Error('No se pudo aceptar la solicitud');
+
+            // Reconsultar el intercambio
             const trade = await window.Supa?.getTradeById?.(tradeId);
             if (!trade) throw new Error('Intercambio no encontrado');
 
-            // Obtener Pokémon del iniciador
-            const { data: initiatorBox } = await window.sb
-                .from('poke_boxes')
-                .select('data')
-                .eq('user_id', trade.initiator_id)
-                .maybeSingle();
+            // Si ambos han aceptado, ejecutar el swap usando los datos guardados
+            if (trade.receiver_status === 'accepted' && trade.initiator_status === 'accepted') {
+                // Cargar cajas actuales
+                const { data: initiatorBox } = await window.sb
+                    .from('poke_boxes')
+                    .select('data')
+                    .eq('user_id', trade.initiator_id)
+                    .maybeSingle();
 
-            const initiatorData = initiatorBox?.data || {};
-            const initiatorPokemon = initiatorData.entries?.find(p => p.id === trade.initiator_pokemon_id);
+                const { data: targetBox } = await window.sb
+                    .from('poke_boxes')
+                    .select('data')
+                    .eq('user_id', trade.target_user_id)
+                    .maybeSingle();
 
-            // Mi Pokémon que voy a dar
-            const myPokemon = db.find(p => p.id === trade.target_pokemon_id);
+                const initiatorData = initiatorBox?.data || { entries: [] };
+                const targetData = targetBox?.data || { entries: [] };
 
-            if (!initiatorPokemon || !myPokemon) {
-                throw new Error('No se encontraron los Pokémon');
+                // Preferir los datos embebidos en la solicitud (si existen)
+                const initiatorPokemon = trade.initiator_pokemon_data || initiatorData.entries?.find(p => p.id === trade.initiator_pokemon_id);
+                const targetPokemon = trade.target_pokemon_data || targetData.entries?.find(p => p.id === trade.target_pokemon_id);
+
+                if (!initiatorPokemon || !targetPokemon) {
+                    throw new Error('Faltan datos de los Pokémon para completar el intercambio');
+                }
+
+                // Quitar y añadir en iniciador
+                initiatorData.entries = (initiatorData.entries || []).filter(p => p.id !== (trade.initiator_pokemon_id || initiatorPokemon.id));
+                initiatorData.entries.push(targetPokemon);
+
+                // Quitar y añadir en receptor (target_user_id)
+                targetData.entries = (targetData.entries || []).filter(p => p.id !== (trade.target_pokemon_id || targetPokemon.id));
+                targetData.entries.push(initiatorPokemon);
+
+                // Guardar cajas (upsert)
+                await window.Supa?.updateBoxForUser?.(trade.initiator_id, initiatorData);
+                await window.Supa?.updateBoxForUser?.(trade.target_user_id, targetData);
+
+                // Si el usuario actual es el receptor, actualizar su `db` local
+                const me = await window.Supa?.getUser?.();
+                if (me && me.id === trade.target_user_id) {
+                    db = db.filter(p => p.id !== trade.target_pokemon_id);
+                    db.push(initiatorPokemon);
+                    setDirty(true);
+                    render();
+                }
+
+                // Marcar completado
+                await window.Supa?.completeTrade?.(tradeId);
+                toast('Intercambio completado', 'success');
+            } else {
+                // Si aún falta la otra parte, sólo informar
+                toast('Aceptaste la solicitud. Esperando confirmación de la otra parte.', 'info');
             }
 
-            // Realizar el intercambio
-            // 1. Quitar Pokémon del iniciador y agregar el mío
-            initiatorData.entries = (initiatorData.entries || []).filter(p => p.id !== trade.initiator_pokemon_id);
-            initiatorData.entries.push(myPokemon);
-
-            // 2. Actualizar caja del iniciador
-            await window.Supa?.saveBox?.(initiatorData, 'Mi caja');
-
-            // 3. Quitar mi Pokémon y agregar el del iniciador
-            db = db.filter(p => p.id !== trade.target_pokemon_id);
-            db.push(initiatorPokemon);
-            setDirty(true);
-            render();
-
-            // 4. Marcar intercambio como completado
-            await window.Supa?.completeTrade?.(tradeId);
-
-            toast('Intercambio completado', 'success');
             loadPendingTrades();
         } catch (e) {
-            toast('Error completando intercambio: ' + e.message, 'error');
+            toast('Error procesando aceptación: ' + e.message, 'error');
         }
     }
 
@@ -1765,6 +1813,25 @@ async function ensureNatureIndex() {
                 setTimeout(closeMenu, 100);
             });
         });
+
+        // === Suscripción realtime a intercambios ===
+        try {
+            const me = await window.Supa?.getUser?.();
+            if (me && window.Supa?.subscribeTrades) {
+                const sub = window.Supa.subscribeTrades((payload) => {
+                    const row = payload.new || payload.record || null;
+                    // si la fila nueva/actualizada afecta al usuario, recargar
+                    if (!row) return;
+                    if (row.target_user_id === me.id || row.initiator_id === me.id) {
+                        // refrescar lista en segundo plano
+                        loadPendingTrades();
+                    }
+                });
+
+                // limpiamos al salir de la página
+                window.addEventListener('beforeunload', () => sub?.unsubscribe?.());
+            }
+        } catch (e) { console.warn('Realtime trades subscription failed', e); }
 
         // ===== Eventos del menú lateral =====
         $sideMenuOpen?.addEventListener('click', () => {

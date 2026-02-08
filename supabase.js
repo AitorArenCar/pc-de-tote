@@ -137,6 +137,7 @@ async function getUser() {
     const user = await getUser();
     if (!user) throw new Error('Debes iniciar sesión');
 
+    // permitimos guardar también los datos completos de los Pokémon
     const { data, error } = await sb
       .from('trades')
       .insert({
@@ -145,7 +146,11 @@ async function getUser() {
         target_user_id: tradeData.targetUserId,
         initiator_pokemon_id: tradeData.initiatorPokemonId,
         target_pokemon_id: tradeData.targetPokemonId,
-        status: 'pending', // pending, accepted, rejected, completed
+        initiator_pokemon_data: tradeData.initiator_pokemon_data || null,
+        target_pokemon_data: tradeData.target_pokemon_data || null,
+        status: 'pending', // global status (kept for backward compat)
+        receiver_status: 'pending',
+        initiator_status: 'pending',
         created_at: new Date().toISOString()
       })
       .select('id')
@@ -159,21 +164,31 @@ async function getUser() {
     const user = await getUser();
     if (!user) throw new Error('Debes iniciar sesión');
 
+    // Devuelve solicitudes relevantes para el usuario: como receptor (receiver_status pending)
+    // o como iniciador (initiator_status pending). Excluimos completadas.
     const { data, error } = await sb
       .from('trades')
       .select('*')
-      .eq('target_user_id', user.id)
-      .eq('status', 'pending')
+      .or(
+        `and(target_user_id.eq.${user.id},receiver_status.eq.pending),and(initiator_id.eq.${user.id},initiator_status.eq.pending)`
+      )
+      .neq('status', 'completed')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
     return data || [];
   }
 
-  async function acceptTrade(tradeId) {
+  // role: 'receiver' | 'initiator'
+  async function acceptTrade(tradeId, role = 'receiver') {
+    const field = role === 'initiator' ? 'initiator_status' : 'receiver_status';
+    const updates = {};
+    updates[field] = 'accepted';
+    updates.updated_at = new Date().toISOString();
+
     const { data, error } = await sb
       .from('trades')
-      .update({ status: 'accepted', updated_at: new Date().toISOString() })
+      .update(updates)
       .eq('id', tradeId)
       .select('*')
       .single();
@@ -215,10 +230,40 @@ async function getUser() {
     return data;
   }
 
+  // Upsert caja para un usuario dado (usa upsert por user_id)
+  async function updateBoxForUser(userId, boxData, name = 'Mi caja') {
+    const { data, error } = await sb
+      .from('poke_boxes')
+      .upsert({ user_id: userId, user_email: null, data: boxData, name }, { onConflict: 'user_id' })
+      .select('id')
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  // Suscripción en tiempo real a cambios en la tabla trades
+  function subscribeTrades(onEvent) {
+    const channel = sb
+      .channel('public:trades')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'trades' }, (payload) => {
+        try {
+          onEvent(payload);
+        } catch (e) { console.error('subscribeTrades handler error', e); }
+      })
+      .subscribe();
+
+    return {
+      channel,
+      unsubscribe: async () => {
+        try { await sb.removeChannel(channel); } catch (e) { console.warn('removeChannel failed', e); }
+      }
+    };
+  }
+
   // expone helpers
   window.Supa = { 
     signUp, signIn, signOut, getUser, uploadBg, saveBox, loadBox,
     listUsers, createTrade, getPendingTrades, acceptTrade, rejectTrade, 
-    completeTrade, getTradeById 
+    completeTrade, getTradeById, updateBoxForUser, subscribeTrades
   };
 })();
