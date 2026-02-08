@@ -1755,7 +1755,7 @@ async function ensureNatureIndex() {
     }
 
     // ---------- Inicialización segura ----------
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
         try { setupMoveAutocompleteES(); } catch (e) { console.error('setupMoveAutocompleteES()', e); }
         try { setupNatureAutocomplete(); } catch (e) { console.error('setupNatureAutocomplete()', e); }
         try { setupBallAutocomplete(); } catch (e) { console.error('setupBallAutocomplete()', e); }
