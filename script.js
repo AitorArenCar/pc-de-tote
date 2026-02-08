@@ -309,15 +309,39 @@ const $authClose  = document.getElementById('closeAuth');
             currentFileName = localStorage.getItem(LS_NAME) || null;
 
             // === CARGA ESTÁTICOS DESDE /data ===
-            // Mapas ES
+            // Mapas ES (traducciones ya procesadas)
             moveEsCache = await loadDataJson('pokebox_move_es_v1', {}) || {};
             ballEsCache = await loadDataJson('pokebox_ball_es_v1', {}) || {};
             abilityEsCache = await loadDataJson('pokebox_ability_es_v1', {}) || {};
             natureEsCache = await loadDataJson('pokebox_nature_es_v1', {}) || {};
 
-            // Índices (si existen en /data) — se usan como primer intento
-            // (los ensure* tendrán fallback online si no hay fichero)
-            // Nota: no asignamos aquí; los ensure* sabrán mirar primero en /data
+            // Índices completos (priorizar ficheros locales para uso offline)
+            const mi = await loadDataJson('moveIndex_v1', null);
+            if (mi && mi.names && mi.names.length) { moveIndex = mi; localStorage.setItem('moveIndex_v1', JSON.stringify(mi)); }
+
+            const bi = await loadDataJson('ballIndex_v1', null);
+            if (Array.isArray(bi) && bi.length) { ballIndex = bi; localStorage.setItem('ballIndex_v1', JSON.stringify(bi)); }
+
+            const ni = await loadDataJson('natureIndex_v1', null);
+            if (Array.isArray(ni) && ni.length) { natureIndex = ni; localStorage.setItem('natureIndex_v1', JSON.stringify(ni)); }
+
+            const ai = await loadDataJson('abilityIndex_v2', null);
+            if (Array.isArray(ai) && ai.length) { abilityIndex = ai; localStorage.setItem('abilityIndex_v2', JSON.stringify(ai)); }
+
+            const pi = await loadDataJson('pokeIndex_v1', null);
+            if (pi && pi.names && pi.names.length) { pokemonIndex = pi; localStorage.setItem('pokeIndex_v1', JSON.stringify(pi)); }
+
+            // Item caches (si existen) — útil para mochila/offline
+            const itemCache = await loadDataJson('pokeapi_item_cache_v1', null);
+            if (itemCache) localStorage.setItem('pokeapi_item_cache_v1', JSON.stringify(itemCache));
+            const itemIndex = await loadDataJson('pokeapi_item_index_v1', null);
+            if (itemIndex) localStorage.setItem('pokeapi_item_index_v1', JSON.stringify(itemIndex));
+
+            // También persistir traducciones en localStorage para evitar recargas
+            localStorage.setItem(LS_MOVE_ES, JSON.stringify(moveEsCache));
+            localStorage.setItem(LS_BALL_ES, JSON.stringify(ballEsCache));
+            localStorage.setItem(LS_ABILITY_ES, JSON.stringify(abilityEsCache));
+            localStorage.setItem(LS_NATURE_ES, JSON.stringify(natureEsCache));
 
             // re-render mochila si procede
             if (window.Bag?.render) window.Bag.render();
@@ -1117,14 +1141,19 @@ async function ensureNatureIndex() {
                     }
                 }
 
-                // 2) ampliar cache dinámicamente
-                for (const id of (moveIndex?.names || [])) {
+                // 2) ampliar cache dinámicamente (fetch paralelo limitado)
+                const ids = (moveIndex?.names || []).filter(id => !seen.has(id));
+                const batch = ids.slice(0, 500); // limitar por seguridad
+                const promises = batch.map(id => {
+                    if (moveEsCache[id]) return Promise.resolve({ id, es: moveEsCache[id] });
+                    return moveEs(id).then(es => ({ id, es })).catch(() => ({ id, es: null }));
+                });
+                const results = await Promise.all(promises);
+                for (const r of results) {
                     if (matches.length >= 20) break;
-                    if (seen.has(id)) continue;
-                    const es = moveEsCache[id] || await moveEs(id);
-                    if (es && es.toLowerCase().includes(q)) {
-                        seen.add(id); matches.push({ id, es });
-                    }
+                    if (!r.es) continue;
+                    const esLower = r.es.toLowerCase();
+                    if (esLower.includes(q)) { seen.add(r.id); matches.push({ id: r.id, es: r.es }); }
                 }
 
                 const list = matches.slice(0, 20);
@@ -1165,14 +1194,18 @@ async function ensureNatureIndex() {
                 }
             }
 
-            // 2) ampliar cache dinámicamente sin límite artificial
-            for (const it of (ballIndex || [])) {
+            // 2) ampliar cache dinámicamente (fetch paralelo limitado)
+            const ids = (ballIndex || []).map(it => it.id).filter(id => !seen.has(id));
+            const batch = ids.slice(0, 500);
+            const promises = batch.map(id => {
+                if (ballEsCache[id]) return Promise.resolve({ id, es: ballEsCache[id] });
+                return ballEs(id).then(es => ({ id, es })).catch(() => ({ id, es: null }));
+            });
+            const results = await Promise.all(promises);
+            for (const r of results) {
                 if (matches.length >= 20) break;
-                if (seen.has(it.id)) continue;
-                const es = ballEsCache[it.id] || await ballEs(it.id);
-                if (es && es.toLowerCase().includes(q)) {
-                    seen.add(it.id); matches.push({ id: it.id, es });
-                }
+                if (!r.es) continue;
+                if (r.es.toLowerCase().includes(q)) { seen.add(r.id); matches.push({ id: r.id, es: r.es }); }
             }
 
             if (!matches.length) { listEl.hidden = true; listEl.innerHTML = ''; return; }
@@ -1212,14 +1245,20 @@ async function ensureNatureIndex() {
                 }
             }
 
-            // 2) ampliar cache dinámicamente
-            for (const id of (natureIdList || [])) {
+            // 2) ampliar cache dinámicamente (fetch paralelo limitado)
+            const ids = (natureIdList || []).filter(id => !seen.has(id));
+            const batch = ids.slice(0, 500);
+            const promises = batch.map(id => {
+                if (natureEsCache[id]) return Promise.resolve({ id, pack: natureEsCache[id] });
+                return natureEs(id).then(pack => ({ id, pack })).catch(() => ({ id, pack: null }));
+            });
+            const results = await Promise.all(promises);
+            for (const r of results) {
                 if (matches.length >= 20) break;
-                if (seen.has(id)) continue;
-                const pack = natureEsCache[id] || await natureEs(id);
-                const es = pack?.nameEs;
+                if (!r.pack) continue;
+                const es = r.pack.nameEs;
                 if (es && es.toLowerCase().includes(q)) {
-                    seen.add(id); matches.push({ id, es, up: pack.up, down: pack.down });
+                    seen.add(r.id); matches.push({ id: r.id, es, up: r.pack.up, down: r.pack.down });
                 }
             }
 
@@ -1265,14 +1304,18 @@ async function ensureNatureIndex() {
                 }
             }
 
-            // 2) ampliar cache dinámicamente (sin límite extra)
-            for (const id of (abilityIndex || [])) {
+            // 2) ampliar cache dinámicamente (fetch paralelo limitado)
+            const ids = (abilityIndex || []).filter(id => !seen.has(id));
+            const batch = ids.slice(0, 500);
+            const promises = batch.map(id => {
+                if (abilityEsCache[id]) return Promise.resolve({ id, es: abilityEsCache[id] });
+                return abilityEs(id).then(es => ({ id, es })).catch(() => ({ id, es: null }));
+            });
+            const results = await Promise.all(promises);
+            for (const r of results) {
                 if (matches.length >= 20) break;
-                if (seen.has(id)) continue;
-                const es = abilityEsCache[id] || await abilityEs(id);
-                if (es && es.toLowerCase().includes(q)) {
-                    seen.add(id); matches.push({ id, es });
-                }
+                if (!r.es) continue;
+                if (r.es.toLowerCase().includes(q)) { seen.add(r.id); matches.push({ id: r.id, es: r.es }); }
             }
 
             if (!matches.length) { listEl.hidden = true; listEl.innerHTML = ''; return; }
