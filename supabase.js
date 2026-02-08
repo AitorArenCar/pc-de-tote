@@ -76,14 +76,14 @@ async function getUser() {
     if (existing) {
       const { error } = await sb
         .from('poke_boxes')
-        .update({ data: payload, name, updated_at: new Date().toISOString() })
+         .update({ data: payload, name, user_email: user.email, updated_at: new Date().toISOString() })
         .eq('id', existing.id);
       if (error) throw error;
       return existing.id;
     } else {
       const { data, error } = await sb
         .from('poke_boxes')
-        .insert({ user_id: user.id, data: payload, name })
+         .insert({ user_id: user.id, user_email: user.email, data: payload, name })
         .select('id')
         .single();
       if (error) throw error;
@@ -121,12 +121,12 @@ async function getUser() {
       // Fallback: listar usuarios con cajas
       const { data: boxes, error: boxError } = await sb
         .from('poke_boxes')
-        .select('user_id')
+        .select('user_id, user_email')
         .neq('user_id', currentUser.id)
         .limit(100);
       
       if (boxError) throw boxError;
-      return (boxes || []).map(b => ({ id: b.user_id }));
+      return (boxes || []).map(b => ({ id: b.user_id, email: b.user_email }));
     }
     
     return data || [];
