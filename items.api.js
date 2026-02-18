@@ -167,8 +167,38 @@
   }
 
   // ==== Autocomplete (igual que antes) ====
-  function setupAutocomplete(input, list, { minLength = 1, maxResults = 10 } = {}) {
+  async function setupAutocomplete(input, list, { minLength = 1, maxResults = 10 } = {}) {
     list.classList.add('combo-list');
+
+    // Asegurar índice base
+    if (!indexList || !Array.isArray(indexList.results)) {
+      try { await ensureIndex(); } catch {}
+    }
+
+    // Construir índice ligero en memoria (sin pedir detalles de cada item)
+    const lightIndex = (indexList?.results || []).map(r => {
+      const id = idFromUrl(r.url) || r.name || '';
+      const key = String(id).toLowerCase();
+      const cached = detailCache[key] || detailCache[id] || null;
+      return {
+        id: String(id),
+        nameEs: (cached && cached.nameEs) ? cached.nameEs : '',
+        name: (cached && cached.name) ? cached.name : (r.name || ''),
+        sprite: cached?.sprite || null,
+        pocketEs: cached?.pocketEs || ''
+      };
+    });
+
+    function renderList(items) {
+      list.innerHTML = items.map(o => `
+        <div class="combo-item" data-id="${o.id}" data-es="${(o.nameEs || o.name).replace(/"/g,'&quot;')}">
+          ${o.sprite ? `<img src="${o.sprite}" width="20" height="20" alt="">` : ''}
+          <span>${o.nameEs || o.name}</span>
+          ${o.pocketEs ? `<em class="pocket">(${o.pocketEs})</em>` : ''}
+        </div>
+      `).join("");
+      list.hidden = items.length === 0;
+    }
 
     async function searchAndShow() {
       const q = normalize(input.value);
@@ -178,39 +208,30 @@
         return;
       }
 
-      const enriched = [];
-      for (const r of (indexList?.results || [])) {
-        if (enriched.length >= maxResults) break;
-        try {
-          const id = idFromUrl(r.url);
-          const full = await getItemFull(id);
-          const es = normalize(full.nameEs || '');
-          const en = normalize(full.name || '');
-          if (es.includes(q) || (!es && en.includes(q))) enriched.push(full);
-        } catch {}
+      const results = [];
+      for (const it of lightIndex) {
+        if (results.length >= maxResults) break;
+        const es = normalize(it.nameEs || '');
+        const en = normalize(it.name || '');
+        if (es.includes(q) || (!es && en.includes(q))) results.push(it);
       }
 
-      list.innerHTML = enriched.map(o => `
-        <div class="combo-item" data-id="${o.id}" data-es="${o.nameEs}">
-          ${o.sprite ? `<img src="${o.sprite}" width="20" height="20" alt="">` : ''}
-          <span>${o.nameEs}</span>
-          ${o.pocketEs ? `<em class="pocket">(${o.pocketEs})</em>` : ''}
-        </div>
-      `).join("");
-      list.hidden = enriched.length === 0;
+      renderList(results);
     }
 
     input.addEventListener('input', searchAndShow);
     document.addEventListener('click', (e) => {
       if (!list.contains(e.target) && e.target !== input) list.hidden = true;
     });
-    list.addEventListener('click', e => {
+    list.addEventListener('click', async e => {
       const item = e.target.closest('.combo-item');
       if (!item) return;
-      input.value = item.dataset.es;
+      input.value = item.dataset.es || (item.textContent || '').trim();
       input.dataset.selectedId = item.dataset.id;
       input.dataset.selectedEs = item.dataset.es;
       list.hidden = true;
+      // Calentar caché en background (no bloquear la UI)
+      try { getItemFull(item.dataset.id); } catch {}
     });
   }
 
