@@ -10,6 +10,8 @@
   const categoryCache = {};
   /** @type {Record<string, any>} */
   const pocketCache = {};
+  /** @type {Record<string, string>} */
+  let itemEsIndex = {};
 
   /** @type {{ count:number, results: {name:string, url:string}[] } | null} */
   let indexList = null;
@@ -42,6 +44,13 @@
     // 2) fallback PokeAPI
     indexList = await fetchJson(`${API}/item?limit=2000`);
     return indexList;
+  }
+
+  async function ensureItemEsIndex(){
+    if (Object.keys(itemEsIndex).length) return itemEsIndex;
+    const fromFile = await tryLoadData('pokeapi_item_es_v1', null);
+    if (fromFile && typeof fromFile === 'object') { itemEsIndex = fromFile; return itemEsIndex; }
+    return {};
   }
 
   function idFromUrl(url){
@@ -170,20 +179,26 @@
   async function setupAutocomplete(input, list, { minLength = 1, maxResults = 10 } = {}) {
     list.classList.add('combo-list');
 
-    // Asegurar índice base
+    // Asegurar índices
     if (!indexList || !Array.isArray(indexList.results)) {
       try { await ensureIndex(); } catch {}
     }
+    await ensureItemEsIndex();
 
     // Construir índice ligero en memoria (sin pedir detalles de cada item)
     const lightIndex = (indexList?.results || []).map(r => {
       const id = idFromUrl(r.url) || r.name || '';
+      const nameEn = r.name || '';
       const key = String(id).toLowerCase();
       const cached = detailCache[key] || detailCache[id] || null;
+      
+      // Priorizar: caché > índice estático > nombre inglés
+      let nameEs = (cached && cached.nameEs) || itemEsIndex[nameEn] || '';
+      
       return {
         id: String(id),
-        nameEs: (cached && cached.nameEs) ? cached.nameEs : '',
-        name: (cached && cached.name) ? cached.name : (r.name || ''),
+        nameEs: nameEs,
+        name: nameEn,
         sprite: cached?.sprite || null,
         pocketEs: cached?.pocketEs || ''
       };
@@ -208,14 +223,29 @@
         return;
       }
 
-      const results = [];
+      // Priorizar: coincidencias en español (prefijo > contiene) > inglés
+      const esPrefix = [];
+      const esContains = [];
+      const enContains = [];
+      
       for (const it of lightIndex) {
-        if (results.length >= maxResults) break;
         const es = normalize(it.nameEs || '');
         const en = normalize(it.name || '');
-        if (es.includes(q) || (!es && en.includes(q))) results.push(it);
+        
+        if (es && es.startsWith(q)) {
+          esPrefix.push(it);
+        } else if (es && es.includes(q)) {
+          esContains.push(it);
+        } else if (en && en.includes(q) && !es) {
+          enContains.push(it);
+        }
       }
 
+      const results = [
+        ...esPrefix.slice(0, maxResults),
+        ...esContains.slice(0, Math.max(0, maxResults - esPrefix.length)),
+        ...enContains.slice(0, Math.max(0, maxResults - esPrefix.length - esContains.length))
+      ];
       renderList(results);
     }
 
@@ -280,6 +310,7 @@
   async function init(opts={}){
     lang = opts.lang || 'es';
     await loadDetailCacheIfAny();  // ahora también mira localStorage
+    await ensureItemEsIndex();     // cargar índice de nombres en español
     try { await ensureIndex(); indexReady = true; } catch { indexReady = false; }
   }
 
