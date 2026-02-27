@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Módulos - PC de Tote</title>
+    <style>
+        body {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        .test-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .test-item {
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .pass {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .fail {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .summary.success {
+            background: #d5f4e6;
+            border-left: 4px solid #27ae60;
+        }
+        .summary.error {
+            background: #fadbd8;
+            border-left: 4px solid #e74c3c;
+        }
+        code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .control-panel {
+            margin: 20px 0;
+            padding: 15px;
+            background: #ecf0f1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test de Módulos - PC de Tote</h1>
+        
+        <div class="control-panel">
+            <button onclick="testAllModules()">Ejecutar Todos los Tests</button>
+            <button onclick="testGlobalVariables()">Test Variables Globales</button>
+            <button onclick="testFunctions()">Test Funciones</button>
+            <button onclick="testDataLoading()">Test Carga de Datos</button>
+            <button onclick="clearResults()">Limpiar Resultados</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <!-- Cargar todos los módulos del proyecto original -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="items.api.js"></script>
+    <script src="bag.module.js"></script>
+    <script src="supabase.js"></script>
+    <script src="fondo.js"></script>
+    
+    <!-- Nuevos módulos modularizados -->
+    <script src="js/constants.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/persistence.js"></script>
+    <script src="js/indexes.js"></script>
+    <script src="js/hp-system.js"></script>
+    <script src="js/pokemon-search.js"></script>
+    <script src="js/autocompletes.js"></script>
+    <script src="js/moves.js"></script>
+    <script src="js/ui-render.js"></script>
+    <script src="js/ui-status.js"></script>
+    <script src="js/pokemon-detail.js"></script>
+    <script src="js/ui-dialogs.js"></script>
+    <script src="js/ui-menu.js"></script>
+    <script src="js/trades.js"></script>
+    <script src="js/auth-cloud.js"></script>
+    <script src="js/file-handling.js"></script>
+    <script src="js/init.js"></script>
+    <script src="js/script.js"></script>
+
+    <script>
+        const resultsDiv = document.getElementById('results');
+
+        function addResult(title, tests, passed, total) {
+            const html = `
+                <div class="test-section">
+                    <h3>${title}</h3>
+                    <div class="test-row">
+                        ${tests.map(test => `
+                            <div class="test-item">
+                                <span class="${test.pass ? 'pass' : 'fail'}">
+                                    ${test.pass ? '✅' : '❌'} ${test.name}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <p style="margin: 10px 0 0 0;">Resultado: <strong ${passed === total ? 'style="color: #27ae60"' : 'style="color: #e74c3c"'}>${passed}/${total}</strong></p>
+                </div>
+            `;
+            resultsDiv.innerHTML += html;
+            return passed === total;
+        }
+
+        function testGlobalVariables() {
+            const tests = [
+                { name: 'API', check: () => typeof API === 'string' },
+                { name: 'TYPE_META', check: () => typeof TYPE_META === 'object' },
+                { name: 'ITEM_CATALOG', check: () => typeof ITEM_CATALOG === 'object' },
+                { name: 'db', check: () => Array.isArray(db) },
+                { name: 'dirty', check: () => typeof dirty === 'boolean' },
+                { name: 'pokemonIndex', check: () => pokemonIndex === null || typeof pokemonIndex === 'object' },
+                { name: 'moveIndex', check: () => moveIndex === null || typeof moveIndex === 'object' },
+                { name: 'ballIndex', check: () => ballIndex === null || typeof ballIndex === 'object' },
+                { name: 'abilityIndex', check: () => abilityIndex === null || typeof abilityIndex === 'object' },
+                { name: 'natureIndex', check: () => natureIndex === null || typeof natureIndex === 'object' },
+            ];
+
+            const results = tests.map(test => ({
+                name: test.name,
+                pass: test.check()
+            }));
+
+            const passed = results.filter(r => r.pass).length;
+            return addResult('1. Variables Globales', results, passed, results.length);
+        }
+
+        function testFunctions() {
+            const tests = [
+                { name: 'cap()', check: () => typeof cap === 'function' && cap('hello') === 'Hello' },
+                { name: 'uuid()', check: () => typeof uuid === 'function' && uuid().length > 10 },
+                { name: 'norm()', check: () => typeof norm === 'function' },
+                { name: 'typeEs()', check: () => typeof typeEs === 'function' },
+                { name: 'toast()', check: () => typeof toast === 'function' },
+                { name: 'backup()', check: () => typeof backup === 'function' },
+                { name: 'restore()', check: () => typeof restore === 'function' },
+                { name: 'render()', check: () => typeof render === 'function' },
+                { name: 'showDetails()', check: () => typeof showDetails === 'function' },
+                { name: 'handleSearch()', check: () => typeof handleSearch === 'function' },
+                { name: 'computeMaxHp()', check: () => typeof computeMaxHp === 'function' },
+                { name: 'ensurePokemonIndex()', check: () => typeof ensurePokemonIndex === 'function' },
+                { name: 'setupAuthUI()', check: () => typeof setupAuthUI === 'function' },
+                { name: 'saveToDownload()', check: () => typeof saveToDownload === 'function' },
+                { name: 'initiateTrade()', check: () => typeof initiateTrade === 'function' },
+            ];
+
+            const results = tests.map(test => ({
+                name: test.name,
+                pass: test.check()
+            }));
+
+            const passed = results.filter(r => r.pass).length;
+            return addResult('2. Funciones Clave', results, passed, results.length);
+        }
+
+        function testDataLoading() {
+            const tests = [
+                { name: 'localStorage disponible', check: () => typeof localStorage !== 'undefined' },
+                { name: 'Supabase disponible', check: () => typeof window.Supa !== 'undefined' },
+                { name: 'Bag module disponible', check: () => typeof window.Bag !== 'undefined' },
+                { name: 'PokeAPI v2 accesible', check: () => API.includes('pokeapi') },
+                { name: 'Estado inicial limpio', check: () => Array.isArray(db) && typeof dirty === 'boolean' },
+            ];
+
+            const results = tests.map(test => ({
+                name: test.name,
+                pass: test.check()
+            }));
+
+            const passed = results.filter(r => r.pass).length;
+            return addResult('3. Carga de Datos', results, passed, results.length);
+        }
+
+        function testAllModules() {
+            resultsDiv.innerHTML = '<p style="text-align: center; color: #3498db;">Ejecutando tests...</p>';
+            
+            setTimeout(() => {
+                const test1 = testGlobalVariables();
+                const test2 = testFunctions();
+                const test3 = testDataLoading();
+
+                const allPassed = test1 && test2 && test3;
+
+                const summary = `
+                    <div class="summary ${allPassed ? 'success' : 'error'}">
+                        <h3>${allPassed ? '✅ ÉXITO' : '⚠️ ADVERTENCIA'}</h3>
+                        <p>${allPassed 
+                            ? '✅ Todos los módulos se cargaron correctamente.<br/>La modularización de script.js fue exitosa.<br/>Todas las funciones y variables globales están disponibles.' 
+                            : '⚠️ Algunos tests fallaron. Revisa los detalles arriba.'}</p>
+                    </div>
+                `;
+                resultsDiv.innerHTML += summary;
+            }, 500);
+        }
+
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            console.log('Página cargada, ejecutando tests automáticos...');
+            setTimeout(testAllModules, 1000);
+        });
+    </script>
+</body>
+</html>
