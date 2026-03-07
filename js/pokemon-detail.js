@@ -515,6 +515,10 @@ function setupMovesDamageTooltips(p) {
     const moveCards = document.querySelectorAll('.move-card');
     const moves = (p.moves || []).slice(0, 4);
 
+    // Variable global para cerrar tooltips anteriores
+    let lastOpenTooltip = null;
+    let lastPinned = false;
+
     moveCards.forEach((card, index) => {
         const move = moves[index];
         if (!move || !move.id) return;
@@ -526,6 +530,11 @@ function setupMovesDamageTooltips(p) {
         let pinned = false;
 
         async function show() {
+            // Cerrar tooltip anterior si no está pinned
+            if (lastOpenTooltip && !lastPinned && lastOpenTooltip !== damageTooltip) {
+                lastOpenTooltip.style.display = 'none';
+            }
+
             if (!damageTooltip) {
                 damageTooltip = document.createElement('div');
                 damageTooltip.className = 'move-damage-tooltip';
@@ -620,6 +629,10 @@ function setupMovesDamageTooltips(p) {
                 damageTooltip.style.left = left + 'px';
                 damageTooltip.style.top = top + 'px';
                 damageTooltip.style.display = 'block';
+
+                // Actualizar referencia global
+                lastOpenTooltip = damageTooltip;
+                lastPinned = pinned;
             } catch (e) {
                 console.warn('Error calculando daño:', e);
                 damageTooltip.innerHTML = '<strong>Error</strong><br/>No se pudo calcular el daño.';
@@ -637,6 +650,10 @@ function setupMovesDamageTooltips(p) {
                 } else {
                     top = Math.max(0, br.bottom - dr.top + gap);
                 }
+
+                // Actualizar referencia global
+                lastOpenTooltip = damageTooltip;
+                lastPinned = pinned;
                 
                 damageTooltip.style.left = (br.left - dr.left) + 'px';
                 damageTooltip.style.top = top + 'px';
@@ -648,7 +665,8 @@ function setupMovesDamageTooltips(p) {
 
         card.addEventListener('mouseenter', show);
         card.addEventListener('mouseleave', hide);
-        card.addEventListener('click', async (e) => {
+        cardlastPinned = pinned;
+            .addEventListener('click', async (e) => {
             e.stopPropagation();
             await show();
             pinned = !pinned;
