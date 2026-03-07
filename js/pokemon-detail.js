@@ -531,7 +531,9 @@ function setupMovesDamageTooltips(p) {
                 damageTooltip.className = 'move-damage-tooltip';
                 damageTooltip.style.position = 'absolute';
                 damageTooltip.style.display = 'none';
-                damageTooltip.style.maxWidth = '400px';
+                damageTooltip.style.maxWidth = '420px';
+                damageTooltip.style.maxHeight = '400px';
+                damageTooltip.style.overflowY = 'auto';
                 damageTooltip.style.padding = '12px 14px';
                 damageTooltip.style.borderRadius = '10px';
                 damageTooltip.style.background = 'rgba(12, 18, 45, .98)';
@@ -600,7 +602,21 @@ function setupMovesDamageTooltips(p) {
                 const br = card.getBoundingClientRect();
                 const dr = $detailDialog.getBoundingClientRect();
                 const left = Math.max(0, Math.min(br.left - dr.left, $detailDialog.clientWidth - 420));
-                const top = Math.max(0, br.bottom - dr.top + 8);
+                
+                // Posicionamiento inteligente: arriba o abajo según espacio
+                const spaceBelow = dr.bottom - br.bottom;
+                const tooltipHeight = 400; // maxHeight del tooltip
+                const gap = 8;
+                
+                let top;
+                if (spaceBelow < tooltipHeight + gap) {
+                    // No hay espacio abajo, posicionar arriba
+                    top = Math.max(0, br.top - dr.top - tooltipHeight - gap);
+                } else {
+                    // Hay espacio abajo, posicionar abajo
+                    top = Math.max(0, br.bottom - dr.top + gap);
+                }
+                
                 damageTooltip.style.left = left + 'px';
                 damageTooltip.style.top = top + 'px';
                 damageTooltip.style.display = 'block';
@@ -609,8 +625,21 @@ function setupMovesDamageTooltips(p) {
                 damageTooltip.innerHTML = '<strong>Error</strong><br/>No se pudo calcular el daño.';
                 const br = card.getBoundingClientRect();
                 const dr = $detailDialog.getBoundingClientRect();
+                
+                // Mismo posicionamiento inteligente para errores
+                const spaceBelow = dr.bottom - br.bottom;
+                const tooltipHeight = 400;
+                const gap = 8;
+                
+                let top;
+                if (spaceBelow < tooltipHeight + gap) {
+                    top = Math.max(0, br.top - dr.top - tooltipHeight - gap);
+                } else {
+                    top = Math.max(0, br.bottom - dr.top + gap);
+                }
+                
                 damageTooltip.style.left = (br.left - dr.left) + 'px';
-                damageTooltip.style.top = (br.bottom - dr.top + 8) + 'px';
+                damageTooltip.style.top = top + 'px';
                 damageTooltip.style.display = 'block';
             }
         }
