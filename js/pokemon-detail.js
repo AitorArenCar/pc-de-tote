@@ -665,11 +665,11 @@ function setupMovesDamageTooltips(p) {
 
         card.addEventListener('mouseenter', show);
         card.addEventListener('mouseleave', hide);
-        cardlastPinned = pinned;
-            .addEventListener('click', async (e) => {
+        card.addEventListener('click', async (e) => {
             e.stopPropagation();
             await show();
             pinned = !pinned;
+            lastPinned = pinned;
             if (!pinned) hide();
         });
 
