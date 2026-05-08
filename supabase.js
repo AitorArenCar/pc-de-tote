@@ -224,7 +224,7 @@ async function getUser() {
   // role: 'receiver' | 'initiator'
   async function acceptTrade(tradeId, role = 'receiver') {
     if (role === 'receiver') {
-      const { data, error } = await sb.rpc('accept_trade_request', { p_trade_id: tradeId });
+      const { data, error } = await sb.rpc('accept_and_complete_trade', { p_trade_id: tradeId });
       if (error) throw error;
       return data;
     }
