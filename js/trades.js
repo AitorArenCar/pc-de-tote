@@ -29,6 +29,41 @@ function closeTradeDialogFromButton(button) {
     closeTradeDialog(dialog);
 }
 
+function ensureTradeTabs() {
+    const list = document.getElementById('tradePendingList');
+    if (!list) return null;
+
+    let tabs = document.getElementById('tradeRequestTabs');
+    if (!tabs) {
+        tabs = document.createElement('nav');
+        tabs.id = 'tradeRequestTabs';
+        tabs.className = 'trade-tabs';
+        tabs.setAttribute('aria-label', 'Solicitudes de intercambio');
+        tabs.innerHTML = `
+            <button type="button" class="trade-tab" data-tab="received">Recibidas</button>
+            <button type="button" class="trade-tab" data-tab="sent">Enviadas</button>
+            <button type="button" class="trade-tab" data-tab="history">Historial</button>
+        `;
+        list.parentElement?.insertBefore(tabs, list);
+    }
+
+    tabs.querySelectorAll('.trade-tab').forEach(btn => {
+        btn.classList.toggle('active', (btn.dataset.tab || 'received') === __activeTradeTab);
+        if (!btn.dataset.wired) {
+            btn.dataset.wired = '1';
+            btn.addEventListener('click', async () => {
+                __activeTradeTab = btn.dataset.tab || 'received';
+                tabs.querySelectorAll('.trade-tab').forEach(tab => {
+                    tab.classList.toggle('active', tab === btn);
+                });
+                await loadPendingTrades();
+            });
+        }
+    });
+
+    return tabs;
+}
+
 async function initiateTrade() {
     resetTradeState();
     const $tradeStep1 = document.getElementById('tradeStep1');
@@ -128,7 +163,6 @@ function setupTradeEvents() {
     const $tradeConfirmSend = document.getElementById('tradeConfirmSend');
     const $closeTradeInit = document.getElementById('closeTradeInit');
     const $closeTradePending = document.getElementById('closeTradePending');
-    const $tradeRequestTabs = document.getElementById('tradeRequestTabs');
 
     $tradeUserSelect?.addEventListener('change', async (e) => {
         const userId = e.target.value;
@@ -294,19 +328,12 @@ function setupTradeEvents() {
         }
     });
 
-    $tradeRequestTabs?.querySelectorAll('.trade-tab').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            __activeTradeTab = btn.dataset.tab || 'received';
-            $tradeRequestTabs.querySelectorAll('.trade-tab').forEach(tab => {
-                tab.classList.toggle('active', tab === btn);
-            });
-            await loadPendingTrades();
-        });
-    });
+    ensureTradeTabs();
 }
 
 async function loadPendingTrades() {
     const $tradePendingList = document.getElementById('tradePendingList');
+    ensureTradeTabs();
     try {
         const currentUser = await window.Supa?.getUser?.();
         const trades = await window.Supa?.getUserTrades?.({ includeClosed: __activeTradeTab === 'history' });
