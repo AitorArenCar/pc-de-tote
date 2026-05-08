@@ -214,7 +214,7 @@ async function getUser() {
       .or(
         `and(target_user_id.eq.${user.id},receiver_status.eq.pending),and(initiator_id.eq.${user.id},initiator_status.eq.pending)`
       )
-      .neq('status', 'completed')
+      .eq('status', 'pending')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -223,6 +223,12 @@ async function getUser() {
 
   // role: 'receiver' | 'initiator'
   async function acceptTrade(tradeId, role = 'receiver') {
+    if (role === 'receiver') {
+      const { data, error } = await sb.rpc('accept_trade_request', { p_trade_id: tradeId });
+      if (error) throw error;
+      return data;
+    }
+
     const field = role === 'initiator' ? 'initiator_status' : 'receiver_status';
     const updates = {};
     updates[field] = 'accepted';
@@ -250,12 +256,7 @@ async function getUser() {
   }
 
   async function completeTrade(tradeId) {
-    const { data, error } = await sb
-      .from('trades')
-      .update({ status: 'completed', updated_at: new Date().toISOString() })
-      .eq('id', tradeId)
-      .select('*')
-      .single();
+    const { data, error } = await sb.rpc('complete_trade_swap', { p_trade_id: tradeId });
 
     if (error) throw error;
     return data;
@@ -284,12 +285,18 @@ async function getUser() {
   }
 
   // Suscripción en tiempo real a cambios en la tabla trades
-  function subscribeTrades(onEvent) {
+  async function subscribeTrades(onEvent) {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+
     const channel = sb
-      .channel('public:trades')
+      .channel(`public:trades:${user.id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'trades' }, (payload) => {
         try {
-          onEvent(payload);
+          const row = payload.new || payload.old || {};
+          if (row.initiator_id === user.id || row.target_user_id === user.id) {
+            onEvent(payload);
+          }
         } catch (e) { console.error('subscribeTrades handler error', e); }
       })
       .subscribe();
