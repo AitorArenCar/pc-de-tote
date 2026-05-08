@@ -1243,7 +1243,7 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
 
 .trade-card-info {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 6fr 1fr 6fr;
   gap: 8px;
   font-size: 12px;
   margin: 8px 0;
