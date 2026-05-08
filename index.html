@@ -5,46 +5,83 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Pc de Tote</title>
+
+    <!-- favicon -->
+    <link rel="shortcut icon" href="images/icons/favicon.ico" type="image/x-icon"> <!-- prueba favicon -->
+    <link rel="shortcut icon" href="images/icons/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="images/icons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="images/icons/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/icons/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="images/icons/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/icons/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="images/icons/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="images/icons/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="images/icons/apple-touch-icon-152x152.png">
+
     <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
     <header>
-        <div class="header-brand">
-            <button id="menuToggle" class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false"
-                aria-controls="headerMenu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <h1>Pc de Tote</h1>
-        </div>
-        <div id="headerMenu" class="header-actions">
-            <button id="teamBtn" class="btn" title="Ver equipo">Equipo (0)</button>
-            <button id="healAllBtn" class="btn btn-verde" title="Poner la vida de todos al máximo">Curar</button>
-            <input id="bgInput" type="file" accept="image/*" class="hidden-input" />
-            <button id="bagBtn" class="btn" title="Gestionar objetos">Mochila</button>
-            <div class="spacer"></div>
-            <!-- ponlo cerca de otros inputs del header -->
-            <input id="openInput" type="file" accept="application/json" class="hidden-input" />
-            <div class="status-wrap">
-                <button id="statusBtn" class="status" aria-haspopup="true" aria-expanded="false"
-                    title="Opciones de base">
-                    Sin archivo abierto
-                </button>
-                <div id="statusMenu" class="status-menu" hidden>
-                    <button id="menuOpen" class="menu-item">📥 Importar datos</button>
-                    <button id="menuSave" class="menu-item">💾 Guardar</button>
-
-                    <div class="menu-sep"></div>
-                    <button id="menuBg" class="menu-item">🖼️ Cambiar fondo</button>
-                    <button id="menuBgClear" class="menu-item danger">🧹 Quitar fondo</button>
-                </div>
-            </div>
-            <button id="addBtn" class="btn btn-primary" title="Añadir Pokémon">＋ Añadir</button>
-        </div>
+        <button id="hamburgerBtn" class="hamburger-btn" aria-label="Abrir menú" aria-controls="sideMenu" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <h1>Pc de Tote</h1>
+        <button id="addBtn" class="btn btn-primary" title="Añadir Pokémon">＋ Añadir</button>
     </header>
-    <div id="menuOverlay" class="menu-overlay" aria-hidden="true"></div>
+
+    <!-- Menú lateral -->
+    <nav id="sideMenu" class="side-menu" aria-label="Menú principal" hidden>
+        <div class="side-menu-content">
+            <!-- Sección 1: Pokémon -->
+            <div class="menu-section">
+                <h3 class="menu-section-title">Pokémon</h3>
+                <button id="teamBtn" class="menu-btn" title="Ver equipo">👥 Equipo (0)</button>
+                <button id="bagBtn" class="menu-btn" title="Gestionar objetos">🎒 Mochila</button>
+                <button id="healAllBtn" class="menu-btn" title="Poner la vida de todos al máximo">💊 Curar todos</button>
+                <button id="sideTradeBtn" class="menu-btn" title="Intercambiar Pokémon">🔄 Intercambiar</button>
+                <button id="sidePendingTradesBtn" class="menu-btn" title="Ver solicitudes de intercambio">📬 Solicitudes (0)</button>
+            </div>
+
+            <!-- Separador -->
+            <div class="menu-sep"></div>
+
+            <!-- Sección 2: Base de datos -->
+            <div class="menu-section">
+                <h3 class="menu-section-title">Base de datos</h3>
+                <button id="sideMenuOpen" class="menu-btn">📥 Importar datos</button>
+                <button id="sideMenuSave" class="menu-btn">💾 Guardar</button>
+                <button id="sideMenuBg" class="menu-btn">🖼️ Cambiar fondo</button>
+                <button id="sideMenuBgClear" class="menu-btn danger">🧹 Quitar fondo</button>
+            </div>
+
+            <!-- Separador -->
+            <div class="menu-sep"></div>
+
+            <!-- Sección 3: Nube -->
+            <div class="menu-section">
+                <h3 class="menu-section-title">Nube</h3>
+                <button id="sideCloudStatus" class="menu-btn disabled">☁️ Nube: desconectado</button>
+                <button id="sideCloudSave" class="menu-btn" hidden>📤 Guardar en nube</button>
+                <button id="sideCloudLoad" class="menu-btn" hidden>📥 Cargar desde nube</button>
+                <button id="sideCloudBackup" class="menu-btn" hidden>🗄️ Crear copia de seguridad</button>
+                <button id="sideCloudRestoreBackup" class="menu-btn" hidden>↩️ Restaurar copia</button>
+                <button id="sideCloudSignout" class="menu-btn danger" hidden>🚪 Cerrar sesión</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Overlay para cerrar el menú -->
+    <div id="menuOverlay" class="menu-overlay" hidden></div>
+
+    <!-- Inputs ocultos -->
+    <input id="openInput" type="file" accept="application/json" class="hidden-input" />
+    <input id="bgInput" type="file" accept="image/*" class="hidden-input" />
+
+<!-- Toast / notificación -->
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <main>
         <div id="empty" class="empty" hidden>
@@ -125,6 +162,12 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="field field-checkbox">
+                                    <label class="checkbox">
+                                        <input id="shinyToggle" type="checkbox" />
+                                        <span>Shiny</span>
+                                    </label>
+                                </div>
 
                             </div>
 
@@ -198,6 +241,32 @@
         </div>
     </dialog>
 
+    <!-- Diálogo: iniciar sesión -->
+<dialog id="authDialog">
+  <div class="modal">
+    <header>
+      <h2 style="margin:0;font-size:18px">Iniciar sesión</h2>
+      <div class="spacer"></div>
+      <button id="closeAuth" class="btn" style="padding:6px 10px">Cerrar</button>
+    </header>
+    <div class="content">
+      <div class="field">
+        <label for="authEmail">Email</label>
+        <input id="authEmail" type="email" placeholder="tucorreo@ejemplo.com" />
+      </div>
+      <div class="field">
+        <label for="authPass">Contraseña</label>
+        <input id="authPass" type="password" placeholder="••••••••" />
+      </div>
+      <div class="row" style="justify-content:flex-end;margin-top:14px;gap:8px">
+        <button id="authSignup" class="btn">Registrarse</button>
+        <button id="authSignin" class="btn btn-primary">Entrar</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+
     <!-- Diálogo: detalles de Pokémon -->
     <dialog id="detailDialog">
         <div class="modal">
@@ -228,12 +297,13 @@
 
 <!-- Diálogo: mochila -->
 <dialog id="bagDialog" class="bagDialog">
-  <div class="modal modal-mochila">
-    <header>
-      <h2 style="margin:0;font-size:18px">Mochila</h2>
+  <header>
+      <h2 style="margin:0;font-size:18px; color: white;">Mochila</h2>
       <div class="spacer"></div>
       <button id="closeBag" class="btn" style="padding:6px 10px">Cerrar</button>
     </header>
+  <div class="modal modal-mochila">
+
 
     <!-- NUEVO: pestañas -->
     <nav id="bagTabs" class="bag-tabs" aria-label="Bolsillos de la mochila"></nav>
@@ -256,12 +326,131 @@
   </div>
 </dialog>
 
+<!-- Diálogo: Iniciar Intercambio -->
+<dialog id="tradeInitDialog">
+  <div class="modal">
+    <header>
+      <h2 style="margin:0;font-size:18px">Iniciar Intercambio</h2>
+      <div class="spacer"></div>
+      <button id="closeTradeInit" type="button" class="btn" style="padding:6px 10px">Cerrar</button>
+    </header>
+    <div class="content">
+      <!-- Paso 1: Seleccionar usuario -->
+      <div id="tradeStep1" class="trade-step">
+        <h3>Paso 1: Seleccionar jugador</h3>
+        <div class="field">
+          <label for="tradeUserSelect">Elige un jugador</label>
+          <select id="tradeUserSelect">
+            <option value="">-- Cargando --</option>
+          </select>
+        </div>
+        <div id="tradeUserInfo" style="margin-top:12px; padding:12px; background:rgba(255,255,255,.06); border-radius:10px; display:none;">
+          <p id="tradeUserName" style="margin:0 0 6px;"><strong>Usuario:</strong> -</p>
+          <div id="tradeUserPokemon" style="margin-top:8px;"></div>
+        </div>
+        <button id="tradeStep1Next" class="btn btn-primary" style="margin-top:12px;" disabled>Siguiente</button>
+      </div>
+
+      <!-- Paso 2: Seleccionar Pokémon a dar y recibir -->
+      <div id="tradeStep2" class="trade-step" hidden>
+        <h3>Paso 2: Seleccionar Pokémon</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <!-- Mi Pokémon (a dar) -->
+          <div>
+            <label for="tradeMyPokemon"><strong>🎁 Mi Pokémon (a dar)</strong></label>
+            <select id="tradeMyPokemon" style="width:100%; margin-top:6px;">
+              <option value="">-- Selecciona --</option>
+            </select>
+            <div id="tradeMyPokemonInfo" style="margin-top:8px; padding:8px; background:rgba(59,130,246,.1); border-radius:8px; font-size:12px; display:none;"></div>
+          </div>
+
+          <!-- Pokémon a recibir -->
+          <div>
+            <label for="tradeTargetPokemon"><strong>📦 Pokémon a recibir</strong></label>
+            <select id="tradeTargetPokemon" style="width:100%; margin-top:6px;">
+              <option value="">-- Selecciona --</option>
+            </select>
+            <div id="tradeTargetPokemonInfo" style="margin-top:8px; padding:8px; background:rgba(52,211,153,.1); border-radius:8px; font-size:12px; display:none;"></div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:12px;">
+          <button id="tradeStep2Back" class="btn">← Atrás</button>
+          <button id="tradeStep2Next" class="btn btn-primary" style="flex:1;" disabled>Confirmar Intercambio</button>
+        </div>
+      </div>
+
+      <!-- Resumen antes de enviar -->
+      <div id="tradeSummary" class="trade-step" hidden>
+        <h3>Resumen del Intercambio</h3>
+        <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center;">
+          <div style="background:rgba(255,255,255,.06); padding:12px; border-radius:10px;">
+            <p style="margin:0 0 6px; font-size:12px; color:var(--muted);">TÚ DAS:</p>
+            <p id="summaryMyPokemon" style="margin:0; font-weight:700; font-size:14px;">-</p>
+          </div>
+          <div style="text-align:center; font-size:18px;">⇄</div>
+          <div style="background:rgba(255,255,255,.06); padding:12px; border-radius:10px;">
+            <p style="margin:0 0 6px; font-size:12px; color:var(--muted);">RECIBES:</p>
+            <p id="summaryTargetPokemon" style="margin:0; font-weight:700; font-size:14px;">-</p>
+          </div>
+        </div>
+        <p id="summaryTargetUser" style="margin-top:12px; padding:8px; background:rgba(255,255,255,.06); border-radius:8px; text-align:center; font-size:12px;"></p>
+        <div style="display:flex; gap:8px; margin-top:12px;">
+          <button id="tradeConfirmBack" class="btn">← Atrás</button>
+          <button id="tradeConfirmSend" class="btn btn-primary" style="flex:1;">Enviar Solicitud</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<!-- Diálogo: Solicitudes de Intercambio Pendientes -->
+<dialog id="tradePendingDialog">
+  <div class="modal">
+    <header>
+      <h2 style="margin:0;font-size:18px">Solicitudes de Intercambio</h2>
+      <div class="spacer"></div>
+      <button id="closeTradePending" type="button" class="btn" style="padding:6px 10px">Cerrar</button>
+    </header>
+    <div class="content">
+      <nav id="tradeRequestTabs" class="trade-tabs" aria-label="Solicitudes de intercambio">
+        <button type="button" class="trade-tab active" data-tab="received">Recibidas</button>
+        <button type="button" class="trade-tab" data-tab="sent">Enviadas</button>
+        <button type="button" class="trade-tab" data-tab="history">Historial</button>
+      </nav>
+      <div id="tradePendingList" class="trade-request-list">
+        <p class="muted">No tienes solicitudes pendientes.</p>
+      </div>
+    </div>
+  </div>
+</dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script src="items.api.js"></script>
 <script src="bag.module.js"></script>
+<script src="supabase.js"></script>
+<script src="fondo.js"></script>
 
-    <script src="script.js"></script>
-    <script src="fondo.js"></script>
+<!-- Módulos principales -->
+<script src="js/constants.js"></script>
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/persistence.js"></script>
+<script src="js/indexes.js"></script>
+<script src="js/hp-system.js"></script>
+<script src="js/pokemon-search.js"></script>
+<script src="js/autocompletes.js"></script>
+<script src="js/moves.js"></script>
+<script src="js/ui-render.js"></script>
+<script src="js/ui-status.js"></script>
+<script src="js/pokemon-detail.js"></script>
+<script src="js/ui-dialogs.js"></script>
+<script src="js/ui-menu.js"></script>
+<script src="js/trades.js"></script>
+<script src="js/auth-cloud.js"></script>
+<script src="js/file-handling.js"></script>
+<script src="js/init.js"></script>
+<script src="js/script.js"></script>
+
 </body>
 
  <!-- <script>

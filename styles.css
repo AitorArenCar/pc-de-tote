@@ -33,49 +33,191 @@ header {
     z-index: 5;
 }
 
-.header-brand {
+/* Botón Hamburguesa */
+.hamburger-btn {
     display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex: 1;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-}
-
-.menu-toggle {
-    display: none;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
     gap: 5px;
-    padding: 0;
+    height: 40px;
+    width: 40px;
+    justify-content: center;
 }
 
-.menu-toggle span {
-    width: 22px;
-    height: 2px;
-    border-radius: 999px;
-    background: currentColor;
+.hamburger-btn span {
     display: block;
+    width: 24px;
+    height: 2px;
+    background: #e6eefb;
+    border-radius: 2px;
+    transition: all 0.3s ease;
 }
 
+.hamburger-btn[aria-expanded="true"] span:nth-child(1) {
+    transform: rotate(45deg) translate(10px, 10px);
+}
+
+.hamburger-btn[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-btn[aria-expanded="true"] span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Menú Lateral */
+.side-menu {
+    position: fixed;
+    left: -100%;
+    top: 0;
+    width: 280px;
+    height: 100dvh;
+    background: #0b1020;
+    border-right: 1px solid rgba(255, 255, 255, .12);
+    overflow-y: auto;
+    transition: left 0.3s ease;
+    z-index: 100;
+    padding-top: 0px;
+}
+
+.side-menu:not([hidden]) {
+    left: 0;
+}
+
+.side-menu-content {
+    padding: 16px 0;
+}
+
+.menu-section {
+    padding: 12px 8px;
+}
+
+.menu-section-title {
+    margin: 0 0 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.menu-btn {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    color: #e6eefb;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-radius: 8px;
+    margin: 4px 8px;
+}
+
+.menu-btn:hover {
+    background: rgba(255, 255, 255, .08);
+}
+
+.menu-btn:active {
+    transform: translateY(1px);
+}
+
+.menu-btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.menu-btn.danger {
+    color: #f87171;
+}
+
+.menu-btn.danger:hover {
+    background: rgba(248, 113, 113, .1);
+}
+
+.menu-sep {
+    height: 1px;
+    background: rgba(255, 255, 255, .08);
+    margin: 12px 0;
+}
+
+/* Overlay del menú */
 .menu-overlay {
     position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, .55);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .25s ease;
-    z-index: 4;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    transition: opacity 0.3s ease;
 }
+
+.menu-overlay:not([hidden]) {
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .hamburger-btn {
+        display: flex;
+    }
+
+    header {
+        gap: 16px;
+    }
+
+    h1 {
+        flex: 1;
+        text-align: center;
+    }
+
+    /* Ocultar elementos del header que van al menú en móvil */
+    #statusBtn,
+    #cloudBtn {
+        display: none;
+    }
+
+    /* El grid de pokémon se ajusta mejor en móvil */
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}
+
+/* Toast (banner superior) */
+.toast {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translate(-50%, -150%); /* fuera de pantalla hacia arriba */
+  min-width: 260px;
+  max-width: 90vw;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: 0 6px 22px rgba(0,0,0,.14);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none; /* que no interrumpa clics */
+  transition: transform .25s ease, opacity .2s ease;
+}
+
+/* variantes */
+.toast.success { background: #20b266; color: #fff; }
+.toast.error   { background: #e74c3c; color: #fff; }
+.toast.info    { background: #fcba03; color: #fff; }
+
+/* visible */
+.toast.show {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
 
 h1 {
     font-size: clamp(18px, 2.8vw, 26px);
@@ -276,7 +418,7 @@ dialog::backdrop {
 .modal {
     background: #0e1631;
     color: #e6eefb;
-    min-width: min(675px, 85vw);
+    /*min-width: min(675px, 85vw);*/
     border: 1px solid rgba(255, 255, 255, .12)
 }
 
@@ -540,6 +682,18 @@ select:focus {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 16px
+}
+
+.field-checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.field-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
 }
 
 /* Detalle */
@@ -901,6 +1055,12 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
   border-radius:10px;
   padding:10px;
 }
+
+.bag-item .qty{
+  display: flex;
+  flex-direction: column-reverse;
+}
+
 .bag-item .name small{
   font-weight:100;
 }
@@ -951,12 +1111,14 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
   gap:8px;
   padding:6px 0 8px;
   overflow:auto;
+  min-height: 50px;
+  max-height: 50px;
 }
 .bag-tab{
   display:inline-flex;
   align-items:center;
   gap:6px;
-  padding:6px 10px;
+  padding:20px 10px;
   border:1px solid rgba(255,255,255,.12);
   background:#0b1330;
   border-radius:999px;
@@ -1016,72 +1178,95 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
 .menu-sep{ height:1px; background:rgba(255,255,255,.08); margin:6px; }
 .menu-item.danger{ color:#f87171; }
 
-@media (max-width: 720px) {
-  header {
-    justify-content: center;
-  }
+/* Diálogos de Intercambio */
+.trade-step {
+  animation: fadeIn 0.3s ease;
+}
 
-  .header-brand {
-    width: 100%;
-  }
+.trade-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
 
-  .header-brand h1 {
-    flex: 1;
-    text-align: center;
-  }
+.trade-tab {
+  border: 1px solid rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .04);
+  color: #e6eefb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
 
-  .menu-toggle {
-    display: inline-flex;
-  }
+.trade-tab.active {
+  border-color: var(--ring);
+  background: rgba(59, 130, 246, .18);
+}
 
-  .header-actions {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: min(320px, 82vw);
-    padding: 24px 20px 32px;
-    background: #080d1c;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 14px;
-    overflow-y: auto;
-    transform: translateX(-100%);
-    transition: transform .3s ease;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, .45);
-    z-index: 6;
-  }
+.trade-request-list {
+  max-height: 60vh;
+  overflow-y: auto;
+}
 
-  .header-actions .spacer {
-    display: none;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-
-  .header-actions > .btn,
-  .header-actions > .status-wrap {
-    width: 100%;
-  }
-
-  .status-wrap .status {
-    width: 100%;
-    text-align: left;
-  }
-
-  .header-actions.is-open {
-    transform: translateX(0);
-  }
-
-  body.menu-open {
-    overflow: hidden;
-  }
-
-  body.menu-open .menu-overlay {
+  to {
     opacity: 1;
-    pointer-events: auto;
+    transform: translateY(0);
   }
 }
 
-/* Ocultar controles sueltos del header que pasan al menú */
-#openBtn, #saveBtn, #bgBtn, #bgClearBtn { display:none; }
+.trade-card {
+  background: #0b1330;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 12px;
+  padding: 12px;
+  margin: 8px 0;
+  transition: background 0.2s ease;
+}
+
+.trade-card:hover {
+  background: rgba(255, 255, 255, .06);
+}
+
+.trade-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.trade-card-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-size: 12px;
+  margin: 8px 0;
+}
+
+.trade-card-pokemon {
+  background: rgba(59, 130, 246, .1);
+  padding: 8px;
+  border-radius: 8px;
+  border-left: 3px solid #3b82f6;
+}
+
+.trade-card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.trade-card-actions button {
+  flex: 1;
+  font-size: 12px;
+  padding: 6px 8px;
+}
 
 /* --- Detalle: scroll vertical en desktop también --- */
 #detailDialog { 
@@ -1100,6 +1285,23 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
 
 
 @media (max-width: 600px) {
+  header {
+    flex-wrap: wrap;
+    gap: 8px; /* un poco menos de espacio entre elementos */
+  }
+
+  header h1 {
+    flex-basis: 100%; /* que el título ocupe toda la primera línea */
+    text-align: center; /* centrado si quieres */
+  }
+
+  header button,
+  header .status-wrap {
+    flex: 1; /* que se repartan el espacio disponible */
+    min-width: 45%; /* para que no se aplasten demasiado */
+  }
+
+
   /* El diálogo de detalle debe poder hacer scroll */
   #detailDialog .modal{
     display: flex;
