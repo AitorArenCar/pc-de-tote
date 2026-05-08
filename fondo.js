@@ -45,6 +45,7 @@ function setBackgroundFromFile(file) {
         const url = await window.Supa.uploadBg(file);
         try { localStorage.setItem(LS_BG, url); } catch {}
         applyBackground(url);
+        if (typeof setDirty === 'function') setDirty(true);
         return;
       }
     } catch (e) {
@@ -57,6 +58,7 @@ function setBackgroundFromFile(file) {
       const dataUrl = reader.result;
       try { localStorage.setItem(LS_BG, dataUrl); } catch {}
       applyBackground(dataUrl);
+      if (typeof setDirty === 'function') setDirty(true);
     };
     reader.readAsDataURL(file);
   })();
@@ -66,17 +68,19 @@ function setBackgroundFromFile(file) {
 function clearBackground() {
   try { localStorage.removeItem(LS_BG); } catch {}
   applyBackground(null); // vuelve al default
+  if (typeof setDirty === 'function') setDirty(true);
 }
 // Exponer helpers para script.js
 window.getBackgroundDataUrl = () => {
   try { return localStorage.getItem(LS_BG) || null; } catch { return null; }
 };
-window.setBackgroundDataUrl = (dataUrl) => {
+window.setBackgroundDataUrl = (dataUrl, opts = {}) => {
   try {
     if (dataUrl) localStorage.setItem(LS_BG, dataUrl);
     else localStorage.removeItem(LS_BG);
   } catch {}
   applyBackground(dataUrl || 'none');
+  if (!opts.silent && typeof setDirty === 'function') setDirty(true);
 };
 window.applyBackground = applyBackground;
 

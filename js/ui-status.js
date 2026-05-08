@@ -4,9 +4,15 @@
 
 function setDirty(v) {
     dirty = v;
+    if (v && !__applyingRemoteSync) {
+        __lastLocalChangeAt = new Date().toISOString();
+    }
     updateStatus();
     backup();
     updateCloudStatus();
+    if (v && !__applyingRemoteSync && typeof queueCloudSync === 'function') {
+        queueCloudSync();
+    }
 }
 
 function updateStatus() {
@@ -21,7 +27,7 @@ function updateStatus() {
 
 function updateCloudStatus() {
     const base = __cloudEmail ? `Nube: ${__cloudEmail}` : 'Nube: desconectado';
-    const text = dirty ? `${base} • cambios sin guardar` : base;
+    const text = dirty ? `${base} • sincronizando cambios` : base;
 
     if ($cloudBtn) {
         $cloudBtn.textContent = text;
@@ -39,9 +45,13 @@ function updateCloudStatus() {
 
     const $sideCloudSave = document.getElementById('sideCloudSave');
     const $sideCloudLoad = document.getElementById('sideCloudLoad');
+    const $sideCloudBackup = document.getElementById('sideCloudBackup');
+    const $sideCloudRestoreBackup = document.getElementById('sideCloudRestoreBackup');
     const $sideCloudSignout = document.getElementById('sideCloudSignout');
     if ($sideCloudSave) $sideCloudSave.hidden = !__isLoggedIn;
     if ($sideCloudLoad) $sideCloudLoad.hidden = !__isLoggedIn;
+    if ($sideCloudBackup) $sideCloudBackup.hidden = !__isLoggedIn;
+    if ($sideCloudRestoreBackup) $sideCloudRestoreBackup.hidden = !__isLoggedIn;
     if ($sideCloudSignout) $sideCloudSignout.hidden = !__isLoggedIn;
 }
 

@@ -54,8 +54,11 @@ const HEAL_MAP = {
 // Sprites de Poké Ball (PokeAPI)
 const BALL_SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
 
-// Autosave interval (ms)
-const AUTOSAVE_EVERY_MS = 300000;
+// Cloud sync
+const CLOUD_SYNC_DEBOUNCE_MS = 1200;
+const LS_SYNC_META = 'pokebox_sync_meta_v1';
+const LS_DEVICE_ID = 'pokebox_device_id_v1';
+const LS_DAILY_BACKUP = 'pokebox_daily_backup_v1';
 
 // Traducciones de daño en movimientos
 const DAMAGE_TIER_MAP = {

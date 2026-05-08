@@ -74,6 +74,29 @@ let __autosaveTimer = null;
 let __autosaveInFlight = false;
 let __isLoggedIn = false;
 let __cloudEmail = '';
+let __syncDebounceTimer = null;
+let __syncReady = false;
+let __syncInitializing = false;
+let __applyingRemoteSync = false;
+let __boxSubscription = null;
+let __lastCloudRevision = 0;
+let __lastCloudUpdatedAt = '';
+let __lastLocalChangeAt = '';
+
+function getDeviceId() {
+    try {
+        let id = localStorage.getItem(LS_DEVICE_ID);
+        if (!id) {
+            id = (window.crypto?.randomUUID?.() || `device-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+            localStorage.setItem(LS_DEVICE_ID, id);
+        }
+        return id;
+    } catch {
+        return 'device-unknown';
+    }
+}
+
+const __deviceId = getDeviceId();
 
 // Toast timer
 let __toastTimer = null;

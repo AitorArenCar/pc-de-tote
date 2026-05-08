@@ -51,6 +51,8 @@ function setupMenuEvents() {
     const $sideCloudStatus = document.getElementById('sideCloudStatus');
     const $sideCloudSave = document.getElementById('sideCloudSave');
     const $sideCloudLoad = document.getElementById('sideCloudLoad');
+    const $sideCloudBackup = document.getElementById('sideCloudBackup');
+    const $sideCloudRestoreBackup = document.getElementById('sideCloudRestoreBackup');
     const $sideCloudSignout = document.getElementById('sideCloudSignout');
     const $sideTradeBtn = document.getElementById('sideTradeBtn');
     const $sidePendingTradesBtn = document.getElementById('sidePendingTradesBtn');
@@ -97,13 +99,15 @@ function setupMenuEvents() {
         }
     });
 
-    $sideCloudSave?.addEventListener('click', saveToSupabase);
+    $sideCloudSave?.addEventListener('click', () => saveToSupabase({ manual: true }));
     $sideCloudLoad?.addEventListener('click', loadFromSupabase);
+    $sideCloudBackup?.addEventListener('click', createManualBackup);
+    $sideCloudRestoreBackup?.addEventListener('click', restoreBackupFromCloud);
     $sideCloudSignout?.addEventListener('click', async () => {
         try {
             await window.Supa?.signOut?.();
             __cloudEmail = '';
-            stopAutosave?.();
+            await stopAutosave?.();
             updateCloudStatus();
         } catch { }
     });

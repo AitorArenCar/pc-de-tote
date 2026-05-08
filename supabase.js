@@ -64,6 +64,12 @@ async function getUser() {
   async function saveBox(payload, name = 'Mi caja') {
     const user = await getUser();
     if (!user) throw new Error('Debes iniciar sesión');
+    const rowData = {
+      data: payload,
+      name,
+      user_email: user.email,
+      updated_at: new Date().toISOString()
+    };
 
     // si quieres “una por usuario”, puedes upsert por user_id:
     const { data: existing } = await sb
@@ -74,20 +80,22 @@ async function getUser() {
       .maybeSingle();
 
     if (existing) {
-      const { error } = await sb
+      const { data, error } = await sb
         .from('poke_boxes')
-         .update({ data: payload, name, user_email: user.email, updated_at: new Date().toISOString() })
-        .eq('id', existing.id);
+        .update(rowData)
+        .eq('id', existing.id)
+        .select('id, name, data, updated_at')
+        .single();
       if (error) throw error;
-      return existing.id;
+      return data;
     } else {
       const { data, error } = await sb
         .from('poke_boxes')
-         .insert({ user_id: user.id, user_email: user.email, data: payload, name })
-        .select('id')
+        .insert({ user_id: user.id, ...rowData })
+        .select('id, name, data, updated_at')
         .single();
       if (error) throw error;
-      return data.id;
+      return data;
     }
   }
 
@@ -103,6 +111,40 @@ async function getUser() {
       .maybeSingle();
     if (error) throw error;
     return data; // puede ser null si aún no hay caja
+  }
+
+  async function createBoxBackup(payload, reason = 'manual') {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+
+    const { data, error } = await sb
+      .from('poke_box_backups')
+      .insert({
+        user_id: user.id,
+        user_email: user.email,
+        name: `Backup ${new Date().toLocaleString('es-ES')}`,
+        reason,
+        data: payload,
+        device_id: payload?.deviceId || null
+      })
+      .select('id, created_at')
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function listBoxBackups(limit = 20) {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+
+    const { data, error } = await sb
+      .from('poke_box_backups')
+      .select('id, name, reason, created_at, data')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return data || [];
   }
 
   // === Helpers DB: usuarios (para búsqueda de compañeros) ===
@@ -260,9 +302,42 @@ async function getUser() {
     };
   }
 
+  async function subscribeBoxChanges(onEvent) {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+
+    const channel = sb
+      .channel(`public:poke_boxes:${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'poke_boxes',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          try {
+            onEvent(payload);
+          } catch (e) {
+            console.error('subscribeBoxChanges handler error', e);
+          }
+        }
+      )
+      .subscribe();
+
+    return {
+      channel,
+      unsubscribe: async () => {
+        try { await sb.removeChannel(channel); } catch (e) { console.warn('removeChannel failed', e); }
+      }
+    };
+  }
+
   // expone helpers
   window.Supa = { 
     signUp, signIn, signOut, getUser, uploadBg, saveBox, loadBox,
+    createBoxBackup, listBoxBackups, subscribeBoxChanges,
     listUsers, createTrade, getPendingTrades, acceptTrade, rejectTrade, 
     completeTrade, getTradeById, updateBoxForUser, subscribeTrades
   };

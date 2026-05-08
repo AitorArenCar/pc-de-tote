@@ -137,6 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Restaurar datos
     await restore();
     updateStatus();
+    await initializeCloudSyncAfterRestore?.();
 
     // Cambiar fondo
     const $shinyToggle = document.getElementById('shinyToggle');

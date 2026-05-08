@@ -479,12 +479,12 @@
     setupBagAutocomplete,
     equipDiff,
     getState: () => bag,
-    setState: (state) => {
+    setState: (state, opts = {}) => {
       if (state && state.pockets) {
         bag = sanitizeLoadedBag(state);
         saveBagToStorage(bag);
         render();
-        notify();
+        if (!opts.silent) notify();
       }
     },
     onChange: (cb) => { _onChange = cb; },

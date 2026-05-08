@@ -6,6 +6,14 @@ function backup() {
     try {
         localStorage.setItem(LS_DB, JSON.stringify(db));
         if (currentFileName) localStorage.setItem(LS_NAME, currentFileName);
+        if (__lastLocalChangeAt || __lastCloudUpdatedAt || __lastCloudRevision) {
+            localStorage.setItem(LS_SYNC_META, JSON.stringify({
+                localUpdatedAt: __lastLocalChangeAt || '',
+                cloudUpdatedAt: __lastCloudUpdatedAt || '',
+                cloudRevision: __lastCloudRevision || 0,
+                deviceId: __deviceId
+            }));
+        }
     } catch { }
 }
 
@@ -26,6 +34,12 @@ async function restore() {
         }
 
         currentFileName = localStorage.getItem(LS_NAME) || null;
+        try {
+            const meta = JSON.parse(localStorage.getItem(LS_SYNC_META) || '{}');
+            __lastLocalChangeAt = meta.localUpdatedAt || '';
+            __lastCloudUpdatedAt = meta.cloudUpdatedAt || '';
+            __lastCloudRevision = Number(meta.cloudRevision || 0);
+        } catch { }
 
         // Carga mapas ES desde /data
         moveEsCache = await loadDataJson('pokebox_move_es_v1', {}) || {};

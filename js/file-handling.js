@@ -9,7 +9,6 @@ function openFile() {
 
 function setupFileHandling() {
     const $openInput = document.getElementById('openInput');
-    const $bgInput = document.getElementById('bgInput');
 
     $openInput?.addEventListener('change', (ev) => {
         const file = ev.target.files[0];
@@ -31,47 +30,27 @@ function setupFileHandling() {
                     db = data.entries.map(p => ({ id: p.id || uuid(), ...p }));
 
                     if (data.bg && typeof window.applyBackground === 'function' && typeof window.setBackgroundDataUrl === 'function') {
-                        window.setBackgroundDataUrl(data.bg);
+                        window.setBackgroundDataUrl(data.bg, { silent: true });
                     }
 
                     if (data.bag && typeof data.bag === 'object') {
                         try {
-                            window.Bag?.setState?.(data.bag);
+                            window.Bag?.setState?.(data.bag, { silent: true });
                         } catch { }
                     }
                 } else {
                     throw new Error('Formato inválido: se esperaba un array o un objeto {entries, bg, bag}.');
                 }
 
-                setDirty(false);
                 render();
                 updateStatus();
                 backup();
+                setDirty(true);
             } catch (err) {
                 alert('Error al abrir: ' + err.message);
             }
         };
         reader.readAsText(file);
-
-        ev.target.value = '';
-    });
-
-    $bgInput?.addEventListener('change', (ev) => {
-        const file = ev.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = () => {
-            try {
-                if (typeof window.setBackgroundDataUrl === 'function') {
-                    window.setBackgroundDataUrl(reader.result);
-                    setDirty(true);
-                }
-            } catch (err) {
-                alert('Error al cargar fondo: ' + err.message);
-            }
-        };
-        reader.readAsDataURL(file);
 
         ev.target.value = '';
     });
