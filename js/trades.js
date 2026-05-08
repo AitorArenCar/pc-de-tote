@@ -4,6 +4,7 @@
 
 let __tradesSubscription = null;
 let __tradesSubscribedUserId = null;
+let __activeTradeTab = 'received';
 
 function resetTradeState() {
     currentTradeState = {
@@ -21,6 +22,46 @@ function closeTradeDialog(dialog) {
     try {
         if (dialog.open) dialog.close();
     } catch { }
+}
+
+function closeTradeDialogFromButton(button) {
+    const dialog = button?.closest?.('dialog');
+    closeTradeDialog(dialog);
+}
+
+function ensureTradeTabs() {
+    const list = document.getElementById('tradePendingList');
+    if (!list) return null;
+
+    let tabs = document.getElementById('tradeRequestTabs');
+    if (!tabs) {
+        tabs = document.createElement('nav');
+        tabs.id = 'tradeRequestTabs';
+        tabs.className = 'trade-tabs';
+        tabs.setAttribute('aria-label', 'Solicitudes de intercambio');
+        tabs.innerHTML = `
+            <button type="button" class="trade-tab" data-tab="received">Recibidas</button>
+            <button type="button" class="trade-tab" data-tab="sent">Enviadas</button>
+            <button type="button" class="trade-tab" data-tab="history">Historial</button>
+        `;
+        list.parentElement?.insertBefore(tabs, list);
+    }
+
+    tabs.querySelectorAll('.trade-tab').forEach(btn => {
+        btn.classList.toggle('active', (btn.dataset.tab || 'received') === __activeTradeTab);
+        if (!btn.dataset.wired) {
+            btn.dataset.wired = '1';
+            btn.addEventListener('click', async () => {
+                __activeTradeTab = btn.dataset.tab || 'received';
+                tabs.querySelectorAll('.trade-tab').forEach(tab => {
+                    tab.classList.toggle('active', tab === btn);
+                });
+                await loadPendingTrades();
+            });
+        }
+    });
+
+    return tabs;
 }
 
 async function initiateTrade() {
@@ -259,32 +300,58 @@ function setupTradeEvents() {
     });
 
     $closeTradeInit?.addEventListener('click', () => {
-        closeTradeDialog($tradeInitDialog);
+        closeTradeDialogFromButton($closeTradeInit);
         resetTradeState();
     });
 
     $closeTradePending?.addEventListener('click', () => {
-        closeTradeDialog($tradePendingDialog);
+        closeTradeDialogFromButton($closeTradePending);
     });
 
     $tradeInitDialog?.addEventListener('cancel', () => {
         resetTradeState();
     });
+
+    document.addEventListener('click', (e) => {
+        const closePending = e.target?.closest?.('#closeTradePending');
+        const closeInit = e.target?.closest?.('#closeTradeInit');
+        if (closePending) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeTradeDialogFromButton(closePending);
+        }
+        if (closeInit) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeTradeDialogFromButton(closeInit);
+            resetTradeState();
+        }
+    });
+
+    ensureTradeTabs();
 }
 
 async function loadPendingTrades() {
     const $tradePendingList = document.getElementById('tradePendingList');
+    ensureTradeTabs();
     try {
         const currentUser = await window.Supa?.getUser?.();
-        const trades = await window.Supa?.getPendingTrades?.();
+        const trades = await window.Supa?.getUserTrades?.({ includeClosed: __activeTradeTab === 'history' });
         if (!trades || trades.length === 0) {
-            $tradePendingList.innerHTML = '<p class="muted">No tienes solicitudes pendientes.</p>';
+            $tradePendingList.innerHTML = emptyTradesMessage();
             await updatePendingTradesBadge([]);
             return;
         }
 
+        const visibleTrades = filterTradesForActiveTab(trades, currentUser?.id);
+        if (!visibleTrades.length) {
+            $tradePendingList.innerHTML = emptyTradesMessage();
+            await updatePendingTradesBadge(trades);
+            return;
+        }
+
         let html = '';
-        for (const trade of trades) {
+        for (const trade of visibleTrades) {
             const isReceiver = trade.target_user_id === currentUser?.id;
             const isInitiator = trade.initiator_id === currentUser?.id;
 
@@ -293,18 +360,18 @@ async function loadPendingTrades() {
             const initiatorEmail = trade.initiator_email || `Usuario ${trade.initiator_id.slice(0, 8)}`;
 
             let actionsHtml = '';
-            let subtitle = '';
+            let subtitle = tradeSubtitle(trade, { isReceiver, isInitiator });
             if (isReceiver) {
-                subtitle = 'te ha enviado una solicitud';
-                actionsHtml = `
-                    <button class="btn accept-trade" data-trade-id="${trade.id}" data-role="receiver">✓ Aceptar</button>
-                    <button class="btn deny-trade" data-trade-id="${trade.id}">✕ Rechazar</button>
-                `;
+                if (trade.status === 'pending' && trade.receiver_status === 'pending') {
+                    actionsHtml = `
+                        <button class="btn accept-trade" data-trade-id="${trade.id}" data-role="receiver">✓ Aceptar</button>
+                        <button class="btn deny-trade" data-trade-id="${trade.id}">✕ Rechazar</button>
+                    `;
+                }
             } else if (isInitiator) {
-                subtitle = 'Esperando a que el receptor acepte';
-                actionsHtml = `<button class="btn deny-trade" data-trade-id="${trade.id}">✕ Cancelar</button>`;
-            } else {
-                subtitle = 'Solicitud entre otros usuarios';
+                if (trade.status === 'pending') {
+                    actionsHtml = `<button class="btn deny-trade" data-trade-id="${trade.id}">✕ Cancelar</button>`;
+                }
             }
 
             html += `
@@ -346,6 +413,30 @@ async function loadPendingTrades() {
         console.error('Error cargando solicitudes:', e);
         $tradePendingList.innerHTML = '<p class="muted">Error cargando solicitudes.</p>';
     }
+}
+
+function filterTradesForActiveTab(trades, userId) {
+    if (__activeTradeTab === 'received') {
+        return trades.filter(t => t.target_user_id === userId && t.status === 'pending');
+    }
+    if (__activeTradeTab === 'sent') {
+        return trades.filter(t => t.initiator_id === userId && t.status === 'pending');
+    }
+    return trades.filter(t => t.status !== 'pending');
+}
+
+function emptyTradesMessage() {
+    if (__activeTradeTab === 'received') return '<p class="muted">No tienes solicitudes recibidas pendientes.</p>';
+    if (__activeTradeTab === 'sent') return '<p class="muted">No tienes solicitudes enviadas pendientes.</p>';
+    return '<p class="muted">Todavía no hay historial de intercambios.</p>';
+}
+
+function tradeSubtitle(trade, { isReceiver, isInitiator }) {
+    if (trade.status === 'completed') return 'intercambio completado';
+    if (trade.status === 'rejected') return 'intercambio cancelado o rechazado';
+    if (isReceiver) return 'te ha enviado una solicitud';
+    if (isInitiator) return 'esperando a que el receptor acepte';
+    return 'solicitud de intercambio';
 }
 
 async function acceptPendingTrade(tradeId, role = 'receiver') {
