@@ -324,6 +324,8 @@ async function initializeCloudSyncAfterRestore() {
         __syncReady = true;
         await syncOnLogin();
         await subscribeOwnBox();
+        await setupTradesSubscription?.();
+        await updatePendingTradesBadge?.();
         updateCloudStatus();
     } catch (e) {
         console.warn('[cloud-sync] init falló:', e);

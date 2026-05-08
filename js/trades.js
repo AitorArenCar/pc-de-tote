@@ -2,6 +2,9 @@
  * Sistema de intercambios (trades)
  */
 
+let __tradesSubscription = null;
+let __tradesSubscribedUserId = null;
+
 function resetTradeState() {
     currentTradeState = {
         selectedUserId: null,
@@ -241,6 +244,7 @@ function setupTradeEvents() {
             toast('Solicitud de intercambio enviada', 'success');
             $tradeInitDialog.close();
             resetTradeState();
+            await updatePendingTradesBadge();
         } catch (e) {
             toast('Error enviando solicitud: ' + e.message, 'error');
         }
@@ -259,6 +263,7 @@ async function loadPendingTrades() {
         const trades = await window.Supa?.getPendingTrades?.();
         if (!trades || trades.length === 0) {
             $tradePendingList.innerHTML = '<p class="muted">No tienes solicitudes pendientes.</p>';
+            await updatePendingTradesBadge([]);
             return;
         }
 
@@ -282,7 +287,7 @@ async function loadPendingTrades() {
             } else if (isInitiator) {
                 if (trade.receiver_status === 'accepted' && trade.initiator_status === 'pending') {
                     subtitle = 'tu solicitud ha sido aceptada — confirma el intercambio';
-                    actionsHtml = `<button class="btn accept-trade" data-trade-id="${trade.id}" data-role="initiator">✓ Aceptar</button>`;
+                    actionsHtml = `<button class="btn accept-trade" data-trade-id="${trade.id}" data-role="initiator">✓ Confirmar</button>`;
                 } else if (trade.receiver_status === 'pending') {
                     subtitle = 'Esperando a que el receptor acepte';
                     actionsHtml = `<button class="btn deny-trade" data-trade-id="${trade.id}">✕ Cancelar</button>`;
@@ -327,6 +332,7 @@ async function loadPendingTrades() {
         $tradePendingList.querySelectorAll('.deny-trade').forEach(btn => {
             btn.addEventListener('click', () => rejectPendingTrade(btn.dataset.tradeId));
         });
+        await updatePendingTradesBadge(trades);
     } catch (e) {
         console.error('Error cargando solicitudes:', e);
         $tradePendingList.innerHTML = '<p class="muted">Error cargando solicitudes.</p>';
@@ -335,59 +341,31 @@ async function loadPendingTrades() {
 
 async function acceptPendingTrade(tradeId, role = 'receiver') {
     try {
-        const updated = await window.Supa?.acceptTrade?.(tradeId, role);
-        if (!updated) throw new Error('No se pudo aceptar la solicitud');
-
         const trade = await window.Supa?.getTradeById?.(tradeId);
         if (!trade) throw new Error('Intercambio no encontrado');
 
-        if (trade.receiver_status === 'accepted' && trade.initiator_status === 'accepted') {
-            const { data: initiatorBox } = await window.sb
-                .from('poke_boxes')
-                .select('data')
-                .eq('user_id', trade.initiator_id)
-                .maybeSingle();
-
-            const { data: targetBox } = await window.sb
-                .from('poke_boxes')
-                .select('data')
-                .eq('user_id', trade.target_user_id)
-                .maybeSingle();
-
-            const initiatorData = initiatorBox?.data || { entries: [] };
-            const targetData = targetBox?.data || { entries: [] };
-
-            const initiatorPokemon = trade.initiator_pokemon_data || initiatorData.entries?.find(p => p.id === trade.initiator_pokemon_id);
-            const targetPokemon = trade.target_pokemon_data || targetData.entries?.find(p => p.id === trade.target_pokemon_id);
-
-            if (!initiatorPokemon || !targetPokemon) {
-                throw new Error('Faltan datos de los Pokémon para completar el intercambio');
+        if (role === 'receiver') {
+            const myPokemon = db.find(p => p.id === trade.target_pokemon_id);
+            if (!myPokemon) {
+                throw new Error('Ese Pokémon ya no está en tu caja. Rechaza la solicitud o pide una nueva.');
             }
-
-            initiatorData.entries = (initiatorData.entries || []).filter(p => p.id !== (trade.initiator_pokemon_id || initiatorPokemon.id));
-            initiatorData.entries.push(targetPokemon);
-
-            targetData.entries = (targetData.entries || []).filter(p => p.id !== (trade.target_pokemon_id || targetPokemon.id));
-            targetData.entries.push(initiatorPokemon);
-
-            await window.Supa?.updateBoxForUser?.(trade.initiator_id, initiatorData);
-            await window.Supa?.updateBoxForUser?.(trade.target_user_id, targetData);
-
-            const me = await window.Supa?.getUser?.();
-            if (me && me.id === trade.target_user_id) {
-                db = db.filter(p => p.id !== trade.target_pokemon_id);
-                db.push(initiatorPokemon);
-                setDirty(true);
-                render();
+            const updated = await window.Supa?.acceptTrade?.(tradeId, 'receiver');
+            if (!updated) throw new Error('No se pudo aceptar la solicitud');
+            toast('Solicitud aceptada. Esperando confirmación del otro jugador.', 'info');
+        } else {
+            if (trade.receiver_status !== 'accepted') {
+                throw new Error('El otro jugador todavía no ha aceptado.');
             }
-
+            const myPokemon = db.find(p => p.id === trade.initiator_pokemon_id);
+            if (!myPokemon) {
+                throw new Error('Ese Pokémon ya no está en tu caja. Cancela la solicitud o crea una nueva.');
+            }
             await window.Supa?.completeTrade?.(tradeId);
             toast('Intercambio completado', 'success');
-        } else {
-            toast('Aceptaste la solicitud. Esperando confirmación de la otra parte.', 'info');
         }
 
-        loadPendingTrades();
+        await loadPendingTrades();
+        await updatePendingTradesBadge();
     } catch (e) {
         toast('Error procesando aceptación: ' + e.message, 'error');
     }
@@ -397,8 +375,68 @@ async function rejectPendingTrade(tradeId) {
     try {
         await window.Supa?.rejectTrade?.(tradeId);
         toast('Intercambio rechazado', 'info');
-        loadPendingTrades();
+        await loadPendingTrades();
+        await updatePendingTradesBadge();
     } catch (e) {
         toast('Error rechazando intercambio: ' + e.message, 'error');
+    }
+}
+
+async function updatePendingTradesBadge(existingTrades = null) {
+    const $btn = document.getElementById('sidePendingTradesBtn');
+    if (!$btn) return;
+
+    try {
+        const user = await window.Supa?.getUser?.();
+        if (!user) {
+            $btn.textContent = '📬 Solicitudes (0)';
+            return;
+        }
+        const trades = existingTrades || await window.Supa?.getPendingTrades?.() || [];
+        const actionable = trades.filter(t => {
+            if (t.target_user_id === user.id && t.receiver_status === 'pending') return true;
+            if (t.initiator_id === user.id && t.receiver_status === 'accepted' && t.initiator_status === 'pending') return true;
+            return false;
+        });
+        $btn.textContent = `📬 Solicitudes (${actionable.length})`;
+    } catch {
+        $btn.textContent = '📬 Solicitudes (?)';
+    }
+}
+
+async function setupTradesSubscription() {
+    try {
+        const user = await window.Supa?.getUser?.();
+        if (!user) return;
+        if (__tradesSubscription && __tradesSubscribedUserId === user.id) return;
+
+        if (__tradesSubscription?.unsubscribe) {
+            await __tradesSubscription.unsubscribe();
+        }
+
+        __tradesSubscribedUserId = user.id;
+        __tradesSubscription = await window.Supa?.subscribeTrades?.(async (payload) => {
+            const row = payload.new || payload.old || {};
+            const isOpen = $tradePendingDialog && !$tradePendingDialog.open ? false : !!$tradePendingDialog?.open;
+
+            await updatePendingTradesBadge();
+
+            if (payload.eventType === 'INSERT' && row.target_user_id === user.id) {
+                const from = row.initiator_email || 'otro jugador';
+                toast(`Has recibido una solicitud de intercambio de ${from}`, 'info', 5000);
+            } else if (row.initiator_id === user.id && row.receiver_status === 'accepted' && row.initiator_status === 'pending') {
+                toast('Tu solicitud de intercambio fue aceptada. Confírmala para completar.', 'info', 5000);
+            } else if (row.status === 'completed') {
+                toast('Intercambio completado. Tu caja se actualizará automáticamente.', 'success', 5000);
+            } else if (row.status === 'rejected') {
+                toast('Una solicitud de intercambio fue cancelada o rechazada.', 'info', 5000);
+            }
+
+            if (isOpen) await loadPendingTrades();
+        });
+
+        await updatePendingTradesBadge();
+    } catch (e) {
+        console.warn('[trades] no se pudo iniciar Realtime:', e);
     }
 }
