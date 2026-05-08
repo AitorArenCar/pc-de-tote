@@ -221,6 +221,24 @@ async function getUser() {
     return data || [];
   }
 
+  async function getUserTrades({ includeClosed = false, limit = 50 } = {}) {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+
+    let q = sb
+      .from('trades')
+      .select('*')
+      .or(`target_user_id.eq.${user.id},initiator_id.eq.${user.id}`)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (!includeClosed) q = q.eq('status', 'pending');
+
+    const { data, error } = await q;
+    if (error) throw error;
+    return data || [];
+  }
+
   // role: 'receiver' | 'initiator'
   async function acceptTrade(tradeId, role = 'receiver') {
     if (role === 'receiver') {
@@ -345,7 +363,7 @@ async function getUser() {
   window.Supa = { 
     signUp, signIn, signOut, getUser, uploadBg, saveBox, loadBox,
     createBoxBackup, listBoxBackups, subscribeBoxChanges,
-    listUsers, createTrade, getPendingTrades, acceptTrade, rejectTrade, 
+    listUsers, createTrade, getPendingTrades, getUserTrades, acceptTrade, rejectTrade, 
     completeTrade, getTradeById, updateBoxForUser, subscribeTrades
   };
 })();

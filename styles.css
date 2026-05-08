@@ -1183,6 +1183,33 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
   animation: fadeIn 0.3s ease;
 }
 
+.trade-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.trade-tab {
+  border: 1px solid rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .04);
+  color: #e6eefb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.trade-tab.active {
+  border-color: var(--ring);
+  background: rgba(59, 130, 246, .18);
+}
+
+.trade-request-list {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
