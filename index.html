@@ -18,6 +18,19 @@
     <link rel="apple-touch-icon" sizes="144x144" href="images/icons/apple-touch-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="images/icons/apple-touch-icon-152x152.png">
 
+
+    <!-- favicon -->
+    <link rel="shortcut icon" href="images/icons/favicon.ico" type="image/x-icon"> <!-- prueba favicon -->
+    <link rel="shortcut icon" href="images/icons/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="images/icons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="images/icons/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/icons/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="images/icons/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/icons/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="images/icons/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="images/icons/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="images/icons/apple-touch-icon-152x152.png">
+
     <link rel="stylesheet" href="styles.css" />
 </head>
 
@@ -28,9 +41,65 @@
             <span></span>
             <span></span>
         </button>
+        <button id="hamburgerBtn" class="hamburger-btn" aria-label="Abrir menú" aria-controls="sideMenu" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
         <h1>Pc de Tote</h1>
         <button id="addBtn" class="btn btn-primary" title="Añadir Pokémon">＋ Añadir</button>
     </header>
+
+    <!-- Menú lateral -->
+    <nav id="sideMenu" class="side-menu" aria-label="Menú principal" hidden>
+        <div class="side-menu-content">
+            <!-- Sección 1: Pokémon -->
+            <div class="menu-section">
+                <h3 class="menu-section-title">Pokémon</h3>
+                <button id="teamBtn" class="menu-btn" title="Ver equipo">👥 Equipo (0)</button>
+                <button id="bagBtn" class="menu-btn" title="Gestionar objetos">🎒 Mochila</button>
+                <button id="healAllBtn" class="menu-btn" title="Poner la vida de todos al máximo">💊 Curar todos</button>
+                <button id="sideTradeBtn" class="menu-btn" title="Intercambiar Pokémon">🔄 Intercambiar</button>
+                <button id="sidePendingTradesBtn" class="menu-btn" title="Ver solicitudes de intercambio">📬 Solicitudes (0)</button>
+            </div>
+
+            <!-- Separador -->
+            <div class="menu-sep"></div>
+
+            <!-- Sección 2: Base de datos -->
+            <div class="menu-section">
+                <h3 class="menu-section-title">Base de datos</h3>
+                <button id="sideMenuOpen" class="menu-btn">📥 Importar datos</button>
+                <button id="sideMenuSave" class="menu-btn">💾 Guardar</button>
+                <button id="sideMenuBg" class="menu-btn">🖼️ Cambiar fondo</button>
+                <button id="sideMenuBgClear" class="menu-btn danger">🧹 Quitar fondo</button>
+            </div>
+
+            <!-- Separador -->
+            <div class="menu-sep"></div>
+
+            <!-- Sección 3: Nube -->
+            <div class="menu-section">
+                <h3 class="menu-section-title">Nube</h3>
+                <button id="sideCloudStatus" class="menu-btn disabled">☁️ Nube: desconectado</button>
+                <button id="sideCloudSave" class="menu-btn" hidden>📤 Guardar en nube</button>
+                <button id="sideCloudLoad" class="menu-btn" hidden>📥 Cargar desde nube</button>
+                <button id="sideCloudBackup" class="menu-btn" hidden>🗄️ Crear copia de seguridad</button>
+                <button id="sideCloudRestoreBackup" class="menu-btn" hidden>↩️ Restaurar copia</button>
+                <button id="sideCloudSignout" class="menu-btn danger" hidden>🚪 Cerrar sesión</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Overlay para cerrar el menú -->
+    <div id="menuOverlay" class="menu-overlay" hidden></div>
+
+    <!-- Inputs ocultos -->
+    <input id="openInput" type="file" accept="application/json" class="hidden-input" />
+    <input id="bgInput" type="file" accept="image/*" class="hidden-input" />
+
+<!-- Toast / notificación -->
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <!-- Menú lateral -->
     <nav id="sideMenu" class="side-menu" aria-label="Menú principal" hidden>
@@ -168,6 +237,12 @@
                                         <span>Shiny</span>
                                     </label>
                                 </div>
+                                <div class="field field-checkbox">
+                                    <label class="checkbox">
+                                        <input id="shinyToggle" type="checkbox" />
+                                        <span>Shiny</span>
+                                    </label>
+                                </div>
 
                             </div>
 
@@ -267,6 +342,32 @@
 </dialog>
 
 
+    <!-- Diálogo: iniciar sesión -->
+<dialog id="authDialog">
+  <div class="modal">
+    <header>
+      <h2 style="margin:0;font-size:18px">Iniciar sesión</h2>
+      <div class="spacer"></div>
+      <button id="closeAuth" class="btn" style="padding:6px 10px">Cerrar</button>
+    </header>
+    <div class="content">
+      <div class="field">
+        <label for="authEmail">Email</label>
+        <input id="authEmail" type="email" placeholder="tucorreo@ejemplo.com" />
+      </div>
+      <div class="field">
+        <label for="authPass">Contraseña</label>
+        <input id="authPass" type="password" placeholder="••••••••" />
+      </div>
+      <div class="row" style="justify-content:flex-end;margin-top:14px;gap:8px">
+        <button id="authSignup" class="btn">Registrarse</button>
+        <button id="authSignin" class="btn btn-primary">Entrar</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+
     <!-- Diálogo: detalles de Pokémon -->
     <dialog id="detailDialog">
         <div class="modal">
@@ -299,9 +400,13 @@
 <dialog id="bagDialog" class="bagDialog">
   <header>
       <h2 style="margin:0;font-size:18px; color: white;">Mochila</h2>
+  <header>
+      <h2 style="margin:0;font-size:18px; color: white;">Mochila</h2>
       <div class="spacer"></div>
       <button id="closeBag" class="btn" style="padding:6px 10px">Cerrar</button>
     </header>
+  <div class="modal modal-mochila">
+
   <div class="modal modal-mochila">
 
 
@@ -412,12 +517,7 @@
       <button id="closeTradePending" type="button" class="btn" style="padding:6px 10px">Cerrar</button>
     </header>
     <div class="content">
-      <nav id="tradeRequestTabs" class="trade-tabs" aria-label="Solicitudes de intercambio">
-        <button type="button" class="trade-tab active" data-tab="received">Recibidas</button>
-        <button type="button" class="trade-tab" data-tab="sent">Enviadas</button>
-        <button type="button" class="trade-tab" data-tab="history">Historial</button>
-      </nav>
-      <div id="tradePendingList" class="trade-request-list">
+      <div id="tradePendingList" style="max-height:60vh; overflow-y:auto;">
         <p class="muted">No tienes solicitudes pendientes.</p>
       </div>
     </div>
@@ -427,6 +527,30 @@
 
 <script src="items.api.js"></script>
 <script src="bag.module.js"></script>
+<script src="supabase.js"></script>
+<script src="fondo.js"></script>
+
+<!-- Módulos principales -->
+<script src="js/constants.js"></script>
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/persistence.js"></script>
+<script src="js/indexes.js"></script>
+<script src="js/hp-system.js"></script>
+<script src="js/pokemon-search.js"></script>
+<script src="js/autocompletes.js"></script>
+<script src="js/moves.js"></script>
+<script src="js/ui-render.js"></script>
+<script src="js/ui-status.js"></script>
+<script src="js/pokemon-detail.js"></script>
+<script src="js/ui-dialogs.js"></script>
+<script src="js/ui-menu.js"></script>
+<script src="js/trades.js"></script>
+<script src="js/auth-cloud.js"></script>
+<script src="js/file-handling.js"></script>
+<script src="js/init.js"></script>
+<script src="js/script.js"></script>
+
 <script src="supabase.js"></script>
 <script src="fondo.js"></script>
 
@@ -470,3 +594,4 @@
 
 
 </html>
+

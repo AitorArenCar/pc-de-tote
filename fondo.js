@@ -23,31 +23,64 @@ function loadBackgroundFromStorage() {
 }
 
 
+// function setBackgroundFromFile(file) {
+//   if (!file) return;
+//   const reader = new FileReader();
+//   reader.onload = () => {
+//     const dataUrl = reader.result;
+//     try { localStorage.setItem(LS_BG, dataUrl); } catch {}
+//     applyBackground(dataUrl);
+//   };
+//   reader.readAsDataURL(file);
+// }
+
 function setBackgroundFromFile(file) {
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const dataUrl = reader.result;
-    try { localStorage.setItem(LS_BG, dataUrl); } catch {}
-    applyBackground(dataUrl);
-  };
-  reader.readAsDataURL(file);
+
+  // Si hay Supabase y usuario, sube al bucket y guarda la URL
+  (async () => {
+    try {
+      const user = await window.Supa?.getUser?.();
+      if (user) {
+        const url = await window.Supa.uploadBg(file);
+        try { localStorage.setItem(LS_BG, url); } catch {}
+        applyBackground(url);
+        if (typeof setDirty === 'function') setDirty(true);
+        return;
+      }
+    } catch (e) {
+      console.warn('No se pudo subir a Supabase (se usará base64 local):', e);
+    }
+
+    // Fallback: dataURL en localStorage (como antes)
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      try { localStorage.setItem(LS_BG, dataUrl); } catch {}
+      applyBackground(dataUrl);
+      if (typeof setDirty === 'function') setDirty(true);
+    };
+    reader.readAsDataURL(file);
+  })();
 }
+
 
 function clearBackground() {
   try { localStorage.removeItem(LS_BG); } catch {}
   applyBackground(null); // vuelve al default
+  if (typeof setDirty === 'function') setDirty(true);
 }
 // Exponer helpers para script.js
 window.getBackgroundDataUrl = () => {
   try { return localStorage.getItem(LS_BG) || null; } catch { return null; }
 };
-window.setBackgroundDataUrl = (dataUrl) => {
+window.setBackgroundDataUrl = (dataUrl, opts = {}) => {
   try {
     if (dataUrl) localStorage.setItem(LS_BG, dataUrl);
     else localStorage.removeItem(LS_BG);
   } catch {}
   applyBackground(dataUrl || 'none');
+  if (!opts.silent && typeof setDirty === 'function') setDirty(true);
 };
 window.applyBackground = applyBackground;
 

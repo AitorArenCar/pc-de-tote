@@ -10,6 +10,8 @@
   const categoryCache = {};
   /** @type {Record<string, any>} */
   const pocketCache = {};
+  /** @type {Record<string, string>} */
+  let itemEsIndex = {};
 
   /** @type {{ count:number, results: {name:string, url:string}[] } | null} */
   let indexList = null;
@@ -42,6 +44,13 @@
     // 2) fallback PokeAPI
     indexList = await fetchJson(`${API}/item?limit=2000`);
     return indexList;
+  }
+
+  async function ensureItemEsIndex(){
+    if (Object.keys(itemEsIndex).length) return itemEsIndex;
+    const fromFile = await tryLoadData('pokeapi_item_es_v1', null);
+    if (fromFile && typeof fromFile === 'object') { itemEsIndex = fromFile; return itemEsIndex; }
+    return {};
   }
 
   function idFromUrl(url){
@@ -167,8 +176,44 @@
   }
 
   // ==== Autocomplete (igual que antes) ====
-  function setupAutocomplete(input, list, { minLength = 1, maxResults = 10 } = {}) {
+  async function setupAutocomplete(input, list, { minLength = 1, maxResults = 10 } = {}) {
     list.classList.add('combo-list');
+
+    // Asegurar índices
+    if (!indexList || !Array.isArray(indexList.results)) {
+      try { await ensureIndex(); } catch {}
+    }
+    await ensureItemEsIndex();
+
+    // Construir índice ligero en memoria (sin pedir detalles de cada item)
+    const lightIndex = (indexList?.results || []).map(r => {
+      const id = idFromUrl(r.url) || r.name || '';
+      const nameEn = r.name || '';
+      const key = String(id).toLowerCase();
+      const cached = detailCache[key] || detailCache[id] || null;
+      
+      // Priorizar: caché > índice estático > nombre inglés
+      let nameEs = (cached && cached.nameEs) || itemEsIndex[nameEn] || '';
+      
+      return {
+        id: String(id),
+        nameEs: nameEs,
+        name: nameEn,
+        sprite: cached?.sprite || null,
+        pocketEs: cached?.pocketEs || ''
+      };
+    });
+
+    function renderList(items) {
+      list.innerHTML = items.map(o => `
+        <div class="combo-item" data-id="${o.id}" data-es="${(o.nameEs || o.name).replace(/"/g,'&quot;')}">
+          ${o.sprite ? `<img src="${o.sprite}" width="20" height="20" alt="">` : ''}
+          <span>${o.nameEs || o.name}</span>
+          ${o.pocketEs ? `<em class="pocket">(${o.pocketEs})</em>` : ''}
+        </div>
+      `).join("");
+      list.hidden = items.length === 0;
+    }
 
     async function searchAndShow() {
       const q = normalize(input.value);
@@ -178,39 +223,45 @@
         return;
       }
 
-      const enriched = [];
-      for (const r of (indexList?.results || [])) {
-        if (enriched.length >= maxResults) break;
-        try {
-          const id = idFromUrl(r.url);
-          const full = await getItemFull(id);
-          const es = normalize(full.nameEs || '');
-          const en = normalize(full.name || '');
-          if (es.includes(q) || (!es && en.includes(q))) enriched.push(full);
-        } catch {}
+      // Priorizar: coincidencias en español (prefijo > contiene) > inglés
+      const esPrefix = [];
+      const esContains = [];
+      const enContains = [];
+      
+      for (const it of lightIndex) {
+        const es = normalize(it.nameEs || '');
+        const en = normalize(it.name || '');
+        
+        if (es && es.startsWith(q)) {
+          esPrefix.push(it);
+        } else if (es && es.includes(q)) {
+          esContains.push(it);
+        } else if (en && en.includes(q) && !es) {
+          enContains.push(it);
+        }
       }
 
-      list.innerHTML = enriched.map(o => `
-        <div class="combo-item" data-id="${o.id}" data-es="${o.nameEs}">
-          ${o.sprite ? `<img src="${o.sprite}" width="20" height="20" alt="">` : ''}
-          <span>${o.nameEs}</span>
-          ${o.pocketEs ? `<em class="pocket">(${o.pocketEs})</em>` : ''}
-        </div>
-      `).join("");
-      list.hidden = enriched.length === 0;
+      const results = [
+        ...esPrefix.slice(0, maxResults),
+        ...esContains.slice(0, Math.max(0, maxResults - esPrefix.length)),
+        ...enContains.slice(0, Math.max(0, maxResults - esPrefix.length - esContains.length))
+      ];
+      renderList(results);
     }
 
     input.addEventListener('input', searchAndShow);
     document.addEventListener('click', (e) => {
       if (!list.contains(e.target) && e.target !== input) list.hidden = true;
     });
-    list.addEventListener('click', e => {
+    list.addEventListener('click', async e => {
       const item = e.target.closest('.combo-item');
       if (!item) return;
-      input.value = item.dataset.es;
+      input.value = item.dataset.es || (item.textContent || '').trim();
       input.dataset.selectedId = item.dataset.id;
       input.dataset.selectedEs = item.dataset.es;
       list.hidden = true;
+      // Calentar caché en background (no bloquear la UI)
+      try { getItemFull(item.dataset.id); } catch {}
     });
   }
 
@@ -259,6 +310,7 @@
   async function init(opts={}){
     lang = opts.lang || 'es';
     await loadDetailCacheIfAny();  // ahora también mira localStorage
+    await ensureItemEsIndex();     // cargar índice de nombres en español
     try { await ensureIndex(); indexReady = true; } catch { indexReady = false; }
   }
 
