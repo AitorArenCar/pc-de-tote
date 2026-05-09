@@ -38,6 +38,7 @@ function setupHamburgerMenu() {
     const menuButtons = $sideMenu?.querySelectorAll('.menu-btn') || [];
     menuButtons.forEach(btn => {
         btn.addEventListener('click', () => {
+            if (btn.id === 'cloudBtn') return;
             setTimeout(closeMenu, 100);
         });
     });

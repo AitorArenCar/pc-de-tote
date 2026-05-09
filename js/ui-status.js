@@ -39,7 +39,7 @@ function updateCloudStatus() {
     const $sideCloudSection = document.getElementById('sideCloudSection');
     const $sideCloudStatus = document.getElementById('sideCloudStatus');
     if ($sideCloudSection) {
-        $sideCloudSection.hidden = !__isLoggedIn;
+        $sideCloudSection.hidden = true;
     }
     if ($sideCloudStatus) {
         const prefix = '☁️ ';
