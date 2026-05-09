@@ -481,7 +481,7 @@ async function updatePendingTradesBadge(existingTrades = null) {
     try {
         const user = await window.Supa?.getUser?.();
         if (!user) {
-            $btn.textContent = '📬 Solicitudes (0)';
+            $btn.textContent = 'Buzón de solicitudes (0)';
             return;
         }
         const trades = existingTrades || await window.Supa?.getPendingTrades?.() || [];
@@ -489,9 +489,9 @@ async function updatePendingTradesBadge(existingTrades = null) {
             if (t.target_user_id === user.id && t.receiver_status === 'pending') return true;
             return false;
         });
-        $btn.textContent = `📬 Solicitudes (${actionable.length})`;
+        $btn.textContent = `Buzón de solicitudes (${actionable.length})`;
     } catch {
-        $btn.textContent = '📬 Solicitudes (?)';
+        $btn.textContent = 'Buzón de solicitudes (?)';
     }
 }
 

@@ -29,7 +29,39 @@
             <span></span>
         </button>
         <h1>Pc de Tote</h1>
-        <button id="addBtn" class="btn btn-primary" title="Añadir Pokémon">＋ Añadir</button>
+        <div class="header-actions">
+            <button id="teamBtn" class="header-icon-btn team-quick-btn" title="Ver equipo" aria-label="Ver equipo">
+                <span class="team-icon team-no" aria-hidden="true">
+                    <svg class="pokeicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <circle class="poke-fill" cx="12" cy="12" r="9"/>
+                        <circle class="poke-stroke" cx="12" cy="12" r="9"/>
+                        <path class="poke-stroke" d="M3 12h7"/>
+                        <path class="poke-stroke" d="M14 12h7"/>
+                        <circle class="poke-stroke" cx="12" cy="12" r="3"/>
+                    </svg>
+                </span>
+            </button>
+            <button id="bagBtn" class="header-icon-btn" title="Mochila" aria-label="Mochila">
+                <svg aria-hidden="true" viewBox="0 0 24 24" class="header-svg-icon">
+                    <path d="M8 8V6a4 4 0 0 1 8 0v2"/>
+                    <path d="M5 9h14l1 10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2L5 9Z"/>
+                    <path d="M8 13h8"/>
+                </svg>
+            </button>
+            <div class="status-wrap cloud-wrap">
+                <button id="cloudBtn" class="btn cloud-login-btn" aria-haspopup="true" aria-expanded="false" title="Iniciar sesión">Iniciar sesión</button>
+                <div id="cloudMenu" class="status-menu" hidden>
+                    <button id="cloudMenuSave" class="menu-item">Guardar en nube</button>
+                    <button id="cloudMenuLoad" class="menu-item">Cargar desde nube</button>
+                    <div class="menu-sep"></div>
+                    <button id="cloudMenuBackup" class="menu-item">Crear copia de seguridad</button>
+                    <button id="cloudMenuRestoreBackup" class="menu-item">Restaurar copia</button>
+                    <div class="menu-sep"></div>
+                    <button id="cloudMenuSignout" class="menu-item danger">Cerrar sesión</button>
+                </div>
+            </div>
+            <button id="addBtn" class="btn btn-primary" title="Añadir Pokémon">＋ Añadir</button>
+        </div>
     </header>
 
     <!-- Menú lateral -->
@@ -38,11 +70,12 @@
             <!-- Sección 1: Pokémon -->
             <div class="menu-section">
                 <h3 class="menu-section-title">Pokémon</h3>
-                <button id="teamBtn" class="menu-btn" title="Ver equipo">👥 Equipo (0)</button>
-                <button id="bagBtn" class="menu-btn" title="Gestionar objetos">🎒 Mochila</button>
                 <button id="healAllBtn" class="menu-btn" title="Poner la vida de todos al máximo">💊 Curar todos</button>
-                <button id="sideTradeBtn" class="menu-btn" title="Intercambiar Pokémon">🔄 Intercambiar</button>
-                <button id="sidePendingTradesBtn" class="menu-btn" title="Ver solicitudes de intercambio">📬 Solicitudes (0)</button>
+                <details class="menu-disclosure">
+                    <summary>🔄 Intercambios</summary>
+                    <button id="sideTradeBtn" class="menu-btn" title="Intercambiar Pokémon">Crear solicitud</button>
+                    <button id="sidePendingTradesBtn" class="menu-btn" title="Ver solicitudes de intercambio">Buzón de solicitudes (0)</button>
+                </details>
             </div>
 
             <!-- Separador -->
@@ -50,25 +83,28 @@
 
             <!-- Sección 2: Base de datos -->
             <div class="menu-section">
-                <h3 class="menu-section-title">Base de datos</h3>
-                <button id="sideMenuOpen" class="menu-btn">📥 Importar datos</button>
-                <button id="sideMenuSave" class="menu-btn">💾 Guardar</button>
-                <button id="sideMenuBg" class="menu-btn">🖼️ Cambiar fondo</button>
-                <button id="sideMenuBgClear" class="menu-btn danger">🧹 Quitar fondo</button>
+                <details class="menu-disclosure">
+                    <summary>Base de datos</summary>
+                    <button id="sideMenuOpen" class="menu-btn">📥 Importar datos</button>
+                    <button id="sideMenuSave" class="menu-btn">💾 Guardar</button>
+                    <button id="sideMenuBg" class="menu-btn">🖼️ Cambiar fondo</button>
+                    <button id="sideMenuBgClear" class="menu-btn danger">🧹 Quitar fondo</button>
+                </details>
             </div>
 
             <!-- Separador -->
             <div class="menu-sep"></div>
 
             <!-- Sección 3: Nube -->
-            <div class="menu-section">
-                <h3 class="menu-section-title">Nube</h3>
-                <button id="sideCloudStatus" class="menu-btn disabled">☁️ Nube: desconectado</button>
-                <button id="sideCloudSave" class="menu-btn" hidden>📤 Guardar en nube</button>
-                <button id="sideCloudLoad" class="menu-btn" hidden>📥 Cargar desde nube</button>
-                <button id="sideCloudBackup" class="menu-btn" hidden>🗄️ Crear copia de seguridad</button>
-                <button id="sideCloudRestoreBackup" class="menu-btn" hidden>↩️ Restaurar copia</button>
-                <button id="sideCloudSignout" class="menu-btn danger" hidden>🚪 Cerrar sesión</button>
+            <div id="sideCloudSection" class="menu-section" hidden>
+                <details class="menu-disclosure">
+                    <summary id="sideCloudStatus">☁️ Nube</summary>
+                    <button id="sideCloudSave" class="menu-btn" hidden>📤 Guardar en nube</button>
+                    <button id="sideCloudLoad" class="menu-btn" hidden>📥 Cargar desde nube</button>
+                    <button id="sideCloudBackup" class="menu-btn" hidden>🗄️ Crear copia de seguridad</button>
+                    <button id="sideCloudRestoreBackup" class="menu-btn" hidden>↩️ Restaurar copia</button>
+                    <button id="sideCloudSignout" class="menu-btn danger" hidden>🚪 Cerrar sesión</button>
+                </details>
             </div>
         </div>
     </nav>

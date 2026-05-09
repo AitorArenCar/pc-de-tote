@@ -30,15 +30,20 @@ function updateCloudStatus() {
     const text = dirty ? `${base} • sincronizando cambios` : base;
 
     if ($cloudBtn) {
-        $cloudBtn.textContent = text;
-        $cloudBtn.title = text;
-        $cloudBtn.classList.toggle('disabled', !__isLoggedIn);
+        const label = __isLoggedIn ? text : 'Iniciar sesión';
+        $cloudBtn.textContent = label;
+        $cloudBtn.title = label;
+        $cloudBtn.classList.remove('disabled');
     }
 
+    const $sideCloudSection = document.getElementById('sideCloudSection');
     const $sideCloudStatus = document.getElementById('sideCloudStatus');
+    if ($sideCloudSection) {
+        $sideCloudSection.hidden = !__isLoggedIn;
+    }
     if ($sideCloudStatus) {
         const prefix = '☁️ ';
-        $sideCloudStatus.textContent = `${prefix}${__cloudEmail ? base : 'Nube: desconectado'}`;
+        $sideCloudStatus.textContent = `${prefix}${__cloudEmail ? base : 'Nube'}`;
         $sideCloudStatus.title = base;
         $sideCloudStatus.classList.toggle('disabled', !__isLoggedIn);
     }
@@ -62,7 +67,22 @@ function teamCount() {
 }
 
 function updateTeamBtnLabel() {
-    if ($teamBtn) $teamBtn.textContent = `Equipo (${teamCount()})`;
+    if (!$teamBtn) return;
+
+    const count = teamCount();
+    const label = `Ver equipo (${count})`;
+    $teamBtn.title = label;
+    $teamBtn.setAttribute('aria-label', label);
+
+    if ($teamBtn.classList.contains('header-icon-btn')) {
+        $teamBtn.dataset.count = String(count);
+        if (typeof teamIconSVG === 'function') {
+            $teamBtn.innerHTML = teamIconSVG(count > 0);
+        }
+        return;
+    }
+
+    $teamBtn.textContent = `Equipo (${count})`;
 }
 
 function toggleTeam(p) {
