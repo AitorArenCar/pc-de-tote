@@ -33,6 +33,51 @@ header {
     z-index: 5;
 }
 
+.header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-icon-btn {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 12px;
+}
+
+.header-svg-icon {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.team-quick-btn .team-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.team-quick-btn .pokeicon {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
+.cloud-login-btn {
+    max-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* Botón Hamburguesa */
 .hamburger-btn {
     display: flex;
@@ -44,6 +89,8 @@ header {
     gap: 5px;
     height: 40px;
     width: 40px;
+    max-width: 40px;
+    min-width: 40px;
     justify-content: center;
 }
 
@@ -93,6 +140,46 @@ header {
 
 .menu-section {
     padding: 12px 8px;
+}
+
+.menu-disclosure {
+    margin: 4px 8px;
+}
+
+.menu-disclosure summary {
+    list-style: none;
+    padding: 12px 16px;
+    color: #e6eefb;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 8px;
+    user-select: none;
+}
+
+.menu-disclosure summary::-webkit-details-marker {
+    display: none;
+}
+
+.menu-disclosure summary::after {
+    content: "▾";
+    float: right;
+    color: var(--muted);
+    transition: transform .2s ease;
+}
+
+.menu-disclosure[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.menu-disclosure summary:hover {
+    background: rgba(255, 255, 255, .08);
+}
+
+.menu-disclosure .menu-btn {
+    width: calc(100% - 16px);
+    margin-left: 8px;
+    padding-left: 24px;
 }
 
 .menu-section-title {
@@ -177,10 +264,16 @@ header {
         text-align: center;
     }
 
-    /* Ocultar elementos del header que van al menú en móvil */
-    #statusBtn,
-    #cloudBtn {
+    #statusBtn {
         display: none;
+    }
+
+    .header-actions {
+        gap: 6px;
+    }
+
+    .cloud-login-btn {
+        max-width: 132px;
     }
 
     /* El grid de pokémon se ajusta mejor en móvil */
@@ -1299,6 +1392,26 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
   header .status-wrap {
     flex: 1; /* que se repartan el espacio disponible */
     min-width: 45%; /* para que no se aplasten demasiado */
+  }
+
+  header .header-actions {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  header .header-icon-btn {
+    flex: 0 0 42px;
+    min-width: 42px;
+  }
+
+  header .cloud-wrap {
+    flex: 1 1 132px;
+    min-width: 132px;
+  }
+
+  header .cloud-login-btn,
+  header #addBtn {
+    min-width: 0;
   }
 
 
