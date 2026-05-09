@@ -24,6 +24,7 @@ body {
 header {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 12px;
     padding: 14px clamp(12px, 3vw, 28px);
     background-color: #0b1020;
@@ -38,6 +39,17 @@ header {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+header h1 {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+}
+
+header #addBtn {
+    flex: 0 0 auto;
+    min-height: 42px;
 }
 
 .header-icon-btn {
@@ -76,6 +88,23 @@ header {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.side-cloud-login {
+    position: relative;
+    margin: 4px 8px;
+}
+
+.side-cloud-login .cloud-login-btn {
+    margin: 4px 0;
+    max-width: none;
+}
+
+.side-cloud-login .status-menu {
+    position: static;
+    margin: 6px 0 0;
+    min-width: 0;
+    box-shadow: none;
 }
 
 /* Botón Hamburguesa */
@@ -256,12 +285,7 @@ header {
     }
 
     header {
-        gap: 16px;
-    }
-
-    h1 {
-        flex: 1;
-        text-align: center;
+        gap: 8px;
     }
 
     #statusBtn {
@@ -270,10 +294,6 @@ header {
 
     .header-actions {
         gap: 6px;
-    }
-
-    .cloud-login-btn {
-        max-width: 132px;
     }
 
     /* El grid de pokémon se ajusta mejor en móvil */
@@ -1379,24 +1399,25 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
 
 @media (max-width: 600px) {
   header {
-    flex-wrap: wrap;
     gap: 8px; /* un poco menos de espacio entre elementos */
   }
 
   header h1 {
-    flex-basis: 100%; /* que el título ocupe toda la primera línea */
-    text-align: center; /* centrado si quieres */
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: center;
   }
 
   header button,
   header .status-wrap {
-    flex: 1; /* que se repartan el espacio disponible */
-    min-width: 45%; /* para que no se aplasten demasiado */
+    flex: 0 0 auto;
+    min-width: 0;
   }
 
   header .header-actions {
-    flex: 1 1 100%;
-    justify-content: center;
+    flex: 0 0 auto;
+    margin-left: auto;
+    justify-content: flex-start;
   }
 
   header .header-icon-btn {
@@ -1404,14 +1425,12 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
     min-width: 42px;
   }
 
-  header .cloud-wrap {
-    flex: 1 1 132px;
-    min-width: 132px;
-  }
-
-  header .cloud-login-btn,
   header #addBtn {
-    min-width: 0;
+    order: 10;
+    flex: 1 1 100%;
+    width: 100%;
+    min-height: 46px;
+    font-size: 16px;
   }
 
 

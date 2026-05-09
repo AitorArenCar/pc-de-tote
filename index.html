@@ -48,20 +48,8 @@
                     <path d="M8 13h8"/>
                 </svg>
             </button>
-            <div class="status-wrap cloud-wrap">
-                <button id="cloudBtn" class="btn cloud-login-btn" aria-haspopup="true" aria-expanded="false" title="Iniciar sesión">Iniciar sesión</button>
-                <div id="cloudMenu" class="status-menu" hidden>
-                    <button id="cloudMenuSave" class="menu-item">Guardar en nube</button>
-                    <button id="cloudMenuLoad" class="menu-item">Cargar desde nube</button>
-                    <div class="menu-sep"></div>
-                    <button id="cloudMenuBackup" class="menu-item">Crear copia de seguridad</button>
-                    <button id="cloudMenuRestoreBackup" class="menu-item">Restaurar copia</button>
-                    <div class="menu-sep"></div>
-                    <button id="cloudMenuSignout" class="menu-item danger">Cerrar sesión</button>
-                </div>
-            </div>
-            <button id="addBtn" class="btn btn-primary" title="Añadir Pokémon">＋ Añadir</button>
         </div>
+        <button id="addBtn" class="btn btn-primary" title="Añadir Pokémon">＋ Añadir</button>
     </header>
 
     <!-- Menú lateral -->
@@ -96,15 +84,28 @@
             <div class="menu-sep"></div>
 
             <!-- Sección 3: Nube -->
-            <div id="sideCloudSection" class="menu-section" hidden>
-                <details class="menu-disclosure">
-                    <summary id="sideCloudStatus">☁️ Nube</summary>
-                    <button id="sideCloudSave" class="menu-btn" hidden>📤 Guardar en nube</button>
-                    <button id="sideCloudLoad" class="menu-btn" hidden>📥 Cargar desde nube</button>
-                    <button id="sideCloudBackup" class="menu-btn" hidden>🗄️ Crear copia de seguridad</button>
-                    <button id="sideCloudRestoreBackup" class="menu-btn" hidden>↩️ Restaurar copia</button>
-                    <button id="sideCloudSignout" class="menu-btn danger" hidden>🚪 Cerrar sesión</button>
-                </details>
+            <div class="menu-section">
+                <h3 class="menu-section-title">Nube</h3>
+                <div class="status-wrap cloud-wrap side-cloud-login">
+                    <button id="cloudBtn" class="menu-btn cloud-login-btn" aria-haspopup="true" aria-expanded="false" title="Iniciar sesión">Iniciar sesión</button>
+                    <div id="cloudMenu" class="status-menu" hidden>
+                        <button id="cloudMenuSave" class="menu-item">Guardar en nube</button>
+                        <button id="cloudMenuLoad" class="menu-item">Cargar desde nube</button>
+                        <div class="menu-sep"></div>
+                        <button id="cloudMenuBackup" class="menu-item">Crear copia de seguridad</button>
+                        <button id="cloudMenuRestoreBackup" class="menu-item">Restaurar copia</button>
+                        <div class="menu-sep"></div>
+                        <button id="cloudMenuSignout" class="menu-item danger">Cerrar sesión</button>
+                    </div>
+                </div>
+            </div>
+            <div id="sideCloudSection" hidden>
+                <button id="sideCloudStatus" type="button" hidden>☁️ Nube</button>
+                <button id="sideCloudSave" type="button" hidden>📤 Guardar en nube</button>
+                <button id="sideCloudLoad" type="button" hidden>📥 Cargar desde nube</button>
+                <button id="sideCloudBackup" type="button" hidden>🗄️ Crear copia de seguridad</button>
+                <button id="sideCloudRestoreBackup" type="button" hidden>↩️ Restaurar copia</button>
+                <button id="sideCloudSignout" type="button" hidden>🚪 Cerrar sesión</button>
             </div>
         </div>
     </nav>
