@@ -747,6 +747,11 @@ select:focus {
     color: #fff;
 }
 .combo-list .combo-item{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
     font-size: 13px;
 }
 
@@ -1145,46 +1150,194 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
 
 /* ==mochila == */
 .bagDialog{
-    overflow-y: scroll;
+  overflow: hidden;
 }
 
 .modal-mochila{
-    padding: 15px;
+  display:flex;
+  flex-direction:column;
+  padding:12px;
+  max-height:80vh;
 }
 
-.bag-grid{
+.bag-actions{
+  display:flex;
+  gap:8px;
+  padding:8px 0 10px;
+}
+
+.bag-actions .btn{
+  min-height:40px;
+}
+
+.bag-list{
   display:grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap:12px;
+  gap:8px;
 }
 
 .bag-item{
-  display:flex;
+  width:100%;
+  min-height:56px;
+  display:grid;
+  grid-template-columns:44px minmax(0, 1fr) auto;
   align-items:center;
-  justify-content:space-between;
   gap:10px;
   background:#0b1330;
   border:1px solid rgba(255,255,255,.12);
   border-radius:10px;
-  padding:10px;
+  padding:8px 10px;
+  text-align:left;
 }
 
-.bag-item .qty{
-  display: flex;
-  flex-direction: column-reverse;
+.bag-item:hover{
+  background:#101d3d;
 }
 
-.bag-item .name small{
-  font-weight:100;
+.bag-item-icon{
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
 }
-.bag-item .name{
-  font-weight:700;
+
+.bag-item-icon img{
+  max-width:32px;
+  max-height:32px;
+  image-rendering: pixelated;
 }
-.bag-ctrl{
-  display:flex;
+
+.bag-item-name{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-weight:800;
+  color:#e6eefb;
+}
+
+.bag-item-qty{
+  min-width:42px;
+  justify-self:end;
+  text-align:right;
+  color:#e6eefb;
+  font-weight:900;
+}
+
+.bag-empty{
+  padding:24px 12px;
+  color:var(--muted);
+  text-align:center;
+  border:1px dashed rgba(255,255,255,.14);
+  border-radius:10px;
+}
+
+.bag-detail,
+.bag-add-view{
+  display:grid;
+  gap:12px;
+  align-content:start;
+}
+
+.bag-back{
+  justify-self:start;
+}
+
+.bag-detail-head{
+  display:grid;
+  grid-template-columns:64px minmax(0, 1fr);
+  gap:12px;
   align-items:center;
-  gap:6px;
+  background:#0b1330;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  padding:12px;
 }
+
+.bag-detail-head img{
+  width:56px;
+  height:56px;
+  object-fit:contain;
+  image-rendering:pixelated;
+}
+
+.bag-detail-head h3{
+  margin:0 0 4px;
+  font-size:18px;
+  overflow-wrap:anywhere;
+}
+
+.bag-detail-head p{
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.bag-detail-stepper{
+  display:grid;
+  grid-template-columns:48px 72px 48px;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+.bag-detail-stepper button{
+  width:48px;
+  height:48px;
+  padding:0;
+  font-size:22px;
+}
+
+.bag-detail-stepper strong{
+  min-height:48px;
+  display:grid;
+  place-items:center;
+  background:#0b1330;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  font-size:18px;
+}
+
+.bag-detail-text{
+  margin:0;
+  padding:12px;
+  background:#0b1330;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  line-height:1.45;
+}
+
+.bag-add-row{
+  display:grid;
+  grid-template-columns:auto 92px auto;
+  gap:8px;
+  align-items:center;
+}
+
+.bag-add-combo .combo-list{
+  max-height:260px;
+}
+
+.bag-custom-editor{
+  display:grid;
+  gap:8px;
+}
+
+.bag-custom-editor textarea{
+  background:#0b1330;
+  color:#e6eefb;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  padding:10px 12px;
+  resize:vertical;
+  outline:none;
+  font:inherit;
+}
+
+.bag-custom-editor textarea:focus{
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, .25);
+}
+
 .badge{
   background:rgba(255,255,255,.08);
   border:1px solid rgba(255,255,255,.12);
@@ -1200,17 +1353,6 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
   margin:8px 0 0;
 }
 
-/* dialog con clase (ahora sí aplicada) */
-.bagDialog { overflow: hidden; }
-
-/* la tarjeta de la mochila: columna + altura máxima */
-.modal-mochila{
-  display:flex;
-  flex-direction:column;
-  padding:15px;
-  max-height:80vh; /* evita que se salga de la pantalla */
-}
-
 /* el área que crecerá y hará scroll */
 .bag-scroll{
   flex:1;
@@ -1221,30 +1363,105 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
 /* pestañas de bolsillos */
 .bag-tabs{
   display:flex;
-  gap:8px;
+  gap:10px;
   padding:6px 0 8px;
   overflow:auto;
-  min-height: 50px;
-  max-height: 50px;
+  min-height: 62px;
+  max-height: 62px;
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:#0e1631;
 }
 .bag-tab{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:20px 10px;
+  width:52px;
+  min-width:52px;
+  height:52px;
+  position:relative;
+  display:inline-grid;
+  place-items:center;
+  padding:0;
   border:1px solid rgba(255,255,255,.12);
   background:#0b1330;
-  border-radius:999px;
-  font-size:12px;
+  border-radius:12px;
   cursor:pointer;
-  white-space:nowrap;
+}
+.bag-tab img{
+  width:30px;
+  height:30px;
+  object-fit:contain;
+  image-rendering:pixelated;
+}
+.bag-tab .count{
+  position:absolute;
+  right:3px;
+  bottom:3px;
+  min-width:18px;
+  height:18px;
+  display:grid;
+  place-items:center;
+  padding:0 4px;
+  border-radius:999px;
+  background:#1a2448;
+  color:#e6eefb;
+  border:1px solid rgba(255,255,255,.16);
+  font-size:11px;
+  font-weight:900;
 }
 .bag-tab[aria-selected="true"]{
   border-color: var(--ring);
-  box-shadow: 0 0 0 2px rgba(59,130,246,.25) inset;
+  background:#142450;
+  box-shadow: 0 0 0 2px rgba(59,130,246,.35) inset;
 }
-.bag-tab .badge{
-  margin-left:2px;
+.bag-tab[aria-selected="true"]::after{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:-7px;
+  height:3px;
+  border-radius:999px;
+  background:var(--ring);
+}
+@media (max-width: 768px) {
+  .bagDialog{
+    width:100vw;
+    max-width:none;
+    height:100dvh;
+    max-height:none;
+    border-radius:0;
+  }
+
+  .bagDialog header{
+    padding:12px;
+  }
+
+  .modal-mochila{
+    max-height:calc(100dvh - 61px);
+    height:calc(100dvh - 61px);
+  }
+
+  .bag-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+
+  .bag-actions .btn{
+    padding:10px 8px;
+    min-width:0;
+  }
+
+  .bag-add-row{
+    grid-template-columns:1fr 92px;
+  }
+
+  .bag-add-row label{
+    grid-column:1 / -1;
+  }
+
+  .bag-add-row .btn{
+    grid-column:1 / -1;
+  }
 }
 
 

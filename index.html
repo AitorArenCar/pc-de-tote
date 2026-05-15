@@ -335,7 +335,7 @@
 <!-- Diálogo: mochila -->
 <dialog id="bagDialog" class="bagDialog">
   <header>
-      <h2 style="margin:0;font-size:18px; color: white;">Mochila</h2>
+      <h2 id="bagTitle" style="margin:0;font-size:18px; color: white;">Mochila</h2>
       <div class="spacer"></div>
       <button id="closeBag" class="btn" style="padding:6px 10px">Cerrar</button>
     </header>
@@ -345,15 +345,9 @@
     <!-- NUEVO: pestañas -->
     <nav id="bagTabs" class="bag-tabs" aria-label="Bolsillos de la mochila"></nav>
 
-    <!-- Buscador -->
-    <div class="field">
-      <label>Buscar objeto</label>
-      <div class="combo">
-        <input id="itemSearchInput" type="text" />
-        <div id="itemSearchList" class="combo-list" hidden></div>
-        <input id="itemQtyInput" type="number" min="1" value="1" style="width:80px" />
-        <button id="addToBagBtn" class="btn btn-primary">Añadir a mochila</button>
-      </div>
+    <div class="bag-actions">
+      <button id="openBagAddBtn" class="btn btn-primary" type="button">Añadir objeto</button>
+      <button id="openCustomItemBtn" class="btn" type="button">Crear custom</button>
     </div>
 
     <!-- NUEVO: contenedor scrolleable -->
