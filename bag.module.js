@@ -140,6 +140,7 @@
   })();
   let viewMode = 'list';
   let detailRef = null;
+  const refreshingMachinePacks = new Set();
   let _onChange = null;
 
   function getState() { return bag; }
@@ -261,7 +262,7 @@
       nameEs,
       qty,
       sprite: full.sprite,
-      effectText: full.effectText || null,
+      effectText: pocket === 'machines' ? (full.effectText ?? '') : (full.effectText || null),
       pocket,
       custom: false,
       machineMove: full.machineMove || '',
@@ -269,6 +270,48 @@
       machineMoveType: full.machineMoveType || '',
       displayName: display,
       searchText: full.searchText || '',
+    });
+  }
+
+  function mergeMachineFullIntoPack(id, full) {
+    const loc = findItemLocation(String(id));
+    if (!loc || loc.pocket !== 'machines' || !full) return false;
+
+    const pack = loc.pack;
+    const next = {
+      nameEs: full.nameEs || full.name || pack.nameEs,
+      sprite: full.sprite ?? pack.sprite,
+      effectText: full.effectText ?? '',
+      machineMove: full.machineMove || pack.machineMove || '',
+      machineMoveEs: full.machineMoveEs || pack.machineMoveEs || '',
+      machineMoveType: full.machineMoveType || pack.machineMoveType || '',
+      displayName: full.displayName || formatMachineLabel(full) || pack.displayName,
+      searchText: full.searchText || pack.searchText || '',
+    };
+
+    let changed = false;
+    for (const [key, value] of Object.entries(next)) {
+      if (pack[key] !== value) {
+        pack[key] = value;
+        changed = true;
+      }
+    }
+    if (changed) notify();
+    return changed;
+  }
+
+  function refreshMachinePack(id) {
+    const key = String(id || '');
+    if (!key || refreshingMachinePacks.has(key) || !window.ItemsAPI?.getItemFull) return;
+    const loc = findItemLocation(key);
+    if (!loc || loc.pocket !== 'machines') return;
+
+    refreshingMachinePacks.add(key);
+    window.ItemsAPI.getItemFull(key).then(full => {
+      const changed = mergeMachineFullIntoPack(key, full);
+      if (changed && detailRef?.id === key && viewMode === 'detail') render();
+    }).catch(() => {}).finally(() => {
+      refreshingMachinePacks.delete(key);
     });
   }
 
@@ -667,6 +710,8 @@
   }
 
   function wireDetailHandlers() {
+    if (detailRef) refreshMachinePack(detailRef.id);
+
     const back = document.querySelector('#bagContent .bag-back');
     if (back) back.onclick = () => { viewMode = 'list'; detailRef = null; render(); };
 

@@ -3,7 +3,10 @@
     "version": 1,
     "source": "https://pokeapi.co/api/v2/machine?limit=2000",
     "count": 293,
-    "moveTypeCount": 194
+    "moveTypeCount": 194,
+    "moveDescCount": 293,
+    "moveDescUniqueCount": 194,
+    "moveDescSource": "pokeapi move flavor_text_entries, latest Spanish version group"
   },
   "data": {
     "1288": {
@@ -11,2051 +14,2344 @@
       "moveEs": "Megapuño",
       "machine": "https://pokeapi.co/api/v2/machine/1/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Un puñetazo de gran potencia."
     },
     "305": {
       "move": "mega-punch",
       "moveEs": "Megapuño",
       "machine": "https://pokeapi.co/api/v2/machine/23/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Un puñetazo de gran potencia."
     },
     "306": {
       "move": "razor-wind",
       "moveEs": "Viento Cortante",
       "machine": "https://pokeapi.co/api/v2/machine/45/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Este movimiento no se puede usar, por lo que sería mejor olvidarlo, aunque eso implique que no se pueda recordar posteriormente."
     },
     "307": {
       "move": "swords-dance",
       "moveEs": "Danza Espada",
       "machine": "https://pokeapi.co/api/v2/machine/67/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Baile frenético que aumenta mucho el Ataque."
     },
     "308": {
       "move": "whirlwind",
       "moveEs": "Remolino",
       "machine": "https://pokeapi.co/api/v2/machine/89/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Se lleva al objetivo, que es cambiado por otro Pokémon. Si es un Pokémon salvaje, acaba el combate."
     },
     "309": {
       "move": "mega-kick",
       "moveEs": "Megapatada",
       "machine": "https://pokeapi.co/api/v2/machine/111/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Patada de extrema fuerza."
     },
     "310": {
       "move": "toxic",
       "moveEs": "Tóxico",
       "machine": "https://pokeapi.co/api/v2/machine/133/",
       "versionGroupId": 29,
-      "moveType": "poison"
+      "moveType": "poison",
+      "moveDescEs": "Envenena gravemente al objetivo y causa un daño mayor en cada turno."
     },
     "311": {
       "move": "horn-drill",
       "moveEs": "Perforador",
       "machine": "https://pokeapi.co/api/v2/machine/155/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Ataque con un cuerno giratorio que fulmina de un solo golpe al objetivo si lo alcanza."
     },
     "312": {
       "move": "body-slam",
       "moveEs": "Golpe Cuerpo",
       "machine": "https://pokeapi.co/api/v2/machine/177/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Salta sobre el objetivo con todo su peso y puede llegar a paralizarlo."
     },
     "313": {
       "move": "take-down",
       "moveEs": "Derribo",
       "machine": "https://pokeapi.co/api/v2/machine/199/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Carga desmedida que también hiere al agresor."
     },
     "314": {
       "move": "double-edge",
       "moveEs": "Doble Filo",
       "machine": "https://pokeapi.co/api/v2/machine/221/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Ataque arriesgado que también hiere al agresor."
     },
     "315": {
       "move": "bubble-beam",
       "moveEs": "Rayo Burbuja",
       "machine": "https://pokeapi.co/api/v2/machine/243/",
       "versionGroupId": 29,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Diluvio de burbujas que puede bajar la Velocidad."
     },
     "316": {
       "move": "water-gun",
       "moveEs": "Pistola Agua",
       "machine": "https://pokeapi.co/api/v2/machine/265/",
       "versionGroupId": 29,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Ataca disparando agua con gran potencia."
     },
     "317": {
       "move": "ice-beam",
       "moveEs": "Rayo Hielo",
       "machine": "https://pokeapi.co/api/v2/machine/287/",
       "versionGroupId": 29,
-      "moveType": "ice"
+      "moveType": "ice",
+      "moveDescEs": "Rayo de hielo que puede llegar a congelar."
     },
     "318": {
       "move": "blizzard",
       "moveEs": "Ventisca",
       "machine": "https://pokeapi.co/api/v2/machine/309/",
       "versionGroupId": 29,
-      "moveType": "ice"
+      "moveType": "ice",
+      "moveDescEs": "Tormenta de hielo que puede llegar a congelar."
     },
     "319": {
       "move": "hyper-beam",
       "moveEs": "Hiperrayo",
       "machine": "https://pokeapi.co/api/v2/machine/331/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Es eficaz, pero el atacante deberá descansar en el siguiente turno."
     },
     "320": {
       "move": "pay-day",
       "moveEs": "Día de Pago",
       "machine": "https://pokeapi.co/api/v2/machine/353/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Arroja monedas al objetivo y las recupera al final del combate."
     },
     "321": {
       "move": "submission",
       "moveEs": "Sumisión",
       "machine": "https://pokeapi.co/api/v2/machine/375/",
       "versionGroupId": 29,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "El usuario se lanza al suelo con el oponente en brazos y también se hace un poco de daño."
     },
     "322": {
       "move": "counter",
       "moveEs": "Contraataque",
       "machine": "https://pokeapi.co/api/v2/machine/397/",
       "versionGroupId": 29,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Devuelve un golpe físico por duplicado."
     },
     "323": {
       "move": "seismic-toss",
       "moveEs": "Movimiento Sísmico",
       "machine": "https://pokeapi.co/api/v2/machine/419/",
       "versionGroupId": 29,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Aprovecha la gravedad para derribar al objetivo. Le resta tantos PS como nivel tenga el usuario."
     },
     "324": {
       "move": "rage",
       "moveEs": "Furia",
       "machine": "https://pokeapi.co/api/v2/machine/441/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Este movimiento no se puede usar, por lo que sería mejor olvidarlo, aunque eso implique que no se pueda recordar posteriormente."
     },
     "325": {
       "move": "mega-drain",
       "moveEs": "Megaagotar",
       "machine": "https://pokeapi.co/api/v2/machine/463/",
       "versionGroupId": 29,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Un ataque que absorbe nutrientes. Quien lo usa recupera la mitad de los PS del daño que produce."
     },
     "326": {
       "move": "solar-beam",
       "moveEs": "Rayo Solar",
       "machine": "https://pokeapi.co/api/v2/machine/485/",
       "versionGroupId": 29,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "El usuario absorbe luz en el primer turno y en el segundo lanza un potente rayo de energía."
     },
     "327": {
       "move": "dragon-rage",
       "moveEs": "Furia Dragón",
       "machine": "https://pokeapi.co/api/v2/machine/507/",
       "versionGroupId": 29,
-      "moveType": "dragon"
+      "moveType": "dragon",
+      "moveDescEs": "Este movimiento no se puede usar, por lo que sería mejor olvidarlo, aunque eso implique que no se pueda recordar posteriormente."
     },
     "328": {
       "move": "thunderbolt",
       "moveEs": "Rayo",
       "machine": "https://pokeapi.co/api/v2/machine/529/",
       "versionGroupId": 29,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Potente ataque eléctrico que puede paralizar al objetivo."
     },
     "329": {
       "move": "thunder",
       "moveEs": "Trueno",
       "machine": "https://pokeapi.co/api/v2/machine/551/",
       "versionGroupId": 29,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Un poderoso rayo que daña al objetivo y puede paralizarlo."
     },
     "330": {
       "move": "earthquake",
       "moveEs": "Terremoto",
       "machine": "https://pokeapi.co/api/v2/machine/573/",
       "versionGroupId": 29,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "Un terremoto que afecta a todos los Pokémon que estén a su alrededor."
     },
     "331": {
       "move": "fissure",
       "moveEs": "Fisura",
       "machine": "https://pokeapi.co/api/v2/machine/595/",
       "versionGroupId": 29,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "Abre una grieta en el suelo y mete al objetivo en ella. Fulmina en un golpe."
     },
     "332": {
       "move": "dig",
       "moveEs": "Excavar",
       "machine": "https://pokeapi.co/api/v2/machine/617/",
       "versionGroupId": 29,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "El usuario cava durante el primer turno y ataca en el segundo."
     },
     "333": {
       "move": "psychic",
       "moveEs": "Psíquico",
       "machine": "https://pokeapi.co/api/v2/machine/639/",
       "versionGroupId": 29,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Fuerte ataque telequinético que puede bajar la Defensa Especial del objetivo."
     },
     "334": {
       "move": "teleport",
       "moveEs": "Teletransporte",
       "machine": "https://pokeapi.co/api/v2/machine/661/",
       "versionGroupId": 29,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Permite al usuario cambiarse por otro Pokémon del equipo, si es posible. Si un Pokémon salvaje usa este movimiento, huye del combate."
     },
     "335": {
       "move": "mimic",
       "moveEs": "Mimético",
       "machine": "https://pokeapi.co/api/v2/machine/683/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Copia el último movimiento usado por el objetivo, y puede utilizarlo mientras esté en el combate."
     },
     "336": {
       "move": "double-team",
       "moveEs": "Doble Equipo",
       "machine": "https://pokeapi.co/api/v2/machine/705/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Crea copias de sí mismo para mejorar la Evasión."
     },
     "337": {
       "move": "reflect",
       "moveEs": "Reflejo",
       "machine": "https://pokeapi.co/api/v2/machine/727/",
       "versionGroupId": 29,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Pared de luz que reduce durante cinco turnos el daño producido por los ataques físicos."
     },
     "338": {
       "move": "bide",
       "moveEs": "Venganza",
       "machine": "https://pokeapi.co/api/v2/machine/749/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Este movimiento no se puede usar, por lo que sería mejor olvidarlo, aunque eso implique que no se pueda recordar posteriormente."
     },
     "339": {
       "move": "metronome",
       "moveEs": "Metrónomo",
       "machine": "https://pokeapi.co/api/v2/machine/771/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Mueve un dedo y estimula su cerebro para usar al azar casi cualquier movimiento."
     },
     "340": {
       "move": "self-destruct",
       "moveEs": "Autodestrucción",
       "machine": "https://pokeapi.co/api/v2/machine/793/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "El atacante explota y hiere a todos a su alrededor. El usuario se debilita de inmediato."
     },
     "341": {
       "move": "egg-bomb",
       "moveEs": "Bomba Huevo",
       "machine": "https://pokeapi.co/api/v2/machine/815/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Este movimiento no se puede usar, por lo que sería mejor olvidarlo, aunque eso implique que no se pueda recordar posteriormente."
     },
     "342": {
       "move": "fire-blast",
       "moveEs": "Llamarada",
       "machine": "https://pokeapi.co/api/v2/machine/837/",
       "versionGroupId": 29,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Llama intensa que chamusca y puede causar quemaduras."
     },
     "343": {
       "move": "swift",
       "moveEs": "Rapidez",
       "machine": "https://pokeapi.co/api/v2/machine/859/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Lanza rayos en forma de estrella que no fallan nunca."
     },
     "344": {
       "move": "skull-bash",
       "moveEs": "Cabezazo",
       "machine": "https://pokeapi.co/api/v2/machine/881/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "El usuario se prepara y sube su Defensa en el primer turno y en el segundo arremete con un cabezazo."
     },
     "345": {
       "move": "soft-boiled",
       "moveEs": "Amortiguador",
       "machine": "https://pokeapi.co/api/v2/machine/903/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Restaura la mitad de los PS máximos del usuario."
     },
     "346": {
       "move": "dream-eater",
       "moveEs": "Comesueños",
       "machine": "https://pokeapi.co/api/v2/machine/925/",
       "versionGroupId": 29,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Restaura al usuario la mitad del daño causado a un objetivo dormido."
     },
     "347": {
       "move": "sky-attack",
       "moveEs": "Ataque Aéreo",
       "machine": "https://pokeapi.co/api/v2/machine/947/",
       "versionGroupId": 29,
-      "moveType": "flying"
+      "moveType": "flying",
+      "moveDescEs": "Ataca durante dos turnos y suele asestar un golpe crítico. También puede amedrentar al objetivo."
     },
     "348": {
       "move": "rest",
       "moveEs": "Descanso",
       "machine": "https://pokeapi.co/api/v2/machine/969/",
       "versionGroupId": 29,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Restaura todos los PS y cura todos los problemas de estado del usuario, que se duerme los dos turnos siguientes."
     },
     "349": {
       "move": "thunder-wave",
       "moveEs": "Onda Trueno",
       "machine": "https://pokeapi.co/api/v2/machine/991/",
       "versionGroupId": 29,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Una ligera descarga que paraliza al objetivo si lo alcanza."
     },
     "350": {
       "move": "psywave",
       "moveEs": "Psicoonda",
       "machine": "https://pokeapi.co/api/v2/machine/1013/",
       "versionGroupId": 29,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Este movimiento no se puede usar, por lo que sería mejor olvidarlo, aunque eso implique que no se pueda recordar posteriormente."
     },
     "351": {
       "move": "explosion",
       "moveEs": "Explosión",
       "machine": "https://pokeapi.co/api/v2/machine/1035/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "El atacante causa una grandísima explosión y hiere a todos a su alrededor. El usuario se debilita de inmediato."
     },
     "352": {
       "move": "rock-slide",
       "moveEs": "Avalancha",
       "machine": "https://pokeapi.co/api/v2/machine/1057/",
       "versionGroupId": 29,
-      "moveType": "rock"
+      "moveType": "rock",
+      "moveDescEs": "Lanza grandes pedruscos. Puede amedrentar al objetivo."
     },
     "353": {
       "move": "tri-attack",
       "moveEs": "Triataque",
       "machine": "https://pokeapi.co/api/v2/machine/1079/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Ataque triple que puede paralizar, quemar o congelar al objetivo."
     },
     "354": {
       "move": "substitute",
       "moveEs": "Sustituto",
       "machine": "https://pokeapi.co/api/v2/machine/1101/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Utiliza parte de los PS propios para crear un sustituto que actúa como señuelo."
     },
     "355": {
       "move": "sandstorm",
       "moveEs": "Tormenta Arena",
       "machine": "https://pokeapi.co/api/v2/machine/1866/",
       "versionGroupId": 25,
-      "moveType": "rock"
+      "moveType": "rock",
+      "moveDescEs": "Tormenta de arena que dura cinco turnos y hiere a todos, excepto a los de tipo Roca, Tierra y Acero, y aumenta la Defensa Especial de los de tipo Roca."
     },
     "356": {
       "move": "snowscape",
       "moveEs": "snowscape",
       "machine": "https://pokeapi.co/api/v2/machine/1867/",
       "versionGroupId": 25,
-      "moveType": "ice"
+      "moveType": "ice",
+      "moveDescEs": "The user summons a snowstorm lasting five turns. This boosts the Defense stats of Ice types."
     },
     "357": {
       "move": "smart-strike",
       "moveEs": "Cuerno Certero",
       "machine": "https://pokeapi.co/api/v2/machine/1868/",
       "versionGroupId": 25,
-      "moveType": "steel"
+      "moveType": "steel",
+      "moveDescEs": "El usuario ensarta al adversario con su afilada cornamenta. Este movimiento acierta siempre."
     },
     "358": {
       "move": "psyshock",
       "moveEs": "Psicocarga",
       "machine": "https://pokeapi.co/api/v2/machine/1869/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Crea una onda psíquica que causa daño físico al objetivo."
     },
     "359": {
       "move": "dig",
       "moveEs": "Excavar",
       "machine": "https://pokeapi.co/api/v2/machine/1870/",
       "versionGroupId": 25,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "El usuario cava durante el primer turno y ataca en el segundo."
     },
     "360": {
       "move": "bullet-seed",
       "moveEs": "Semilladora",
       "machine": "https://pokeapi.co/api/v2/machine/1871/",
       "versionGroupId": 25,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Dispara rápido de dos a cinco ráfagas de semillas de manera consecutiva."
     },
     "361": {
       "move": "false-swipe",
       "moveEs": "Falso Tortazo",
       "machine": "https://pokeapi.co/api/v2/machine/1872/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Ataque moderado que no debilita al objetivo y le deja al menos 1 PS."
     },
     "362": {
       "move": "brick-break",
       "moveEs": "Demolición",
       "machine": "https://pokeapi.co/api/v2/machine/1873/",
       "versionGroupId": 25,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Potente ataque que también es capaz de destruir barreras como Pantalla de Luz y Reflejo."
     },
     "363": {
       "move": "zen-headbutt",
       "moveEs": "Cabezazo Zen",
       "machine": "https://pokeapi.co/api/v2/machine/1874/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Concentra su energía psíquica en la cabeza para golpear. Puede hacer que el objetivo se amedrente."
     },
     "364": {
       "move": "u-turn",
       "moveEs": "Ida y Vuelta",
       "machine": "https://pokeapi.co/api/v2/machine/1875/",
       "versionGroupId": 25,
-      "moveType": "bug"
+      "moveType": "bug",
+      "moveDescEs": "Tras atacar, el usuario vuelve a toda prisa para dar paso a otro Pokémon del equipo."
     },
     "365": {
       "move": "shadow-claw",
       "moveEs": "Garra Umbría",
       "machine": "https://pokeapi.co/api/v2/machine/1876/",
       "versionGroupId": 25,
-      "moveType": "ghost"
+      "moveType": "ghost",
+      "moveDescEs": "Ataca con una garra afilada hecha de sombras. Suele ser crítico."
     },
     "366": {
       "move": "foul-play",
       "moveEs": "Juego Sucio",
       "machine": "https://pokeapi.co/api/v2/machine/1877/",
       "versionGroupId": 25,
-      "moveType": "dark"
+      "moveType": "dark",
+      "moveDescEs": "El usuario emplea la fuerza del objetivo para atacarlo. Cuanto mayor es el Ataque del objetivo, más daño provoca."
     },
     "367": {
       "move": "psychic-fangs",
       "moveEs": "Psicocolmillo",
       "machine": "https://pokeapi.co/api/v2/machine/1878/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Ataca a sus rivales con poderes psíquicos que además destruyen barreras como Pantalla de Luz y Reflejo."
     },
     "368": {
       "move": "bulk-up",
       "moveEs": "Corpulencia",
       "machine": "https://pokeapi.co/api/v2/machine/1879/",
       "versionGroupId": 25,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Robustece el cuerpo para subir el Ataque y la Defensa."
     },
     "369": {
       "move": "air-slash",
       "moveEs": "Tajo Aéreo",
       "machine": "https://pokeapi.co/api/v2/machine/1880/",
       "versionGroupId": 25,
-      "moveType": "flying"
+      "moveType": "flying",
+      "moveDescEs": "Ataca con un viento afilado que incluso corta el aire. También puede amedrentar al objetivo."
     },
     "370": {
       "move": "body-slam",
       "moveEs": "Golpe Cuerpo",
       "machine": "https://pokeapi.co/api/v2/machine/1881/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Salta sobre el objetivo con todo su peso y puede llegar a paralizarlo."
     },
     "371": {
       "move": "fire-punch",
       "moveEs": "Puño Fuego",
       "machine": "https://pokeapi.co/api/v2/machine/1882/",
       "versionGroupId": 25,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Puñetazo ardiente que puede causar quemaduras."
     },
     "372": {
       "move": "thunder-punch",
       "moveEs": "Puño Trueno",
       "machine": "https://pokeapi.co/api/v2/machine/1883/",
       "versionGroupId": 25,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Puñetazo eléctrico que puede paralizar al adversario."
     },
     "373": {
       "move": "ice-punch",
       "moveEs": "Puño Hielo",
       "machine": "https://pokeapi.co/api/v2/machine/1884/",
       "versionGroupId": 25,
-      "moveType": "ice"
+      "moveType": "ice",
+      "moveDescEs": "Puñetazo helado que puede llegar a congelar."
     },
     "374": {
       "move": "sleep-talk",
       "moveEs": "Sonámbulo",
       "machine": "https://pokeapi.co/api/v2/machine/1885/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Mientras duerme, usa uno de sus movimientos elegido al azar."
     },
     "375": {
       "move": "seed-bomb",
       "moveEs": "Bomba Germen",
       "machine": "https://pokeapi.co/api/v2/machine/1886/",
       "versionGroupId": 25,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Lanza al objetivo una descarga de semillas explosivas desde arriba."
     },
     "376": {
       "move": "electro-ball",
       "moveEs": "Bola Voltio",
       "machine": "https://pokeapi.co/api/v2/machine/1887/",
       "versionGroupId": 25,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Lanza una bola eléctrica. Cuanto mayor sea la Velocidad del usuario en comparación con la del objetivo, mayor será el daño causado."
     },
     "377": {
       "move": "drain-punch",
       "moveEs": "Puño Drenaje",
       "machine": "https://pokeapi.co/api/v2/machine/1888/",
       "versionGroupId": 25,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Un golpe que drena energía. El Pokémon recupera la mitad de los PS arrebatados al objetivo."
     },
     "378": {
       "move": "reflect",
       "moveEs": "Reflejo",
       "machine": "https://pokeapi.co/api/v2/machine/1889/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Pared de luz que reduce durante cinco turnos el daño producido por los ataques físicos."
     },
     "379": {
       "move": "light-screen",
       "moveEs": "Pantalla de Luz",
       "machine": "https://pokeapi.co/api/v2/machine/1890/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Pared de luz que reduce durante cinco turnos el daño producido por los ataques especiales."
     },
     "380": {
       "move": "rock-blast",
       "moveEs": "Pedrada",
       "machine": "https://pokeapi.co/api/v2/machine/1891/",
       "versionGroupId": 25,
-      "moveType": "rock"
+      "moveType": "rock",
+      "moveDescEs": "Lanza pedruscos al objetivo de dos a cinco veces consecutivas."
     },
     "381": {
       "move": "waterfall",
       "moveEs": "Cascada",
       "machine": "https://pokeapi.co/api/v2/machine/1892/",
       "versionGroupId": 25,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Embiste con un gran impulso que puede llegar a amedrentar."
     },
     "382": {
       "move": "dragon-claw",
       "moveEs": "Garra Dragón",
       "machine": "https://pokeapi.co/api/v2/machine/1893/",
       "versionGroupId": 25,
-      "moveType": "dragon"
+      "moveType": "dragon",
+      "moveDescEs": "Araña al objetivo con garras afiladas."
     },
     "383": {
       "move": "dazzling-gleam",
       "moveEs": "Brillo Mágico",
       "machine": "https://pokeapi.co/api/v2/machine/1894/",
       "versionGroupId": 25,
-      "moveType": "fairy"
+      "moveType": "fairy",
+      "moveDescEs": "Inflige daño a los oponentes con una potente luz."
     },
     "384": {
       "move": "metronome",
       "moveEs": "Metrónomo",
       "machine": "https://pokeapi.co/api/v2/machine/1895/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Mueve un dedo y estimula su cerebro para usar al azar casi cualquier movimiento."
     },
     "385": {
       "move": "grass-knot",
       "moveEs": "Hierba Lazo",
       "machine": "https://pokeapi.co/api/v2/machine/1896/",
       "versionGroupId": 25,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Enreda al objetivo con hierba y lo derriba. Cuanto más pesado es el objetivo, más daño inflige."
     },
     "386": {
       "move": "thunder-wave",
       "moveEs": "Onda Trueno",
       "machine": "https://pokeapi.co/api/v2/machine/1897/",
       "versionGroupId": 25,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Una ligera descarga que paraliza al objetivo si lo alcanza."
     },
     "387": {
       "move": "poison-jab",
       "moveEs": "Puya Nociva",
       "machine": "https://pokeapi.co/api/v2/machine/1898/",
       "versionGroupId": 25,
-      "moveType": "poison"
+      "moveType": "poison",
+      "moveDescEs": "Pincha al objetivo con un tentáculo o brazo envenenado. Puede llegar a envenenar al objetivo."
     },
     "388": {
       "move": "stomping-tantrum",
       "moveEs": "Pataleta",
       "machine": "https://pokeapi.co/api/v2/machine/1899/",
       "versionGroupId": 25,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "Usa la frustración como revulsivo para atacar. La potencia de Pataleta se duplica si el usuario ha fallado el último movimiento usado."
     },
     "389": {
       "move": "rest",
       "moveEs": "Descanso",
       "machine": "https://pokeapi.co/api/v2/machine/1900/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Restaura todos los PS y cura todos los problemas de estado del usuario, que se duerme los dos turnos siguientes."
     },
     "390": {
       "move": "rock-slide",
       "moveEs": "Avalancha",
       "machine": "https://pokeapi.co/api/v2/machine/1901/",
       "versionGroupId": 25,
-      "moveType": "rock"
+      "moveType": "rock",
+      "moveDescEs": "Lanza grandes pedruscos. Puede amedrentar al objetivo."
     },
     "391": {
       "move": "taunt",
       "moveEs": "Mofa",
       "machine": "https://pokeapi.co/api/v2/machine/1902/",
       "versionGroupId": 25,
-      "moveType": "dark"
+      "moveType": "dark",
+      "moveDescEs": "Enfurece al objetivo para que solo use movimientos de ataque durante tres turnos."
     },
     "392": {
       "move": "swords-dance",
       "moveEs": "Danza Espada",
       "machine": "https://pokeapi.co/api/v2/machine/1903/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Baile frenético que aumenta mucho el Ataque."
     },
     "393": {
       "move": "body-press",
       "moveEs": "body-press",
       "machine": "https://pokeapi.co/api/v2/machine/1904/",
       "versionGroupId": 25,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "El usuario usa el cuerpo para lanzar su ataque e infligir un daño directamente proporcional a su Defensa."
     },
     "394": {
       "move": "spikes",
       "moveEs": "Púas",
       "machine": "https://pokeapi.co/api/v2/machine/1905/",
       "versionGroupId": 25,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "Esparce púas alrededor del equipo rival que hieren a los Pokémon rivales que entran en combate."
     },
     "395": {
       "move": "toxic-spikes",
       "moveEs": "Púas Tóxicas",
       "machine": "https://pokeapi.co/api/v2/machine/1906/",
       "versionGroupId": 25,
-      "moveType": "poison"
+      "moveType": "poison",
+      "moveDescEs": "Lanza una trampa de púas tóxicas a los pies del objetivo. El veneno afecta a los Pokémon oponentes que entran en combate."
     },
     "396": {
       "move": "imprison",
       "moveEs": "Sellar",
       "machine": "https://pokeapi.co/api/v2/machine/1907/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Impide a los contrincantes usar ataques conocidos por el usuario durante el combate."
     },
     "659": {
       "move": "flash-cannon",
       "moveEs": "Foco Resplandor",
       "machine": "https://pokeapi.co/api/v2/machine/1908/",
       "versionGroupId": 25,
-      "moveType": "steel"
+      "moveType": "steel",
+      "moveDescEs": "El usuario concentra toda la luz del cuerpo y la libera. Puede bajar la Defensa Especial del objetivo."
     },
     "660": {
       "move": "dark-pulse",
       "moveEs": "Pulso Umbrío",
       "machine": "https://pokeapi.co/api/v2/machine/1909/",
       "versionGroupId": 25,
-      "moveType": "dark"
+      "moveType": "dark",
+      "moveDescEs": "Libera una horrible aura llena de malos pensamientos que puede amedrentar al objetivo."
     },
     "661": {
       "move": "leech-life",
       "moveEs": "Chupavidas",
       "machine": "https://pokeapi.co/api/v2/machine/1910/",
       "versionGroupId": 25,
-      "moveType": "bug"
+      "moveType": "bug",
+      "moveDescEs": "Restaura al usuario la mitad del daño causado al objetivo."
     },
     "745": {
       "move": "eerie-impulse",
       "moveEs": "Onda Anómala",
       "machine": "https://pokeapi.co/api/v2/machine/1911/",
       "versionGroupId": 25,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "El usuario irradia unas raras ondas que, al alcanzar a un oponente, hacen que disminuya mucho su Ataque Especial."
     },
     "746": {
       "move": "fly",
       "moveEs": "Vuelo",
       "machine": "https://pokeapi.co/api/v2/machine/1912/",
       "versionGroupId": 25,
-      "moveType": "flying"
+      "moveType": "flying",
+      "moveDescEs": "El usuario vuela en el primer turno y ataca en el segundo."
     },
     "747": {
       "move": "skill-swap",
       "moveEs": "Intercambio",
       "machine": "https://pokeapi.co/api/v2/machine/1913/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Usa el poder psíquico para intercambiar habilidades con el objetivo."
     },
     "748": {
       "move": "iron-head",
       "moveEs": "Cabeza de Hierro",
       "machine": "https://pokeapi.co/api/v2/machine/1914/",
       "versionGroupId": 25,
-      "moveType": "steel"
+      "moveType": "steel",
+      "moveDescEs": "Ataca con su dura cabeza de hierro. Puede hacer que el objetivo se amedrente."
     },
     "749": {
       "move": "dragon-dance",
       "moveEs": "Danza Dragón",
       "machine": "https://pokeapi.co/api/v2/machine/1915/",
       "versionGroupId": 25,
-      "moveType": "dragon"
+      "moveType": "dragon",
+      "moveDescEs": "Danza mística que sube el Ataque y la Velocidad."
     },
     "1188": {
       "move": "swords-dance",
       "moveEs": "Danza Espada",
       "machine": "https://pokeapi.co/api/v2/machine/1577/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Baile frenético que aumenta mucho el Ataque."
     },
     "397": {
       "move": "cut",
       "moveEs": "Corte",
       "machine": "https://pokeapi.co/api/v2/machine/1596/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Corta al adversario con garras, guadañas, etc."
     },
     "1189": {
       "move": "body-slam",
       "moveEs": "Golpe Cuerpo",
       "machine": "https://pokeapi.co/api/v2/machine/1594/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Salta sobre el objetivo con todo su peso y puede llegar a paralizarlo."
     },
     "398": {
       "move": "fly",
       "moveEs": "Vuelo",
       "machine": "https://pokeapi.co/api/v2/machine/1615/",
       "versionGroupId": 29,
-      "moveType": "flying"
+      "moveType": "flying",
+      "moveDescEs": "El usuario vuela en el primer turno y ataca en el segundo."
     },
     "1190": {
       "move": "flamethrower",
       "moveEs": "Lanzallamas",
       "machine": "https://pokeapi.co/api/v2/machine/1613/",
       "versionGroupId": 20,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Ataca con una gran ráfaga de fuego que puede causar quemaduras."
     },
     "399": {
       "move": "surf",
       "moveEs": "Surf",
       "machine": "https://pokeapi.co/api/v2/machine/1634/",
       "versionGroupId": 29,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Inunda el terreno de combate con una ola gigante."
     },
     "1191": {
       "move": "hydro-pump",
       "moveEs": "Hidrobomba",
       "machine": "https://pokeapi.co/api/v2/machine/1632/",
       "versionGroupId": 20,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Lanza una gran masa de agua a presión para atacar."
     },
     "400": {
       "move": "strength",
       "moveEs": "Fuerza",
       "machine": "https://pokeapi.co/api/v2/machine/1653/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Propina un potente puñetazo con todas sus fuerzas."
     },
     "1192": {
       "move": "surf",
       "moveEs": "Surf",
       "machine": "https://pokeapi.co/api/v2/machine/1651/",
       "versionGroupId": 20,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Inunda el terreno de combate con una ola gigante."
     },
     "401": {
       "move": "flash",
       "moveEs": "Destello",
       "machine": "https://pokeapi.co/api/v2/machine/1672/",
       "versionGroupId": 29,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Este movimiento no se puede usar, por lo que sería mejor olvidarlo, aunque eso implique que no se pueda recordar posteriormente."
     },
     "1193": {
       "move": "ice-beam",
       "moveEs": "Rayo Hielo",
       "machine": "https://pokeapi.co/api/v2/machine/1670/",
       "versionGroupId": 20,
-      "moveType": "ice"
+      "moveType": "ice",
+      "moveDescEs": "Rayo de hielo que puede llegar a congelar."
     },
     "402": {
       "move": "rock-smash",
       "moveEs": "Golpe Roca",
       "machine": "https://pokeapi.co/api/v2/machine/1813/",
       "versionGroupId": 23,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Ataque con los puños. Puede bajar la Defensa del objetivo."
     },
     "1194": {
       "move": "blizzard",
       "moveEs": "Ventisca",
       "machine": "https://pokeapi.co/api/v2/machine/1686/",
       "versionGroupId": 20,
-      "moveType": "ice"
+      "moveType": "ice",
+      "moveDescEs": "Tormenta de hielo que puede llegar a congelar."
     },
     "403": {
       "move": "waterfall",
       "moveEs": "Cascada",
       "machine": "https://pokeapi.co/api/v2/machine/1814/",
       "versionGroupId": 23,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Embiste con un gran impulso que puede llegar a amedrentar."
     },
     "1195": {
       "move": "low-kick",
       "moveEs": "Patada Baja",
       "machine": "https://pokeapi.co/api/v2/machine/1698/",
       "versionGroupId": 20,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Patada baja que derriba al oponente. Cuanto más pesa el objetivo, más daño le causa."
     },
     "404": {
       "move": "rock-climb",
       "moveEs": "Treparrocas",
       "machine": "https://pokeapi.co/api/v2/machine/1815/",
       "versionGroupId": 23,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Este movimiento no se puede usar, por lo que sería mejor olvidarlo, aunque eso implique que no se pueda recordar posteriormente."
     },
     "1196": {
       "move": "thunderbolt",
       "moveEs": "Rayo",
       "machine": "https://pokeapi.co/api/v2/machine/1707/",
       "versionGroupId": 20,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Potente ataque eléctrico que puede paralizar al objetivo."
     },
     "1197": {
       "move": "thunder",
       "moveEs": "Trueno",
       "machine": "https://pokeapi.co/api/v2/machine/1708/",
       "versionGroupId": 20,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Un poderoso rayo que daña al objetivo y puede paralizarlo."
     },
     "1198": {
       "move": "earthquake",
       "moveEs": "Terremoto",
       "machine": "https://pokeapi.co/api/v2/machine/1709/",
       "versionGroupId": 20,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "Un terremoto que afecta a todos los Pokémon que estén a su alrededor."
     },
     "1199": {
       "move": "psychic",
       "moveEs": "Psíquico",
       "machine": "https://pokeapi.co/api/v2/machine/1710/",
       "versionGroupId": 20,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Fuerte ataque telequinético que puede bajar la Defensa Especial del objetivo."
     },
     "1200": {
       "move": "agility",
       "moveEs": "Agilidad",
       "machine": "https://pokeapi.co/api/v2/machine/1711/",
       "versionGroupId": 20,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Relaja el cuerpo para ganar mucha Velocidad."
     },
     "1201": {
       "move": "focus-energy",
       "moveEs": "Foco Energía",
       "machine": "https://pokeapi.co/api/v2/machine/1712/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Concentra energía para aumentar las posibilidades de asestar un golpe crítico."
     },
     "1202": {
       "move": "metronome",
       "moveEs": "Metrónomo",
       "machine": "https://pokeapi.co/api/v2/machine/1713/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Mueve un dedo y estimula su cerebro para usar al azar casi cualquier movimiento."
     },
     "1203": {
       "move": "fire-blast",
       "moveEs": "Llamarada",
       "machine": "https://pokeapi.co/api/v2/machine/1714/",
       "versionGroupId": 20,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Llama intensa que chamusca y puede causar quemaduras."
     },
     "1204": {
       "move": "waterfall",
       "moveEs": "Cascada",
       "machine": "https://pokeapi.co/api/v2/machine/1715/",
       "versionGroupId": 20,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Embiste con un gran impulso que puede llegar a amedrentar."
     },
     "1205": {
       "move": "amnesia",
       "moveEs": "Amnesia",
       "machine": "https://pokeapi.co/api/v2/machine/1716/",
       "versionGroupId": 20,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "El usuario olvida sus preocupaciones y aumenta mucho la Defensa Especial."
     },
     "1206": {
       "move": "leech-life",
       "moveEs": "Chupavidas",
       "machine": "https://pokeapi.co/api/v2/machine/1717/",
       "versionGroupId": 20,
-      "moveType": "bug"
+      "moveType": "bug",
+      "moveDescEs": "Restaura al usuario la mitad del daño causado al objetivo."
     },
     "1207": {
       "move": "tri-attack",
       "moveEs": "Triataque",
       "machine": "https://pokeapi.co/api/v2/machine/1718/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Ataque triple que puede paralizar, quemar o congelar al objetivo."
     },
     "1208": {
       "move": "substitute",
       "moveEs": "Sustituto",
       "machine": "https://pokeapi.co/api/v2/machine/1719/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Utiliza parte de los PS propios para crear un sustituto que actúa como señuelo."
     },
     "1209": {
       "move": "reversal",
       "moveEs": "Inversión",
       "machine": "https://pokeapi.co/api/v2/machine/1720/",
       "versionGroupId": 20,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Ataque desesperado que causa más daño cuantos menos PS tenga el usuario."
     },
     "1210": {
       "move": "sludge-bomb",
       "moveEs": "Bomba Lodo",
       "machine": "https://pokeapi.co/api/v2/machine/1721/",
       "versionGroupId": 20,
-      "moveType": "poison"
+      "moveType": "poison",
+      "moveDescEs": "Arroja residuos al objetivo. Puede llegar a envenenar."
     },
     "1211": {
       "move": "spikes",
       "moveEs": "Púas",
       "machine": "https://pokeapi.co/api/v2/machine/1722/",
       "versionGroupId": 20,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "Esparce púas alrededor del equipo rival que hieren a los Pokémon rivales que entran en combate."
     },
     "1212": {
       "move": "outrage",
       "moveEs": "Enfado",
       "machine": "https://pokeapi.co/api/v2/machine/1723/",
       "versionGroupId": 20,
-      "moveType": "dragon"
+      "moveType": "dragon",
+      "moveDescEs": "Ataca de dos a tres turnos y acaba confundiendo al agresor."
     },
     "1213": {
       "move": "psyshock",
       "moveEs": "Psicocarga",
       "machine": "https://pokeapi.co/api/v2/machine/1724/",
       "versionGroupId": 20,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Crea una onda psíquica que causa daño físico al objetivo."
     },
     "1214": {
       "move": "endure",
       "moveEs": "Aguante",
       "machine": "https://pokeapi.co/api/v2/machine/1725/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Resiste cualquier ataque y deja al menos 1 PS. Puede fallar si se usa repetidamente."
     },
     "1215": {
       "move": "sleep-talk",
       "moveEs": "Sonámbulo",
       "machine": "https://pokeapi.co/api/v2/machine/1726/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Mientras duerme, usa uno de sus movimientos elegido al azar."
     },
     "1216": {
       "move": "megahorn",
       "moveEs": "Megacuerno",
       "machine": "https://pokeapi.co/api/v2/machine/1727/",
       "versionGroupId": 20,
-      "moveType": "bug"
+      "moveType": "bug",
+      "moveDescEs": "Violenta embestida con cuernos imponentes."
     },
     "1217": {
       "move": "baton-pass",
       "moveEs": "Relevo",
       "machine": "https://pokeapi.co/api/v2/machine/1728/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Cambia el puesto con otro miembro del equipo y le pasa los cambios de características."
     },
     "1218": {
       "move": "encore",
       "moveEs": "Otra Vez",
       "machine": "https://pokeapi.co/api/v2/machine/1729/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "El objetivo repite su último movimiento durante tres turnos."
     },
     "1219": {
       "move": "iron-tail",
       "moveEs": "Cola Férrea",
       "machine": "https://pokeapi.co/api/v2/machine/1730/",
       "versionGroupId": 20,
-      "moveType": "steel"
+      "moveType": "steel",
+      "moveDescEs": "Ataca con una cola férrea y puede bajar la Defensa del objetivo."
     },
     "1220": {
       "move": "crunch",
       "moveEs": "Triturar",
       "machine": "https://pokeapi.co/api/v2/machine/1731/",
       "versionGroupId": 20,
-      "moveType": "dark"
+      "moveType": "dark",
+      "moveDescEs": "Tritura con afilados colmillos y puede bajar la Defensa del objetivo."
     },
     "1221": {
       "move": "shadow-ball",
       "moveEs": "Bola Sombra",
       "machine": "https://pokeapi.co/api/v2/machine/1732/",
       "versionGroupId": 20,
-      "moveType": "ghost"
+      "moveType": "ghost",
+      "moveDescEs": "Lanza una bola oscura que puede bajar la Defensa Especial del objetivo."
     },
     "1222": {
       "move": "future-sight",
       "moveEs": "Premonición",
       "machine": "https://pokeapi.co/api/v2/machine/1733/",
       "versionGroupId": 20,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Concentra energía psíquica para golpear al objetivo dos turnos después."
     },
     "1223": {
       "move": "uproar",
       "moveEs": "Alboroto",
       "machine": "https://pokeapi.co/api/v2/machine/1734/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Ataca de forma alborotada durante tres turnos. Mantiene despiertos a todos."
     },
     "1224": {
       "move": "heat-wave",
       "moveEs": "Onda Ígnea",
       "machine": "https://pokeapi.co/api/v2/machine/1735/",
       "versionGroupId": 20,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Provoca un viento abrasador que puede quemar al objetivo."
     },
     "1225": {
       "move": "taunt",
       "moveEs": "Mofa",
       "machine": "https://pokeapi.co/api/v2/machine/1736/",
       "versionGroupId": 20,
-      "moveType": "dark"
+      "moveType": "dark",
+      "moveDescEs": "Enfurece al objetivo para que solo use movimientos de ataque durante tres turnos."
     },
     "1226": {
       "move": "trick",
       "moveEs": "Truco",
       "machine": "https://pokeapi.co/api/v2/machine/1737/",
       "versionGroupId": 20,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Engaña al objetivo desprevenido e intercambia objetos."
     },
     "1227": {
       "move": "superpower",
       "moveEs": "Fuerza Bruta",
       "machine": "https://pokeapi.co/api/v2/machine/1738/",
       "versionGroupId": 20,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Ataque de gran potencia, pero que reduce el Ataque y la Defensa del agresor."
     },
     "1228": {
       "move": "skill-swap",
       "moveEs": "Intercambio",
       "machine": "https://pokeapi.co/api/v2/machine/1739/",
       "versionGroupId": 20,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Usa el poder psíquico para intercambiar habilidades con el objetivo."
     },
     "1229": {
       "move": "blaze-kick",
       "moveEs": "Patada Ígnea",
       "machine": "https://pokeapi.co/api/v2/machine/1740/",
       "versionGroupId": 20,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Patada que suele ser un golpe crítico y puede causar quemaduras."
     },
     "1230": {
       "move": "hyper-voice",
       "moveEs": "Vozarrón",
       "machine": "https://pokeapi.co/api/v2/machine/1741/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Grito desgarrador que inflige daño al objetivo."
     },
     "1231": {
       "move": "overheat",
       "moveEs": "Sofoco",
       "machine": "https://pokeapi.co/api/v2/machine/1742/",
       "versionGroupId": 20,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Ataque en toda regla que baja mucho el Ataque Especial de quien lo usa."
     },
     "1232": {
       "move": "cosmic-power",
       "moveEs": "Masa Cósmica",
       "machine": "https://pokeapi.co/api/v2/machine/1743/",
       "versionGroupId": 20,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Sube la Defensa y la Defensa Especial propias con energía mística."
     },
     "1233": {
       "move": "muddy-water",
       "moveEs": "Agua Lodosa",
       "machine": "https://pokeapi.co/api/v2/machine/1744/",
       "versionGroupId": 20,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Ataque con agua lodosa que puede bajar la Precisión del equipo rival."
     },
     "1234": {
       "move": "iron-defense",
       "moveEs": "Defensa Férrea",
       "machine": "https://pokeapi.co/api/v2/machine/1745/",
       "versionGroupId": 20,
-      "moveType": "steel"
+      "moveType": "steel",
+      "moveDescEs": "Fortalece el cuerpo como si fuera de hierro y sube mucho la Defensa."
     },
     "1235": {
       "move": "dragon-claw",
       "moveEs": "Garra Dragón",
       "machine": "https://pokeapi.co/api/v2/machine/1746/",
       "versionGroupId": 20,
-      "moveType": "dragon"
+      "moveType": "dragon",
+      "moveDescEs": "Araña al objetivo con garras afiladas."
     },
     "1236": {
       "move": "bulk-up",
       "moveEs": "Corpulencia",
       "machine": "https://pokeapi.co/api/v2/machine/1747/",
       "versionGroupId": 20,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Robustece el cuerpo para subir el Ataque y la Defensa."
     },
     "1237": {
       "move": "calm-mind",
       "moveEs": "Paz Mental",
       "machine": "https://pokeapi.co/api/v2/machine/1748/",
       "versionGroupId": 20,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Aumenta la concentración y calma el espíritu para subir el Ataque Especial y la Defensa Especial."
     },
     "1238": {
       "move": "leaf-blade",
       "moveEs": "Hoja Aguda",
       "machine": "https://pokeapi.co/api/v2/machine/1749/",
       "versionGroupId": 20,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Acuchilla con una hoja fina. Suele dar un golpe crítico."
     },
     "1239": {
       "move": "dragon-dance",
       "moveEs": "Danza Dragón",
       "machine": "https://pokeapi.co/api/v2/machine/1750/",
       "versionGroupId": 20,
-      "moveType": "dragon"
+      "moveType": "dragon",
+      "moveDescEs": "Danza mística que sube el Ataque y la Velocidad."
     },
     "1240": {
       "move": "gyro-ball",
       "moveEs": "Giro Bola",
       "machine": "https://pokeapi.co/api/v2/machine/1751/",
       "versionGroupId": 20,
-      "moveType": "steel"
+      "moveType": "steel",
+      "moveDescEs": "Embiste al objetivo con un potente ataque giratorio. Cuanto más lento es el usuario, más daño causa."
     },
     "1241": {
       "move": "close-combat",
       "moveEs": "A Bocajarro",
       "machine": "https://pokeapi.co/api/v2/machine/1752/",
       "versionGroupId": 20,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Lucha abiertamente contra el objetivo sin protegerse. También reduce la Defensa y la Defensa Especial del usuario."
     },
     "1242": {
       "move": "toxic-spikes",
       "moveEs": "Púas Tóxicas",
       "machine": "https://pokeapi.co/api/v2/machine/1753/",
       "versionGroupId": 20,
-      "moveType": "poison"
+      "moveType": "poison",
+      "moveDescEs": "Lanza una trampa de púas tóxicas a los pies del objetivo. El veneno afecta a los Pokémon oponentes que entran en combate."
     },
     "1243": {
       "move": "flare-blitz",
       "moveEs": "Envite Ígneo",
       "machine": "https://pokeapi.co/api/v2/machine/1754/",
       "versionGroupId": 20,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "El Pokémon se cubre de llamas y carga contra el objetivo, aunque él también recibe daño. Puede quemar."
     },
     "1244": {
       "move": "aura-sphere",
       "moveEs": "Esfera Aural",
       "machine": "https://pokeapi.co/api/v2/machine/1755/",
       "versionGroupId": 20,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Libera, desde su interior, una inmensa descarga de aura. Es infalible."
     },
     "1245": {
       "move": "poison-jab",
       "moveEs": "Puya Nociva",
       "machine": "https://pokeapi.co/api/v2/machine/1756/",
       "versionGroupId": 20,
-      "moveType": "poison"
+      "moveType": "poison",
+      "moveDescEs": "Pincha al objetivo con un tentáculo o brazo envenenado. Puede llegar a envenenar al objetivo."
     },
     "1246": {
       "move": "dark-pulse",
       "moveEs": "Pulso Umbrío",
       "machine": "https://pokeapi.co/api/v2/machine/1757/",
       "versionGroupId": 20,
-      "moveType": "dark"
+      "moveType": "dark",
+      "moveDescEs": "Libera una horrible aura llena de malos pensamientos que puede amedrentar al objetivo."
     },
     "1247": {
       "move": "seed-bomb",
       "moveEs": "Bomba Germen",
       "machine": "https://pokeapi.co/api/v2/machine/1758/",
       "versionGroupId": 20,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Lanza al objetivo una descarga de semillas explosivas desde arriba."
     },
     "1248": {
       "move": "x-scissor",
       "moveEs": "Tijera X",
       "machine": "https://pokeapi.co/api/v2/machine/1759/",
       "versionGroupId": 20,
-      "moveType": "bug"
+      "moveType": "bug",
+      "moveDescEs": "Cruza las guadañas o las garras para atacar al objetivo como si fueran unas tijeras."
     },
     "1249": {
       "move": "bug-buzz",
       "moveEs": "Zumbido",
       "machine": "https://pokeapi.co/api/v2/machine/1760/",
       "versionGroupId": 20,
-      "moveType": "bug"
+      "moveType": "bug",
+      "moveDescEs": "El usuario crea una onda sónica dañina moviendo su cuerpo que también puede disminuir la Defensa Especial del objetivo."
     },
     "1250": {
       "move": "dragon-pulse",
       "moveEs": "Pulso Dragón",
       "machine": "https://pokeapi.co/api/v2/machine/1761/",
       "versionGroupId": 20,
-      "moveType": "dragon"
+      "moveType": "dragon",
+      "moveDescEs": "Abre mucho la boca y libera una onda de choque que ataca al objetivo."
     },
     "1251": {
       "move": "power-gem",
       "moveEs": "Joya de Luz",
       "machine": "https://pokeapi.co/api/v2/machine/1762/",
       "versionGroupId": 20,
-      "moveType": "rock"
+      "moveType": "rock",
+      "moveDescEs": "Ataca con un rayo de luz que centellea como si lo formaran miles de joyas."
     },
     "1252": {
       "move": "focus-blast",
       "moveEs": "Onda Certera",
       "machine": "https://pokeapi.co/api/v2/machine/1763/",
       "versionGroupId": 20,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Agudiza la concentración mental y libera su poder. Puede disminuir la Defensa Especial del objetivo."
     },
     "1253": {
       "move": "energy-ball",
       "moveEs": "Energibola",
       "machine": "https://pokeapi.co/api/v2/machine/1764/",
       "versionGroupId": 20,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Aúna fuerzas de la naturaleza y libera su ataque. Puede disminuir la Defensa Especial del objetivo."
     },
     "1254": {
       "move": "brave-bird",
       "moveEs": "Pájaro Osado",
       "machine": "https://pokeapi.co/api/v2/machine/1765/",
       "versionGroupId": 20,
-      "moveType": "flying"
+      "moveType": "flying",
+      "moveDescEs": "Pliega sus alas y ataca con un vuelo rasante. El Pokémon que lo usa también resulta seriamente dañado."
     },
     "1255": {
       "move": "earth-power",
       "moveEs": "Tierra Viva",
       "machine": "https://pokeapi.co/api/v2/machine/1766/",
       "versionGroupId": 20,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "La tierra a los pies del objetivo erupciona violentamente. Puede disminuir la Defensa Especial del objetivo."
     },
     "1256": {
       "move": "nasty-plot",
       "moveEs": "Maquinación",
       "machine": "https://pokeapi.co/api/v2/machine/1767/",
       "versionGroupId": 20,
-      "moveType": "dark"
+      "moveType": "dark",
+      "moveDescEs": "Estimula su cerebro pensando en cosas malas. Aumenta mucho el Ataque Especial."
     },
     "1257": {
       "move": "zen-headbutt",
       "moveEs": "Cabezazo Zen",
       "machine": "https://pokeapi.co/api/v2/machine/1768/",
       "versionGroupId": 20,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Concentra su energía psíquica en la cabeza para golpear. Puede hacer que el objetivo se amedrente."
     },
     "1258": {
       "move": "flash-cannon",
       "moveEs": "Foco Resplandor",
       "machine": "https://pokeapi.co/api/v2/machine/1769/",
       "versionGroupId": 20,
-      "moveType": "steel"
+      "moveType": "steel",
+      "moveDescEs": "El usuario concentra toda la luz del cuerpo y la libera. Puede bajar la Defensa Especial del objetivo."
     },
     "1259": {
       "move": "leaf-storm",
       "moveEs": "Lluevehojas",
       "machine": "https://pokeapi.co/api/v2/machine/1770/",
       "versionGroupId": 20,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Envuelve al objetivo con una lluvia de hojas afiladas, pero reduce mucho su Ataque Especial."
     },
     "1260": {
       "move": "power-whip",
       "moveEs": "Latigazo",
       "machine": "https://pokeapi.co/api/v2/machine/1771/",
       "versionGroupId": 20,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "El usuario agita violentamente sus lianas o tentáculos para golpear al objetivo."
     },
     "1261": {
       "move": "gunk-shot",
       "moveEs": "Lanzamugre",
       "machine": "https://pokeapi.co/api/v2/machine/1772/",
       "versionGroupId": 20,
-      "moveType": "poison"
+      "moveType": "poison",
+      "moveDescEs": "Lanza contra el objetivo basura asquerosa y puede envenenarlo."
     },
     "1262": {
       "move": "iron-head",
       "moveEs": "Cabeza de Hierro",
       "machine": "https://pokeapi.co/api/v2/machine/1773/",
       "versionGroupId": 20,
-      "moveType": "steel"
+      "moveType": "steel",
+      "moveDescEs": "Ataca con su dura cabeza de hierro. Puede hacer que el objetivo se amedrente."
     },
     "1263": {
       "move": "stone-edge",
       "moveEs": "Roca Afilada",
       "machine": "https://pokeapi.co/api/v2/machine/1774/",
       "versionGroupId": 20,
-      "moveType": "rock"
+      "moveType": "rock",
+      "moveDescEs": "Clava piedras muy afiladas al objetivo. Suele ser crítico."
     },
     "1264": {
       "move": "stealth-rock",
       "moveEs": "Trampa Rocas",
       "machine": "https://pokeapi.co/api/v2/machine/1775/",
       "versionGroupId": 20,
-      "moveType": "rock"
+      "moveType": "rock",
+      "moveDescEs": "Una trampa de rocas que flota en el aire y daña a los objetivos que entran en combate."
     },
     "1265": {
       "move": "grass-knot",
       "moveEs": "Hierba Lazo",
       "machine": "https://pokeapi.co/api/v2/machine/1776/",
       "versionGroupId": 20,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Enreda al objetivo con hierba y lo derriba. Cuanto más pesado es el objetivo, más daño inflige."
     },
     "1266": {
       "move": "sludge-wave",
       "moveEs": "Onda Tóxica",
       "machine": "https://pokeapi.co/api/v2/machine/1777/",
       "versionGroupId": 20,
-      "moveType": "poison"
+      "moveType": "poison",
+      "moveDescEs": "Una onda tóxica que daña a los Pokémon de alrededor. Puede envenenar."
     },
     "1267": {
       "move": "heavy-slam",
       "moveEs": "Cuerpo Pesado",
       "machine": "https://pokeapi.co/api/v2/machine/1778/",
       "versionGroupId": 20,
-      "moveType": "steel"
+      "moveType": "steel",
+      "moveDescEs": "El usuario golpea con todo su cuerpo. Cuanto mayor sea su peso comparado con el del objetivo, más daño causará."
     },
     "1268": {
       "move": "electro-ball",
       "moveEs": "Bola Voltio",
       "machine": "https://pokeapi.co/api/v2/machine/1779/",
       "versionGroupId": 20,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Lanza una bola eléctrica. Cuanto mayor sea la Velocidad del usuario en comparación con la del objetivo, mayor será el daño causado."
     },
     "1269": {
       "move": "foul-play",
       "moveEs": "Juego Sucio",
       "machine": "https://pokeapi.co/api/v2/machine/1780/",
       "versionGroupId": 20,
-      "moveType": "dark"
+      "moveType": "dark",
+      "moveDescEs": "El usuario emplea la fuerza del objetivo para atacarlo. Cuanto mayor es el Ataque del objetivo, más daño provoca."
     },
     "1270": {
       "move": "stored-power",
       "moveEs": "Poder Reserva",
       "machine": "https://pokeapi.co/api/v2/machine/1781/",
       "versionGroupId": 20,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Acumula poder para golpear. Cuanto más suban las características del usuario, mayor será el daño."
     },
     "1271": {
       "move": "ally-switch",
       "moveEs": "Cambio de Banda",
       "machine": "https://pokeapi.co/api/v2/machine/1782/",
       "versionGroupId": 20,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Extraño poder que intercambia la posición del usuario con la de un aliado sobre el terreno de combate."
     },
     "1272": {
       "move": "scald",
       "moveEs": "Escaldar",
       "machine": "https://pokeapi.co/api/v2/machine/1783/",
       "versionGroupId": 20,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Ataca arrojando agua hirviendo al objetivo. Puede causar quemaduras."
     },
     "1273": {
       "move": "work-up",
       "moveEs": "Avivar",
       "machine": "https://pokeapi.co/api/v2/machine/1784/",
       "versionGroupId": 20,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Quien lo usa se concentra y potencia su Ataque y su Ataque Especial."
     },
     "1274": {
       "move": "wild-charge",
       "moveEs": "Voltio Cruel",
       "machine": "https://pokeapi.co/api/v2/machine/1785/",
       "versionGroupId": 20,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Carga eléctrica muy potente que también hiere ligeramente a quien la usa."
     },
     "1275": {
       "move": "drill-run",
       "moveEs": "Taladradora",
       "machine": "https://pokeapi.co/api/v2/machine/1786/",
       "versionGroupId": 20,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "El usuario golpea usando su cuerpo como un taladro. Suele ser crítico."
     },
     "1276": {
       "move": "heat-crash",
       "moveEs": "Golpe Calor",
       "machine": "https://pokeapi.co/api/v2/machine/1787/",
       "versionGroupId": 20,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "El usuario ataca con su cuerpo ardiente. Cuanto mayor sea su peso comparado con el del objetivo, más daño causará."
     },
     "1277": {
       "move": "hurricane",
       "moveEs": "Vendaval",
       "machine": "https://pokeapi.co/api/v2/machine/1788/",
       "versionGroupId": 20,
-      "moveType": "flying"
+      "moveType": "flying",
+      "moveDescEs": "Golpea al objetivo con un fuerte torbellino que envuelve al rival y puede confundirlo."
     },
     "1278": {
       "move": "play-rough",
       "moveEs": "Carantoña",
       "machine": "https://pokeapi.co/api/v2/machine/1789/",
       "versionGroupId": 20,
-      "moveType": "fairy"
+      "moveType": "fairy",
+      "moveDescEs": "El Pokémon que lo usa le hace cucamonas al objetivo y lo ataca. Puede disminuir el Ataque del objetivo."
     },
     "1279": {
       "move": "venom-drench",
       "moveEs": "Trampa Venenosa",
       "machine": "https://pokeapi.co/api/v2/machine/1790/",
       "versionGroupId": 20,
-      "moveType": "poison"
+      "moveType": "poison",
+      "moveDescEs": "Impregna a su objetivo con un líquido venenoso que disminuye el Ataque, el Ataque Especial y la Velocidad. Solo afecta a Pokémon ya envenenados."
     },
     "1280": {
       "move": "dazzling-gleam",
       "moveEs": "Brillo Mágico",
       "machine": "https://pokeapi.co/api/v2/machine/1791/",
       "versionGroupId": 20,
-      "moveType": "fairy"
+      "moveType": "fairy",
+      "moveDescEs": "Inflige daño a los oponentes con una potente luz."
     },
     "1281": {
       "move": "darkest-lariat",
       "moveEs": "Lariat Oscuro",
       "machine": "https://pokeapi.co/api/v2/machine/1792/",
       "versionGroupId": 20,
-      "moveType": "dark"
+      "moveType": "dark",
+      "moveDescEs": "Gira sobre sí mismo y golpea al oponente con ambos brazos. Ignora los cambios en las características del objetivo."
     },
     "1282": {
       "move": "high-horsepower",
       "moveEs": "Fuerza Equina",
       "machine": "https://pokeapi.co/api/v2/machine/1793/",
       "versionGroupId": 20,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "Asesta un golpe devastador usando todo su cuerpo."
     },
     "1283": {
       "move": "throat-chop",
       "moveEs": "Golpe Mordaza",
       "machine": "https://pokeapi.co/api/v2/machine/1794/",
       "versionGroupId": 20,
-      "moveType": "dark"
+      "moveType": "dark",
+      "moveDescEs": "Inflige al rival un dolor tan abrumador que le impide utilizar durante dos turnos ataques que se sirven del sonido."
     },
     "1284": {
       "move": "pollen-puff",
       "moveEs": "Bola de Polen",
       "machine": "https://pokeapi.co/api/v2/machine/1795/",
       "versionGroupId": 20,
-      "moveType": "bug"
+      "moveType": "bug",
+      "moveDescEs": "Ataca al oponente con una bola explosiva. Si esta alcanza a un aliado, le hará recuperar PS."
     },
     "1285": {
       "move": "psychic-fangs",
       "moveEs": "Psicocolmillo",
       "machine": "https://pokeapi.co/api/v2/machine/1796/",
       "versionGroupId": 20,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Ataca a sus rivales con poderes psíquicos que además destruyen barreras como Pantalla de Luz y Reflejo."
     },
     "1286": {
       "move": "liquidation",
       "moveEs": "Hidroariete",
       "machine": "https://pokeapi.co/api/v2/machine/1797/",
       "versionGroupId": 20,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Ataca golpeando gracias a la fuerza del agua. También puede reducir la Defensa del objetivo."
     },
     "1287": {
       "move": "body-press",
       "moveEs": "body-press",
       "machine": "https://pokeapi.co/api/v2/machine/1798/",
       "versionGroupId": 20,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "El usuario usa el cuerpo para lanzar su ataque e infligir un daño directamente proporcional a su Defensa."
     },
     "1944": {
       "move": "power-gem",
       "moveEs": "Joya de Luz",
       "machine": "https://pokeapi.co/api/v2/machine/1916/",
       "versionGroupId": 25,
-      "moveType": "rock"
+      "moveType": "rock",
+      "moveDescEs": "Ataca con un rayo de luz que centellea como si lo formaran miles de joyas."
     },
     "1945": {
       "move": "gunk-shot",
       "moveEs": "Lanzamugre",
       "machine": "https://pokeapi.co/api/v2/machine/1917/",
       "versionGroupId": 25,
-      "moveType": "poison"
+      "moveType": "poison",
+      "moveDescEs": "Lanza contra el objetivo basura asquerosa y puede envenenarlo."
     },
     "1946": {
       "move": "substitute",
       "moveEs": "Sustituto",
       "machine": "https://pokeapi.co/api/v2/machine/1918/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Utiliza parte de los PS propios para crear un sustituto que actúa como señuelo."
     },
     "1947": {
       "move": "iron-defense",
       "moveEs": "Defensa Férrea",
       "machine": "https://pokeapi.co/api/v2/machine/1919/",
       "versionGroupId": 25,
-      "moveType": "steel"
+      "moveType": "steel",
+      "moveDescEs": "Fortalece el cuerpo como si fuera de hierro y sube mucho la Defensa."
     },
     "1948": {
       "move": "x-scissor",
       "moveEs": "Tijera X",
       "machine": "https://pokeapi.co/api/v2/machine/1920/",
       "versionGroupId": 25,
-      "moveType": "bug"
+      "moveType": "bug",
+      "moveDescEs": "Cruza las guadañas o las garras para atacar al objetivo como si fueran unas tijeras."
     },
     "1949": {
       "move": "drill-run",
       "moveEs": "Taladradora",
       "machine": "https://pokeapi.co/api/v2/machine/1921/",
       "versionGroupId": 25,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "El usuario golpea usando su cuerpo como un taladro. Suele ser crítico."
     },
     "1950": {
       "move": "will-o-wisp",
       "moveEs": "Fuego Fatuo",
       "machine": "https://pokeapi.co/api/v2/machine/1922/",
       "versionGroupId": 25,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Siniestra llama morada que produce quemaduras."
     },
     "1951": {
       "move": "crunch",
       "moveEs": "Triturar",
       "machine": "https://pokeapi.co/api/v2/machine/1923/",
       "versionGroupId": 25,
-      "moveType": "dark"
+      "moveType": "dark",
+      "moveDescEs": "Tritura con afilados colmillos y puede bajar la Defensa del objetivo."
     },
     "1952": {
       "move": "trick",
       "moveEs": "Truco",
       "machine": "https://pokeapi.co/api/v2/machine/1924/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Engaña al objetivo desprevenido e intercambia objetos."
     },
     "1953": {
       "move": "liquidation",
       "moveEs": "Hidroariete",
       "machine": "https://pokeapi.co/api/v2/machine/1925/",
       "versionGroupId": 25,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Ataca golpeando gracias a la fuerza del agua. También puede reducir la Defensa del objetivo."
     },
     "1954": {
       "move": "giga-drain",
       "moveEs": "Gigadrenado",
       "machine": "https://pokeapi.co/api/v2/machine/1926/",
       "versionGroupId": 25,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Un ataque que absorbe nutrientes. Quien lo usa recupera la mitad de los PS del daño que produce."
     },
     "1955": {
       "move": "aura-sphere",
       "moveEs": "Esfera Aural",
       "machine": "https://pokeapi.co/api/v2/machine/1927/",
       "versionGroupId": 25,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Libera, desde su interior, una inmensa descarga de aura. Es infalible."
     },
     "1956": {
       "move": "tailwind",
       "moveEs": "Viento Afín",
       "machine": "https://pokeapi.co/api/v2/machine/1928/",
       "versionGroupId": 25,
-      "moveType": "flying"
+      "moveType": "flying",
+      "moveDescEs": "Crea un fuerte remolino que aumenta la Velocidad de los Pokémon de tu equipo durante cuatro turnos."
     },
     "1957": {
       "move": "shadow-ball",
       "moveEs": "Bola Sombra",
       "machine": "https://pokeapi.co/api/v2/machine/1929/",
       "versionGroupId": 25,
-      "moveType": "ghost"
+      "moveType": "ghost",
+      "moveDescEs": "Lanza una bola oscura que puede bajar la Defensa Especial del objetivo."
     },
     "1958": {
       "move": "dragon-pulse",
       "moveEs": "Pulso Dragón",
       "machine": "https://pokeapi.co/api/v2/machine/1930/",
       "versionGroupId": 25,
-      "moveType": "dragon"
+      "moveType": "dragon",
+      "moveDescEs": "Abre mucho la boca y libera una onda de choque que ataca al objetivo."
     },
     "1959": {
       "move": "stealth-rock",
       "moveEs": "Trampa Rocas",
       "machine": "https://pokeapi.co/api/v2/machine/1931/",
       "versionGroupId": 25,
-      "moveType": "rock"
+      "moveType": "rock",
+      "moveDescEs": "Una trampa de rocas que flota en el aire y daña a los objetivos que entran en combate."
     },
     "1960": {
       "move": "hyper-voice",
       "moveEs": "Vozarrón",
       "machine": "https://pokeapi.co/api/v2/machine/1932/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Grito desgarrador que inflige daño al objetivo."
     },
     "1961": {
       "move": "heat-wave",
       "moveEs": "Onda Ígnea",
       "machine": "https://pokeapi.co/api/v2/machine/1933/",
       "versionGroupId": 25,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Provoca un viento abrasador que puede quemar al objetivo."
     },
     "1962": {
       "move": "energy-ball",
       "moveEs": "Energibola",
       "machine": "https://pokeapi.co/api/v2/machine/1934/",
       "versionGroupId": 25,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Aúna fuerzas de la naturaleza y libera su ataque. Puede disminuir la Defensa Especial del objetivo."
     },
     "1963": {
       "move": "psychic",
       "moveEs": "Psíquico",
       "machine": "https://pokeapi.co/api/v2/machine/1935/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Fuerte ataque telequinético que puede bajar la Defensa Especial del objetivo."
     },
     "1964": {
       "move": "heavy-slam",
       "moveEs": "Cuerpo Pesado",
       "machine": "https://pokeapi.co/api/v2/machine/1936/",
       "versionGroupId": 25,
-      "moveType": "steel"
+      "moveType": "steel",
+      "moveDescEs": "El usuario golpea con todo su cuerpo. Cuanto mayor sea su peso comparado con el del objetivo, más daño causará."
     },
     "1965": {
       "move": "encore",
       "moveEs": "Otra Vez",
       "machine": "https://pokeapi.co/api/v2/machine/1937/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "El objetivo repite su último movimiento durante tres turnos."
     },
     "1966": {
       "move": "surf",
       "moveEs": "Surf",
       "machine": "https://pokeapi.co/api/v2/machine/1938/",
       "versionGroupId": 25,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Inunda el terreno de combate con una ola gigante."
     },
     "1967": {
       "move": "ice-spinner",
       "moveEs": "ice-spinner",
       "machine": "https://pokeapi.co/api/v2/machine/1939/",
       "versionGroupId": 25,
-      "moveType": "ice"
+      "moveType": "ice",
+      "moveDescEs": "The user covers its feet in thin ice and twirls around, slamming into the target. This move's spinning motion also destroys the terrain."
     },
     "1968": {
       "move": "flamethrower",
       "moveEs": "Lanzallamas",
       "machine": "https://pokeapi.co/api/v2/machine/1940/",
       "versionGroupId": 25,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Ataca con una gran ráfaga de fuego que puede causar quemaduras."
     },
     "1969": {
       "move": "thunderbolt",
       "moveEs": "Rayo",
       "machine": "https://pokeapi.co/api/v2/machine/1941/",
       "versionGroupId": 25,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Potente ataque eléctrico que puede paralizar al objetivo."
     },
     "1970": {
       "move": "play-rough",
       "moveEs": "Carantoña",
       "machine": "https://pokeapi.co/api/v2/machine/1942/",
       "versionGroupId": 25,
-      "moveType": "fairy"
+      "moveType": "fairy",
+      "moveDescEs": "El Pokémon que lo usa le hace cucamonas al objetivo y lo ataca. Puede disminuir el Ataque del objetivo."
     },
     "1971": {
       "move": "amnesia",
       "moveEs": "Amnesia",
       "machine": "https://pokeapi.co/api/v2/machine/1943/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "El usuario olvida sus preocupaciones y aumenta mucho la Defensa Especial."
     },
     "1972": {
       "move": "calm-mind",
       "moveEs": "Paz Mental",
       "machine": "https://pokeapi.co/api/v2/machine/1944/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Aumenta la concentración y calma el espíritu para subir el Ataque Especial y la Defensa Especial."
     },
     "1973": {
       "move": "helping-hand",
       "moveEs": "Refuerzo",
       "machine": "https://pokeapi.co/api/v2/machine/1945/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "El usuario ayuda a un aliado reforzando la potencia de su ataque."
     },
     "1974": {
       "move": "pollen-puff",
       "moveEs": "Bola de Polen",
       "machine": "https://pokeapi.co/api/v2/machine/1946/",
       "versionGroupId": 25,
-      "moveType": "bug"
+      "moveType": "bug",
+      "moveDescEs": "Ataca al oponente con una bola explosiva. Si esta alcanza a un aliado, le hará recuperar PS."
     },
     "1975": {
       "move": "baton-pass",
       "moveEs": "Relevo",
       "machine": "https://pokeapi.co/api/v2/machine/1947/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Cambia el puesto con otro miembro del equipo y le pasa los cambios de características."
     },
     "1976": {
       "move": "earth-power",
       "moveEs": "Tierra Viva",
       "machine": "https://pokeapi.co/api/v2/machine/1948/",
       "versionGroupId": 25,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "La tierra a los pies del objetivo erupciona violentamente. Puede disminuir la Defensa Especial del objetivo."
     },
     "1977": {
       "move": "reversal",
       "moveEs": "Inversión",
       "machine": "https://pokeapi.co/api/v2/machine/1949/",
       "versionGroupId": 25,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Ataque desesperado que causa más daño cuantos menos PS tenga el usuario."
     },
     "1978": {
       "move": "ice-beam",
       "moveEs": "Rayo Hielo",
       "machine": "https://pokeapi.co/api/v2/machine/1950/",
       "versionGroupId": 25,
-      "moveType": "ice"
+      "moveType": "ice",
+      "moveDescEs": "Rayo de hielo que puede llegar a congelar."
     },
     "1979": {
       "move": "electric-terrain",
       "moveEs": "Campo Eléctrico",
       "machine": "https://pokeapi.co/api/v2/machine/1951/",
       "versionGroupId": 25,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Durante cinco turnos, se potencian los movimientos de tipo Eléctrico y los Pokémon que están en contacto con el suelo no pueden quedarse dormidos."
     },
     "1980": {
       "move": "grassy-terrain",
       "moveEs": "Campo de Hierba",
       "machine": "https://pokeapi.co/api/v2/machine/1952/",
       "versionGroupId": 25,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Durante cinco turnos, se potencian los movimientos de tipo Planta y los Pokémon que están en contacto con el suelo recuperan PS en cada turno."
     },
     "1981": {
       "move": "psychic-terrain",
       "moveEs": "Campo Psíquico",
       "machine": "https://pokeapi.co/api/v2/machine/1953/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Durante cinco turnos, se potencian los movimientos de tipo Psíquico y los Pokémon que están en el suelo quedan protegidos contra movimientos con prioridad."
     },
     "1982": {
       "move": "misty-terrain",
       "moveEs": "Campo de Niebla",
       "machine": "https://pokeapi.co/api/v2/machine/1954/",
       "versionGroupId": 25,
-      "moveType": "fairy"
+      "moveType": "fairy",
+      "moveDescEs": "Durante cinco turnos, los Pokémon que están en el suelo no sufren problemas de estado y se reduce a la mitad el daño de los movimientos de tipo Dragón."
     },
     "1983": {
       "move": "nasty-plot",
       "moveEs": "Maquinación",
       "machine": "https://pokeapi.co/api/v2/machine/1955/",
       "versionGroupId": 25,
-      "moveType": "dark"
+      "moveType": "dark",
+      "moveDescEs": "Estimula su cerebro pensando en cosas malas. Aumenta mucho el Ataque Especial."
     },
     "1984": {
       "move": "fire-blast",
       "moveEs": "Llamarada",
       "machine": "https://pokeapi.co/api/v2/machine/1956/",
       "versionGroupId": 25,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Llama intensa que chamusca y puede causar quemaduras."
     },
     "1985": {
       "move": "hydro-pump",
       "moveEs": "Hidrobomba",
       "machine": "https://pokeapi.co/api/v2/machine/1957/",
       "versionGroupId": 25,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Lanza una gran masa de agua a presión para atacar."
     },
     "1986": {
       "move": "blizzard",
       "moveEs": "Ventisca",
       "machine": "https://pokeapi.co/api/v2/machine/1958/",
       "versionGroupId": 25,
-      "moveType": "ice"
+      "moveType": "ice",
+      "moveDescEs": "Tormenta de hielo que puede llegar a congelar."
     },
     "1987": {
       "move": "fire-pledge",
       "moveEs": "Voto Fuego",
       "machine": "https://pokeapi.co/api/v2/machine/1959/",
       "versionGroupId": 25,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Ataca con columnas de fuego. Combinado con Voto Planta, crea un mar de llamas y aumenta su potencia."
     },
     "1989": {
       "move": "grass-pledge",
       "moveEs": "Voto Planta",
       "machine": "https://pokeapi.co/api/v2/machine/1961/",
       "versionGroupId": 25,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Ataca con columnas de hojas. Combinado con Voto Agua, crea un pantano y aumenta su potencia."
     },
     "1990": {
       "move": "wild-charge",
       "moveEs": "Voltio Cruel",
       "machine": "https://pokeapi.co/api/v2/machine/1962/",
       "versionGroupId": 25,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Carga eléctrica muy potente que también hiere ligeramente a quien la usa."
     },
     "1991": {
       "move": "sludge-bomb",
       "moveEs": "Bomba Lodo",
       "machine": "https://pokeapi.co/api/v2/machine/1963/",
       "versionGroupId": 25,
-      "moveType": "poison"
+      "moveType": "poison",
+      "moveDescEs": "Arroja residuos al objetivo. Puede llegar a envenenar."
     },
     "1992": {
       "move": "earthquake",
       "moveEs": "Terremoto",
       "machine": "https://pokeapi.co/api/v2/machine/1964/",
       "versionGroupId": 25,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "Un terremoto que afecta a todos los Pokémon que estén a su alrededor."
     },
     "1993": {
       "move": "stone-edge",
       "moveEs": "Roca Afilada",
       "machine": "https://pokeapi.co/api/v2/machine/1965/",
       "versionGroupId": 25,
-      "moveType": "rock"
+      "moveType": "rock",
+      "moveDescEs": "Clava piedras muy afiladas al objetivo. Suele ser crítico."
     },
     "1994": {
       "move": "phantom-force",
       "moveEs": "Golpe Fantasma",
       "machine": "https://pokeapi.co/api/v2/machine/1966/",
       "versionGroupId": 25,
-      "moveType": "ghost"
+      "moveType": "ghost",
+      "moveDescEs": "El usuario desaparece en el primer turno y ataca a su objetivo en el segundo. Permite acertar aunque el objetivo esté protegiéndose."
     },
     "1995": {
       "move": "giga-impact",
       "moveEs": "Gigaimpacto",
       "machine": "https://pokeapi.co/api/v2/machine/1967/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "El usuario carga contra el objetivo con toda la fuerza que tiene y descansa durante el siguiente turno."
     },
     "1996": {
       "move": "blast-burn",
       "moveEs": "Anillo Ígneo",
       "machine": "https://pokeapi.co/api/v2/machine/1968/",
       "versionGroupId": 25,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Explosión de fuego. El atacante debe descansar el siguiente turno."
     },
     "1997": {
       "move": "hydro-cannon",
       "moveEs": "Hidrocañón",
       "machine": "https://pokeapi.co/api/v2/machine/1969/",
       "versionGroupId": 25,
-      "moveType": "water"
+      "moveType": "water",
+      "moveDescEs": "Disparo de agua. El atacante debe descansar el siguiente turno."
     },
     "1998": {
       "move": "frenzy-plant",
       "moveEs": "Planta Feroz",
       "machine": "https://pokeapi.co/api/v2/machine/1970/",
       "versionGroupId": 25,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Golpea con una enorme planta. Quien lo usa no puede moverse en el siguiente turno."
     },
     "1999": {
       "move": "outrage",
       "moveEs": "Enfado",
       "machine": "https://pokeapi.co/api/v2/machine/1971/",
       "versionGroupId": 25,
-      "moveType": "dragon"
+      "moveType": "dragon",
+      "moveDescEs": "Ataca de dos a tres turnos y acaba confundiendo al agresor."
     },
     "2000": {
       "move": "overheat",
       "moveEs": "Sofoco",
       "machine": "https://pokeapi.co/api/v2/machine/1972/",
       "versionGroupId": 25,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "Ataque en toda regla que baja mucho el Ataque Especial de quien lo usa."
     },
     "2001": {
       "move": "focus-blast",
       "moveEs": "Onda Certera",
       "machine": "https://pokeapi.co/api/v2/machine/1973/",
       "versionGroupId": 25,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Agudiza la concentración mental y libera su poder. Puede disminuir la Defensa Especial del objetivo."
     },
     "2002": {
       "move": "leaf-storm",
       "moveEs": "Lluevehojas",
       "machine": "https://pokeapi.co/api/v2/machine/1974/",
       "versionGroupId": 25,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "Envuelve al objetivo con una lluvia de hojas afiladas, pero reduce mucho su Ataque Especial."
     },
     "2003": {
       "move": "hurricane",
       "moveEs": "Vendaval",
       "machine": "https://pokeapi.co/api/v2/machine/1975/",
       "versionGroupId": 25,
-      "moveType": "flying"
+      "moveType": "flying",
+      "moveDescEs": "Golpea al objetivo con un fuerte torbellino que envuelve al rival y puede confundirlo."
     },
     "2004": {
       "move": "trick-room",
       "moveEs": "Espacio Raro",
       "machine": "https://pokeapi.co/api/v2/machine/1976/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Crea un espacio extraño en el que los Pokémon lentos se mueven primero durante cinco turnos."
     },
     "2005": {
       "move": "bug-buzz",
       "moveEs": "Zumbido",
       "machine": "https://pokeapi.co/api/v2/machine/1977/",
       "versionGroupId": 25,
-      "moveType": "bug"
+      "moveType": "bug",
+      "moveDescEs": "El usuario crea una onda sónica dañina moviendo su cuerpo que también puede disminuir la Defensa Especial del objetivo."
     },
     "2006": {
       "move": "hyper-beam",
       "moveEs": "Hiperrayo",
       "machine": "https://pokeapi.co/api/v2/machine/1978/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Es eficaz, pero el atacante deberá descansar en el siguiente turno."
     },
     "2007": {
       "move": "brave-bird",
       "moveEs": "Pájaro Osado",
       "machine": "https://pokeapi.co/api/v2/machine/1979/",
       "versionGroupId": 25,
-      "moveType": "flying"
+      "moveType": "flying",
+      "moveDescEs": "Pliega sus alas y ataca con un vuelo rasante. El Pokémon que lo usa también resulta seriamente dañado."
     },
     "2008": {
       "move": "flare-blitz",
       "moveEs": "Envite Ígneo",
       "machine": "https://pokeapi.co/api/v2/machine/1980/",
       "versionGroupId": 25,
-      "moveType": "fire"
+      "moveType": "fire",
+      "moveDescEs": "El Pokémon se cubre de llamas y carga contra el objetivo, aunque él también recibe daño. Puede quemar."
     },
     "2009": {
       "move": "thunder",
       "moveEs": "Trueno",
       "machine": "https://pokeapi.co/api/v2/machine/1981/",
       "versionGroupId": 25,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Un poderoso rayo que daña al objetivo y puede paralizarlo."
     },
     "2010": {
       "move": "close-combat",
       "moveEs": "A Bocajarro",
       "machine": "https://pokeapi.co/api/v2/machine/1982/",
       "versionGroupId": 25,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Lucha abiertamente contra el objetivo sin protegerse. También reduce la Defensa y la Defensa Especial del usuario."
     },
     "2011": {
       "move": "solar-beam",
       "moveEs": "Rayo Solar",
       "machine": "https://pokeapi.co/api/v2/machine/1983/",
       "versionGroupId": 25,
-      "moveType": "grass"
+      "moveType": "grass",
+      "moveDescEs": "El usuario absorbe luz en el primer turno y en el segundo lanza un potente rayo de energía."
     },
     "2012": {
       "move": "draco-meteor",
       "moveEs": "Cometa Draco",
       "machine": "https://pokeapi.co/api/v2/machine/1984/",
       "versionGroupId": 25,
-      "moveType": "dragon"
+      "moveType": "dragon",
+      "moveDescEs": "Hace que grandes cometas caigan del cielo sobre el objetivo. Baja mucho el Ataque Especial del que lo usa."
     },
     "2013": {
       "move": "steel-beam",
       "moveEs": "steel-beam",
       "machine": "https://pokeapi.co/api/v2/machine/1985/",
       "versionGroupId": 25,
-      "moveType": "steel"
+      "moveType": "steel",
+      "moveDescEs": "Utiliza el acero de su cuerpo para disparar un potente rayo. También hiere al agresor."
     },
     "2014": {
       "move": "tera-blast",
       "moveEs": "tera-blast",
       "machine": "https://pokeapi.co/api/v2/machine/1986/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "If the user has Terastallized, it unleashes energy of its Tera Type. This move inflicts damage using the Attack or Sp. Atk stat—whichever is higher for the user."
     },
     "2161": {
       "move": "roar",
       "moveEs": "Rugido",
       "machine": "https://pokeapi.co/api/v2/machine/1987/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Se lleva al objetivo, que es cambiado por otro Pokémon. Si es un Pokémon salvaje, acaba el combate."
     },
     "2162": {
       "move": "charge",
       "moveEs": "Carga",
       "machine": "https://pokeapi.co/api/v2/machine/1988/",
       "versionGroupId": 25,
-      "moveType": "electric"
+      "moveType": "electric",
+      "moveDescEs": "Recarga energía para potenciar el siguiente movimiento de tipo Eléctrico. También sube la Defensa Especial."
     },
     "2163": {
       "move": "haze",
       "moveEs": "Niebla",
       "machine": "https://pokeapi.co/api/v2/machine/1989/",
       "versionGroupId": 25,
-      "moveType": "ice"
+      "moveType": "ice",
+      "moveDescEs": "Neblina que elimina los cambios de características de todos los Pokémon en combate."
     },
     "2164": {
       "move": "toxic",
       "moveEs": "Tóxico",
       "machine": "https://pokeapi.co/api/v2/machine/1990/",
       "versionGroupId": 25,
-      "moveType": "poison"
+      "moveType": "poison",
+      "moveDescEs": "Envenena gravemente al objetivo y causa un daño mayor en cada turno."
     },
     "2165": {
       "move": "sand-tomb",
       "moveEs": "Bucle Arena",
       "machine": "https://pokeapi.co/api/v2/machine/1991/",
       "versionGroupId": 25,
-      "moveType": "ground"
+      "moveType": "ground",
+      "moveDescEs": "Enreda al objetivo en un remolino de arena de cuatro a cinco turnos."
     },
     "2166": {
       "move": "spite",
       "moveEs": "Rencor",
       "machine": "https://pokeapi.co/api/v2/machine/1992/",
       "versionGroupId": 25,
-      "moveType": "ghost"
+      "moveType": "ghost",
+      "moveDescEs": "Da rienda suelta a su rencor para reducir cuatro PP del último movimiento usado por el objetivo."
     },
     "2167": {
       "move": "gravity",
       "moveEs": "Gravedad",
       "machine": "https://pokeapi.co/api/v2/machine/1993/",
       "versionGroupId": 25,
-      "moveType": "psychic"
+      "moveType": "psychic",
+      "moveDescEs": "Durante cinco turnos, se anulan los movimientos que alzan el vuelo y los Pokémon de tipo Volador o que levitan son vulnerables a movimientos de tipo Tierra."
     },
     "2168": {
       "move": "smack-down",
       "moveEs": "Antiaéreo",
       "machine": "https://pokeapi.co/api/v2/machine/1994/",
       "versionGroupId": 25,
-      "moveType": "rock"
+      "moveType": "rock",
+      "moveDescEs": "Ataca lanzando una piedra o un proyectil. Si el objetivo está en el aire, lo estrella contra el suelo."
     },
     "2169": {
       "move": "gyro-ball",
       "moveEs": "Giro Bola",
       "machine": "https://pokeapi.co/api/v2/machine/1995/",
       "versionGroupId": 25,
-      "moveType": "steel"
+      "moveType": "steel",
+      "moveDescEs": "Embiste al objetivo con un potente ataque giratorio. Cuanto más lento es el usuario, más daño causa."
     },
     "2170": {
       "move": "knock-off",
       "moveEs": "Desarme",
       "machine": "https://pokeapi.co/api/v2/machine/1996/",
       "versionGroupId": 25,
-      "moveType": "dark"
+      "moveType": "dark",
+      "moveDescEs": "Impide al objetivo usar el objeto que lleva durante el combate. La potencia del movimiento se multiplica si el objetivo lleva un objeto."
     },
     "2171": {
       "move": "bug-bite",
       "moveEs": "Picadura",
       "machine": "https://pokeapi.co/api/v2/machine/1997/",
       "versionGroupId": 25,
-      "moveType": "bug"
+      "moveType": "bug",
+      "moveDescEs": "Pica al objetivo. Si el objetivo lleva una baya, el usuario se la come y se beneficia de su efecto."
     },
     "2172": {
       "move": "super-fang",
       "moveEs": "Superdiente",
       "machine": "https://pokeapi.co/api/v2/machine/1998/",
       "versionGroupId": 25,
-      "moveType": "normal"
+      "moveType": "normal",
+      "moveDescEs": "Finos colmillos que reducen a la mitad los PS del objetivo."
     },
     "2173": {
       "move": "vacuum-wave",
       "moveEs": "Onda Vacío",
       "machine": "https://pokeapi.co/api/v2/machine/1999/",
       "versionGroupId": 25,
-      "moveType": "fighting"
+      "moveType": "fighting",
+      "moveDescEs": "Gira los puños y libera una onda de vacío contra el objetivo. Este movimiento tiene prioridad alta."
     },
     "2174": {
       "move": "lunge",
       "moveEs": "Plancha",
       "machine": "https://pokeapi.co/api/v2/machine/2000/",
       "versionGroupId": 25,
-      "moveType": "bug"
+      "moveType": "bug",
+      "moveDescEs": "Ataca al oponente abalanzándose sobre él con todas sus fuerzas y reduce su Ataque."
     }
   }
 }

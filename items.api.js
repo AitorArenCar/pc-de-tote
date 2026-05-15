@@ -162,7 +162,7 @@
   }
 
   async function enrichMachineItem(out, rawItemData = null) {
-    if (!out || !isMachineItem(out) || out.machineMoveEs) return out;
+    if (!out || !isMachineItem(out)) return out;
 
     const mapped = machineByItemId[String(out.id)];
     if (mapped) {
@@ -170,6 +170,7 @@
       out.machineMoveEs = mapped.moveEs || mapped.move || '';
       out.machineMoveType = mapped.moveType || '';
       out.sprite = machineSpriteForType(out.machineMoveType) || out.sprite;
+      out.effectText = mapped.moveDescEs || '';
       out.displayName = formatMachineDisplay(out);
       out.searchText = [out.name, out.nameEs, out.machineMove, out.machineMoveEs, out.machineMoveType, out.effectText].filter(Boolean).join(' ');
       return out;
@@ -191,12 +192,13 @@
       const moveEs = await getMoveNameEs(move);
       if (!move) return out;
 
-      machineByItemId[String(out.id)] = { move, moveEs, machine: machineUrl };
+      machineByItemId[String(out.id)] = { move, moveEs, machine: machineUrl, moveDescEs: '' };
       saveMachineMapToLocalStorage();
 
       out.machineMove = move;
       out.machineMoveEs = moveEs || move;
       out.machineMoveType = '';
+      out.effectText = '';
       out.displayName = formatMachineDisplay(out);
       out.searchText = [out.name, out.nameEs, out.machineMove, out.machineMoveEs, out.effectText].filter(Boolean).join(' ');
     } catch {}
@@ -207,7 +209,7 @@
   async function ensureMachineSearchIndex() {
     if (machineIndexReady && Object.keys(machineByItemId).length) return machineByItemId;
     if (machineIndexPromise) return machineIndexPromise;
-    if (loadMachineMapFromLocalStorage()) return machineByItemId;
+    loadMachineMapFromLocalStorage();
     if (await loadMachineMapFromFile()) return machineByItemId;
 
     machineIndexPromise = (async () => {
@@ -229,7 +231,7 @@
             const prev = byItem[itemId];
             const vg = versionGroupId(machine);
             if (!prev || vg >= Number(prev.versionGroupId || 0)) {
-              byItem[itemId] = { move, moveEs, machine: url, versionGroupId: vg };
+              byItem[itemId] = { move, moveEs, machine: url, versionGroupId: vg, moveDescEs: '' };
             }
           } catch {}
         }
@@ -401,7 +403,7 @@
       it.name = full.name || it.name;
       it.sprite = full.sprite || it.sprite;
       it.pocketEs = full.pocketEs || it.pocketEs;
-      it.effectText = full.effectText || it.effectText;
+      it.effectText = full.effectText ?? it.effectText;
       it.machineMove = full.machineMove || it.machineMove;
       it.machineMoveEs = full.machineMoveEs || it.machineMoveEs;
       it.displayName = full.displayName || formatMachineDisplay(it) || it.displayName;
@@ -448,10 +450,11 @@
       
       for (const it of lightIndex) {
         const mapped = machineByItemId[String(it.id)];
-        if (mapped && !it.machineMoveEs) {
+        if (mapped) {
           it.machineMove = mapped.move || '';
           it.machineMoveEs = mapped.moveEs || mapped.move || '';
           it.machineMoveType = mapped.moveType || '';
+          it.effectText = mapped.moveDescEs || '';
           it.sprite = machineSpriteForType(it.machineMoveType) || it.sprite;
           it.displayName = formatMachineDisplay({ nameEs: it.nameEs || it.name, machineMoveEs: it.machineMoveEs });
         }
