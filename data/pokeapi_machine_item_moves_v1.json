@@ -1,0 +1,1767 @@
+{
+  "meta": {
+    "version": 1,
+    "source": "https://pokeapi.co/api/v2/machine?limit=2000",
+    "count": 293
+  },
+  "data": {
+    "1288": {
+      "move": "mega-punch",
+      "moveEs": "Megapuño",
+      "machine": "https://pokeapi.co/api/v2/machine/1/",
+      "versionGroupId": 20
+    },
+    "305": {
+      "move": "mega-punch",
+      "moveEs": "Megapuño",
+      "machine": "https://pokeapi.co/api/v2/machine/23/",
+      "versionGroupId": 29
+    },
+    "306": {
+      "move": "razor-wind",
+      "moveEs": "Viento Cortante",
+      "machine": "https://pokeapi.co/api/v2/machine/45/",
+      "versionGroupId": 29
+    },
+    "307": {
+      "move": "swords-dance",
+      "moveEs": "Danza Espada",
+      "machine": "https://pokeapi.co/api/v2/machine/67/",
+      "versionGroupId": 29
+    },
+    "308": {
+      "move": "whirlwind",
+      "moveEs": "Remolino",
+      "machine": "https://pokeapi.co/api/v2/machine/89/",
+      "versionGroupId": 29
+    },
+    "309": {
+      "move": "mega-kick",
+      "moveEs": "Megapatada",
+      "machine": "https://pokeapi.co/api/v2/machine/111/",
+      "versionGroupId": 29
+    },
+    "310": {
+      "move": "toxic",
+      "moveEs": "Tóxico",
+      "machine": "https://pokeapi.co/api/v2/machine/133/",
+      "versionGroupId": 29
+    },
+    "311": {
+      "move": "horn-drill",
+      "moveEs": "Perforador",
+      "machine": "https://pokeapi.co/api/v2/machine/155/",
+      "versionGroupId": 29
+    },
+    "312": {
+      "move": "body-slam",
+      "moveEs": "Golpe Cuerpo",
+      "machine": "https://pokeapi.co/api/v2/machine/177/",
+      "versionGroupId": 29
+    },
+    "313": {
+      "move": "take-down",
+      "moveEs": "Derribo",
+      "machine": "https://pokeapi.co/api/v2/machine/199/",
+      "versionGroupId": 29
+    },
+    "314": {
+      "move": "double-edge",
+      "moveEs": "Doble Filo",
+      "machine": "https://pokeapi.co/api/v2/machine/221/",
+      "versionGroupId": 29
+    },
+    "315": {
+      "move": "bubble-beam",
+      "moveEs": "Rayo Burbuja",
+      "machine": "https://pokeapi.co/api/v2/machine/243/",
+      "versionGroupId": 29
+    },
+    "316": {
+      "move": "water-gun",
+      "moveEs": "Pistola Agua",
+      "machine": "https://pokeapi.co/api/v2/machine/265/",
+      "versionGroupId": 29
+    },
+    "317": {
+      "move": "ice-beam",
+      "moveEs": "Rayo Hielo",
+      "machine": "https://pokeapi.co/api/v2/machine/287/",
+      "versionGroupId": 29
+    },
+    "318": {
+      "move": "blizzard",
+      "moveEs": "Ventisca",
+      "machine": "https://pokeapi.co/api/v2/machine/309/",
+      "versionGroupId": 29
+    },
+    "319": {
+      "move": "hyper-beam",
+      "moveEs": "Hiperrayo",
+      "machine": "https://pokeapi.co/api/v2/machine/331/",
+      "versionGroupId": 29
+    },
+    "320": {
+      "move": "pay-day",
+      "moveEs": "Día de Pago",
+      "machine": "https://pokeapi.co/api/v2/machine/353/",
+      "versionGroupId": 29
+    },
+    "321": {
+      "move": "submission",
+      "moveEs": "Sumisión",
+      "machine": "https://pokeapi.co/api/v2/machine/375/",
+      "versionGroupId": 29
+    },
+    "322": {
+      "move": "counter",
+      "moveEs": "Contraataque",
+      "machine": "https://pokeapi.co/api/v2/machine/397/",
+      "versionGroupId": 29
+    },
+    "323": {
+      "move": "seismic-toss",
+      "moveEs": "Movimiento Sísmico",
+      "machine": "https://pokeapi.co/api/v2/machine/419/",
+      "versionGroupId": 29
+    },
+    "324": {
+      "move": "rage",
+      "moveEs": "Furia",
+      "machine": "https://pokeapi.co/api/v2/machine/441/",
+      "versionGroupId": 29
+    },
+    "325": {
+      "move": "mega-drain",
+      "moveEs": "Megaagotar",
+      "machine": "https://pokeapi.co/api/v2/machine/463/",
+      "versionGroupId": 29
+    },
+    "326": {
+      "move": "solar-beam",
+      "moveEs": "Rayo Solar",
+      "machine": "https://pokeapi.co/api/v2/machine/485/",
+      "versionGroupId": 29
+    },
+    "327": {
+      "move": "dragon-rage",
+      "moveEs": "Furia Dragón",
+      "machine": "https://pokeapi.co/api/v2/machine/507/",
+      "versionGroupId": 29
+    },
+    "328": {
+      "move": "thunderbolt",
+      "moveEs": "Rayo",
+      "machine": "https://pokeapi.co/api/v2/machine/529/",
+      "versionGroupId": 29
+    },
+    "329": {
+      "move": "thunder",
+      "moveEs": "Trueno",
+      "machine": "https://pokeapi.co/api/v2/machine/551/",
+      "versionGroupId": 29
+    },
+    "330": {
+      "move": "earthquake",
+      "moveEs": "Terremoto",
+      "machine": "https://pokeapi.co/api/v2/machine/573/",
+      "versionGroupId": 29
+    },
+    "331": {
+      "move": "fissure",
+      "moveEs": "Fisura",
+      "machine": "https://pokeapi.co/api/v2/machine/595/",
+      "versionGroupId": 29
+    },
+    "332": {
+      "move": "dig",
+      "moveEs": "Excavar",
+      "machine": "https://pokeapi.co/api/v2/machine/617/",
+      "versionGroupId": 29
+    },
+    "333": {
+      "move": "psychic",
+      "moveEs": "Psíquico",
+      "machine": "https://pokeapi.co/api/v2/machine/639/",
+      "versionGroupId": 29
+    },
+    "334": {
+      "move": "teleport",
+      "moveEs": "Teletransporte",
+      "machine": "https://pokeapi.co/api/v2/machine/661/",
+      "versionGroupId": 29
+    },
+    "335": {
+      "move": "mimic",
+      "moveEs": "Mimético",
+      "machine": "https://pokeapi.co/api/v2/machine/683/",
+      "versionGroupId": 29
+    },
+    "336": {
+      "move": "double-team",
+      "moveEs": "Doble Equipo",
+      "machine": "https://pokeapi.co/api/v2/machine/705/",
+      "versionGroupId": 29
+    },
+    "337": {
+      "move": "reflect",
+      "moveEs": "Reflejo",
+      "machine": "https://pokeapi.co/api/v2/machine/727/",
+      "versionGroupId": 29
+    },
+    "338": {
+      "move": "bide",
+      "moveEs": "Venganza",
+      "machine": "https://pokeapi.co/api/v2/machine/749/",
+      "versionGroupId": 29
+    },
+    "339": {
+      "move": "metronome",
+      "moveEs": "Metrónomo",
+      "machine": "https://pokeapi.co/api/v2/machine/771/",
+      "versionGroupId": 29
+    },
+    "340": {
+      "move": "self-destruct",
+      "moveEs": "Autodestrucción",
+      "machine": "https://pokeapi.co/api/v2/machine/793/",
+      "versionGroupId": 29
+    },
+    "341": {
+      "move": "egg-bomb",
+      "moveEs": "Bomba Huevo",
+      "machine": "https://pokeapi.co/api/v2/machine/815/",
+      "versionGroupId": 29
+    },
+    "342": {
+      "move": "fire-blast",
+      "moveEs": "Llamarada",
+      "machine": "https://pokeapi.co/api/v2/machine/837/",
+      "versionGroupId": 29
+    },
+    "343": {
+      "move": "swift",
+      "moveEs": "Rapidez",
+      "machine": "https://pokeapi.co/api/v2/machine/859/",
+      "versionGroupId": 29
+    },
+    "344": {
+      "move": "skull-bash",
+      "moveEs": "Cabezazo",
+      "machine": "https://pokeapi.co/api/v2/machine/881/",
+      "versionGroupId": 29
+    },
+    "345": {
+      "move": "soft-boiled",
+      "moveEs": "Amortiguador",
+      "machine": "https://pokeapi.co/api/v2/machine/903/",
+      "versionGroupId": 29
+    },
+    "346": {
+      "move": "dream-eater",
+      "moveEs": "Comesueños",
+      "machine": "https://pokeapi.co/api/v2/machine/925/",
+      "versionGroupId": 29
+    },
+    "347": {
+      "move": "sky-attack",
+      "moveEs": "Ataque Aéreo",
+      "machine": "https://pokeapi.co/api/v2/machine/947/",
+      "versionGroupId": 29
+    },
+    "348": {
+      "move": "rest",
+      "moveEs": "Descanso",
+      "machine": "https://pokeapi.co/api/v2/machine/969/",
+      "versionGroupId": 29
+    },
+    "349": {
+      "move": "thunder-wave",
+      "moveEs": "Onda Trueno",
+      "machine": "https://pokeapi.co/api/v2/machine/991/",
+      "versionGroupId": 29
+    },
+    "350": {
+      "move": "psywave",
+      "moveEs": "Psicoonda",
+      "machine": "https://pokeapi.co/api/v2/machine/1013/",
+      "versionGroupId": 29
+    },
+    "351": {
+      "move": "explosion",
+      "moveEs": "Explosión",
+      "machine": "https://pokeapi.co/api/v2/machine/1035/",
+      "versionGroupId": 29
+    },
+    "352": {
+      "move": "rock-slide",
+      "moveEs": "Avalancha",
+      "machine": "https://pokeapi.co/api/v2/machine/1057/",
+      "versionGroupId": 29
+    },
+    "353": {
+      "move": "tri-attack",
+      "moveEs": "Triataque",
+      "machine": "https://pokeapi.co/api/v2/machine/1079/",
+      "versionGroupId": 29
+    },
+    "354": {
+      "move": "substitute",
+      "moveEs": "Sustituto",
+      "machine": "https://pokeapi.co/api/v2/machine/1101/",
+      "versionGroupId": 29
+    },
+    "355": {
+      "move": "sandstorm",
+      "moveEs": "Tormenta Arena",
+      "machine": "https://pokeapi.co/api/v2/machine/1866/",
+      "versionGroupId": 25
+    },
+    "356": {
+      "move": "snowscape",
+      "moveEs": "snowscape",
+      "machine": "https://pokeapi.co/api/v2/machine/1867/",
+      "versionGroupId": 25
+    },
+    "357": {
+      "move": "smart-strike",
+      "moveEs": "Cuerno Certero",
+      "machine": "https://pokeapi.co/api/v2/machine/1868/",
+      "versionGroupId": 25
+    },
+    "358": {
+      "move": "psyshock",
+      "moveEs": "Psicocarga",
+      "machine": "https://pokeapi.co/api/v2/machine/1869/",
+      "versionGroupId": 25
+    },
+    "359": {
+      "move": "dig",
+      "moveEs": "Excavar",
+      "machine": "https://pokeapi.co/api/v2/machine/1870/",
+      "versionGroupId": 25
+    },
+    "360": {
+      "move": "bullet-seed",
+      "moveEs": "Semilladora",
+      "machine": "https://pokeapi.co/api/v2/machine/1871/",
+      "versionGroupId": 25
+    },
+    "361": {
+      "move": "false-swipe",
+      "moveEs": "Falso Tortazo",
+      "machine": "https://pokeapi.co/api/v2/machine/1872/",
+      "versionGroupId": 25
+    },
+    "362": {
+      "move": "brick-break",
+      "moveEs": "Demolición",
+      "machine": "https://pokeapi.co/api/v2/machine/1873/",
+      "versionGroupId": 25
+    },
+    "363": {
+      "move": "zen-headbutt",
+      "moveEs": "Cabezazo Zen",
+      "machine": "https://pokeapi.co/api/v2/machine/1874/",
+      "versionGroupId": 25
+    },
+    "364": {
+      "move": "u-turn",
+      "moveEs": "Ida y Vuelta",
+      "machine": "https://pokeapi.co/api/v2/machine/1875/",
+      "versionGroupId": 25
+    },
+    "365": {
+      "move": "shadow-claw",
+      "moveEs": "Garra Umbría",
+      "machine": "https://pokeapi.co/api/v2/machine/1876/",
+      "versionGroupId": 25
+    },
+    "366": {
+      "move": "foul-play",
+      "moveEs": "Juego Sucio",
+      "machine": "https://pokeapi.co/api/v2/machine/1877/",
+      "versionGroupId": 25
+    },
+    "367": {
+      "move": "psychic-fangs",
+      "moveEs": "Psicocolmillo",
+      "machine": "https://pokeapi.co/api/v2/machine/1878/",
+      "versionGroupId": 25
+    },
+    "368": {
+      "move": "bulk-up",
+      "moveEs": "Corpulencia",
+      "machine": "https://pokeapi.co/api/v2/machine/1879/",
+      "versionGroupId": 25
+    },
+    "369": {
+      "move": "air-slash",
+      "moveEs": "Tajo Aéreo",
+      "machine": "https://pokeapi.co/api/v2/machine/1880/",
+      "versionGroupId": 25
+    },
+    "370": {
+      "move": "body-slam",
+      "moveEs": "Golpe Cuerpo",
+      "machine": "https://pokeapi.co/api/v2/machine/1881/",
+      "versionGroupId": 25
+    },
+    "371": {
+      "move": "fire-punch",
+      "moveEs": "Puño Fuego",
+      "machine": "https://pokeapi.co/api/v2/machine/1882/",
+      "versionGroupId": 25
+    },
+    "372": {
+      "move": "thunder-punch",
+      "moveEs": "Puño Trueno",
+      "machine": "https://pokeapi.co/api/v2/machine/1883/",
+      "versionGroupId": 25
+    },
+    "373": {
+      "move": "ice-punch",
+      "moveEs": "Puño Hielo",
+      "machine": "https://pokeapi.co/api/v2/machine/1884/",
+      "versionGroupId": 25
+    },
+    "374": {
+      "move": "sleep-talk",
+      "moveEs": "Sonámbulo",
+      "machine": "https://pokeapi.co/api/v2/machine/1885/",
+      "versionGroupId": 25
+    },
+    "375": {
+      "move": "seed-bomb",
+      "moveEs": "Bomba Germen",
+      "machine": "https://pokeapi.co/api/v2/machine/1886/",
+      "versionGroupId": 25
+    },
+    "376": {
+      "move": "electro-ball",
+      "moveEs": "Bola Voltio",
+      "machine": "https://pokeapi.co/api/v2/machine/1887/",
+      "versionGroupId": 25
+    },
+    "377": {
+      "move": "drain-punch",
+      "moveEs": "Puño Drenaje",
+      "machine": "https://pokeapi.co/api/v2/machine/1888/",
+      "versionGroupId": 25
+    },
+    "378": {
+      "move": "reflect",
+      "moveEs": "Reflejo",
+      "machine": "https://pokeapi.co/api/v2/machine/1889/",
+      "versionGroupId": 25
+    },
+    "379": {
+      "move": "light-screen",
+      "moveEs": "Pantalla de Luz",
+      "machine": "https://pokeapi.co/api/v2/machine/1890/",
+      "versionGroupId": 25
+    },
+    "380": {
+      "move": "rock-blast",
+      "moveEs": "Pedrada",
+      "machine": "https://pokeapi.co/api/v2/machine/1891/",
+      "versionGroupId": 25
+    },
+    "381": {
+      "move": "waterfall",
+      "moveEs": "Cascada",
+      "machine": "https://pokeapi.co/api/v2/machine/1892/",
+      "versionGroupId": 25
+    },
+    "382": {
+      "move": "dragon-claw",
+      "moveEs": "Garra Dragón",
+      "machine": "https://pokeapi.co/api/v2/machine/1893/",
+      "versionGroupId": 25
+    },
+    "383": {
+      "move": "dazzling-gleam",
+      "moveEs": "Brillo Mágico",
+      "machine": "https://pokeapi.co/api/v2/machine/1894/",
+      "versionGroupId": 25
+    },
+    "384": {
+      "move": "metronome",
+      "moveEs": "Metrónomo",
+      "machine": "https://pokeapi.co/api/v2/machine/1895/",
+      "versionGroupId": 25
+    },
+    "385": {
+      "move": "grass-knot",
+      "moveEs": "Hierba Lazo",
+      "machine": "https://pokeapi.co/api/v2/machine/1896/",
+      "versionGroupId": 25
+    },
+    "386": {
+      "move": "thunder-wave",
+      "moveEs": "Onda Trueno",
+      "machine": "https://pokeapi.co/api/v2/machine/1897/",
+      "versionGroupId": 25
+    },
+    "387": {
+      "move": "poison-jab",
+      "moveEs": "Puya Nociva",
+      "machine": "https://pokeapi.co/api/v2/machine/1898/",
+      "versionGroupId": 25
+    },
+    "388": {
+      "move": "stomping-tantrum",
+      "moveEs": "Pataleta",
+      "machine": "https://pokeapi.co/api/v2/machine/1899/",
+      "versionGroupId": 25
+    },
+    "389": {
+      "move": "rest",
+      "moveEs": "Descanso",
+      "machine": "https://pokeapi.co/api/v2/machine/1900/",
+      "versionGroupId": 25
+    },
+    "390": {
+      "move": "rock-slide",
+      "moveEs": "Avalancha",
+      "machine": "https://pokeapi.co/api/v2/machine/1901/",
+      "versionGroupId": 25
+    },
+    "391": {
+      "move": "taunt",
+      "moveEs": "Mofa",
+      "machine": "https://pokeapi.co/api/v2/machine/1902/",
+      "versionGroupId": 25
+    },
+    "392": {
+      "move": "swords-dance",
+      "moveEs": "Danza Espada",
+      "machine": "https://pokeapi.co/api/v2/machine/1903/",
+      "versionGroupId": 25
+    },
+    "393": {
+      "move": "body-press",
+      "moveEs": "body-press",
+      "machine": "https://pokeapi.co/api/v2/machine/1904/",
+      "versionGroupId": 25
+    },
+    "394": {
+      "move": "spikes",
+      "moveEs": "Púas",
+      "machine": "https://pokeapi.co/api/v2/machine/1905/",
+      "versionGroupId": 25
+    },
+    "395": {
+      "move": "toxic-spikes",
+      "moveEs": "Púas Tóxicas",
+      "machine": "https://pokeapi.co/api/v2/machine/1906/",
+      "versionGroupId": 25
+    },
+    "396": {
+      "move": "imprison",
+      "moveEs": "Sellar",
+      "machine": "https://pokeapi.co/api/v2/machine/1907/",
+      "versionGroupId": 25
+    },
+    "659": {
+      "move": "flash-cannon",
+      "moveEs": "Foco Resplandor",
+      "machine": "https://pokeapi.co/api/v2/machine/1908/",
+      "versionGroupId": 25
+    },
+    "660": {
+      "move": "dark-pulse",
+      "moveEs": "Pulso Umbrío",
+      "machine": "https://pokeapi.co/api/v2/machine/1909/",
+      "versionGroupId": 25
+    },
+    "661": {
+      "move": "leech-life",
+      "moveEs": "Chupavidas",
+      "machine": "https://pokeapi.co/api/v2/machine/1910/",
+      "versionGroupId": 25
+    },
+    "745": {
+      "move": "eerie-impulse",
+      "moveEs": "Onda Anómala",
+      "machine": "https://pokeapi.co/api/v2/machine/1911/",
+      "versionGroupId": 25
+    },
+    "746": {
+      "move": "fly",
+      "moveEs": "Vuelo",
+      "machine": "https://pokeapi.co/api/v2/machine/1912/",
+      "versionGroupId": 25
+    },
+    "747": {
+      "move": "skill-swap",
+      "moveEs": "Intercambio",
+      "machine": "https://pokeapi.co/api/v2/machine/1913/",
+      "versionGroupId": 25
+    },
+    "748": {
+      "move": "iron-head",
+      "moveEs": "Cabeza de Hierro",
+      "machine": "https://pokeapi.co/api/v2/machine/1914/",
+      "versionGroupId": 25
+    },
+    "749": {
+      "move": "dragon-dance",
+      "moveEs": "Danza Dragón",
+      "machine": "https://pokeapi.co/api/v2/machine/1915/",
+      "versionGroupId": 25
+    },
+    "1188": {
+      "move": "swords-dance",
+      "moveEs": "Danza Espada",
+      "machine": "https://pokeapi.co/api/v2/machine/1577/",
+      "versionGroupId": 20
+    },
+    "397": {
+      "move": "cut",
+      "moveEs": "Corte",
+      "machine": "https://pokeapi.co/api/v2/machine/1596/",
+      "versionGroupId": 29
+    },
+    "1189": {
+      "move": "body-slam",
+      "moveEs": "Golpe Cuerpo",
+      "machine": "https://pokeapi.co/api/v2/machine/1594/",
+      "versionGroupId": 20
+    },
+    "398": {
+      "move": "fly",
+      "moveEs": "Vuelo",
+      "machine": "https://pokeapi.co/api/v2/machine/1615/",
+      "versionGroupId": 29
+    },
+    "1190": {
+      "move": "flamethrower",
+      "moveEs": "Lanzallamas",
+      "machine": "https://pokeapi.co/api/v2/machine/1613/",
+      "versionGroupId": 20
+    },
+    "399": {
+      "move": "surf",
+      "moveEs": "Surf",
+      "machine": "https://pokeapi.co/api/v2/machine/1634/",
+      "versionGroupId": 29
+    },
+    "1191": {
+      "move": "hydro-pump",
+      "moveEs": "Hidrobomba",
+      "machine": "https://pokeapi.co/api/v2/machine/1632/",
+      "versionGroupId": 20
+    },
+    "400": {
+      "move": "strength",
+      "moveEs": "Fuerza",
+      "machine": "https://pokeapi.co/api/v2/machine/1653/",
+      "versionGroupId": 29
+    },
+    "1192": {
+      "move": "surf",
+      "moveEs": "Surf",
+      "machine": "https://pokeapi.co/api/v2/machine/1651/",
+      "versionGroupId": 20
+    },
+    "401": {
+      "move": "flash",
+      "moveEs": "Destello",
+      "machine": "https://pokeapi.co/api/v2/machine/1672/",
+      "versionGroupId": 29
+    },
+    "1193": {
+      "move": "ice-beam",
+      "moveEs": "Rayo Hielo",
+      "machine": "https://pokeapi.co/api/v2/machine/1670/",
+      "versionGroupId": 20
+    },
+    "402": {
+      "move": "rock-smash",
+      "moveEs": "Golpe Roca",
+      "machine": "https://pokeapi.co/api/v2/machine/1813/",
+      "versionGroupId": 23
+    },
+    "1194": {
+      "move": "blizzard",
+      "moveEs": "Ventisca",
+      "machine": "https://pokeapi.co/api/v2/machine/1686/",
+      "versionGroupId": 20
+    },
+    "403": {
+      "move": "waterfall",
+      "moveEs": "Cascada",
+      "machine": "https://pokeapi.co/api/v2/machine/1814/",
+      "versionGroupId": 23
+    },
+    "1195": {
+      "move": "low-kick",
+      "moveEs": "Patada Baja",
+      "machine": "https://pokeapi.co/api/v2/machine/1698/",
+      "versionGroupId": 20
+    },
+    "404": {
+      "move": "rock-climb",
+      "moveEs": "Treparrocas",
+      "machine": "https://pokeapi.co/api/v2/machine/1815/",
+      "versionGroupId": 23
+    },
+    "1196": {
+      "move": "thunderbolt",
+      "moveEs": "Rayo",
+      "machine": "https://pokeapi.co/api/v2/machine/1707/",
+      "versionGroupId": 20
+    },
+    "1197": {
+      "move": "thunder",
+      "moveEs": "Trueno",
+      "machine": "https://pokeapi.co/api/v2/machine/1708/",
+      "versionGroupId": 20
+    },
+    "1198": {
+      "move": "earthquake",
+      "moveEs": "Terremoto",
+      "machine": "https://pokeapi.co/api/v2/machine/1709/",
+      "versionGroupId": 20
+    },
+    "1199": {
+      "move": "psychic",
+      "moveEs": "Psíquico",
+      "machine": "https://pokeapi.co/api/v2/machine/1710/",
+      "versionGroupId": 20
+    },
+    "1200": {
+      "move": "agility",
+      "moveEs": "Agilidad",
+      "machine": "https://pokeapi.co/api/v2/machine/1711/",
+      "versionGroupId": 20
+    },
+    "1201": {
+      "move": "focus-energy",
+      "moveEs": "Foco Energía",
+      "machine": "https://pokeapi.co/api/v2/machine/1712/",
+      "versionGroupId": 20
+    },
+    "1202": {
+      "move": "metronome",
+      "moveEs": "Metrónomo",
+      "machine": "https://pokeapi.co/api/v2/machine/1713/",
+      "versionGroupId": 20
+    },
+    "1203": {
+      "move": "fire-blast",
+      "moveEs": "Llamarada",
+      "machine": "https://pokeapi.co/api/v2/machine/1714/",
+      "versionGroupId": 20
+    },
+    "1204": {
+      "move": "waterfall",
+      "moveEs": "Cascada",
+      "machine": "https://pokeapi.co/api/v2/machine/1715/",
+      "versionGroupId": 20
+    },
+    "1205": {
+      "move": "amnesia",
+      "moveEs": "Amnesia",
+      "machine": "https://pokeapi.co/api/v2/machine/1716/",
+      "versionGroupId": 20
+    },
+    "1206": {
+      "move": "leech-life",
+      "moveEs": "Chupavidas",
+      "machine": "https://pokeapi.co/api/v2/machine/1717/",
+      "versionGroupId": 20
+    },
+    "1207": {
+      "move": "tri-attack",
+      "moveEs": "Triataque",
+      "machine": "https://pokeapi.co/api/v2/machine/1718/",
+      "versionGroupId": 20
+    },
+    "1208": {
+      "move": "substitute",
+      "moveEs": "Sustituto",
+      "machine": "https://pokeapi.co/api/v2/machine/1719/",
+      "versionGroupId": 20
+    },
+    "1209": {
+      "move": "reversal",
+      "moveEs": "Inversión",
+      "machine": "https://pokeapi.co/api/v2/machine/1720/",
+      "versionGroupId": 20
+    },
+    "1210": {
+      "move": "sludge-bomb",
+      "moveEs": "Bomba Lodo",
+      "machine": "https://pokeapi.co/api/v2/machine/1721/",
+      "versionGroupId": 20
+    },
+    "1211": {
+      "move": "spikes",
+      "moveEs": "Púas",
+      "machine": "https://pokeapi.co/api/v2/machine/1722/",
+      "versionGroupId": 20
+    },
+    "1212": {
+      "move": "outrage",
+      "moveEs": "Enfado",
+      "machine": "https://pokeapi.co/api/v2/machine/1723/",
+      "versionGroupId": 20
+    },
+    "1213": {
+      "move": "psyshock",
+      "moveEs": "Psicocarga",
+      "machine": "https://pokeapi.co/api/v2/machine/1724/",
+      "versionGroupId": 20
+    },
+    "1214": {
+      "move": "endure",
+      "moveEs": "Aguante",
+      "machine": "https://pokeapi.co/api/v2/machine/1725/",
+      "versionGroupId": 20
+    },
+    "1215": {
+      "move": "sleep-talk",
+      "moveEs": "Sonámbulo",
+      "machine": "https://pokeapi.co/api/v2/machine/1726/",
+      "versionGroupId": 20
+    },
+    "1216": {
+      "move": "megahorn",
+      "moveEs": "Megacuerno",
+      "machine": "https://pokeapi.co/api/v2/machine/1727/",
+      "versionGroupId": 20
+    },
+    "1217": {
+      "move": "baton-pass",
+      "moveEs": "Relevo",
+      "machine": "https://pokeapi.co/api/v2/machine/1728/",
+      "versionGroupId": 20
+    },
+    "1218": {
+      "move": "encore",
+      "moveEs": "Otra Vez",
+      "machine": "https://pokeapi.co/api/v2/machine/1729/",
+      "versionGroupId": 20
+    },
+    "1219": {
+      "move": "iron-tail",
+      "moveEs": "Cola Férrea",
+      "machine": "https://pokeapi.co/api/v2/machine/1730/",
+      "versionGroupId": 20
+    },
+    "1220": {
+      "move": "crunch",
+      "moveEs": "Triturar",
+      "machine": "https://pokeapi.co/api/v2/machine/1731/",
+      "versionGroupId": 20
+    },
+    "1221": {
+      "move": "shadow-ball",
+      "moveEs": "Bola Sombra",
+      "machine": "https://pokeapi.co/api/v2/machine/1732/",
+      "versionGroupId": 20
+    },
+    "1222": {
+      "move": "future-sight",
+      "moveEs": "Premonición",
+      "machine": "https://pokeapi.co/api/v2/machine/1733/",
+      "versionGroupId": 20
+    },
+    "1223": {
+      "move": "uproar",
+      "moveEs": "Alboroto",
+      "machine": "https://pokeapi.co/api/v2/machine/1734/",
+      "versionGroupId": 20
+    },
+    "1224": {
+      "move": "heat-wave",
+      "moveEs": "Onda Ígnea",
+      "machine": "https://pokeapi.co/api/v2/machine/1735/",
+      "versionGroupId": 20
+    },
+    "1225": {
+      "move": "taunt",
+      "moveEs": "Mofa",
+      "machine": "https://pokeapi.co/api/v2/machine/1736/",
+      "versionGroupId": 20
+    },
+    "1226": {
+      "move": "trick",
+      "moveEs": "Truco",
+      "machine": "https://pokeapi.co/api/v2/machine/1737/",
+      "versionGroupId": 20
+    },
+    "1227": {
+      "move": "superpower",
+      "moveEs": "Fuerza Bruta",
+      "machine": "https://pokeapi.co/api/v2/machine/1738/",
+      "versionGroupId": 20
+    },
+    "1228": {
+      "move": "skill-swap",
+      "moveEs": "Intercambio",
+      "machine": "https://pokeapi.co/api/v2/machine/1739/",
+      "versionGroupId": 20
+    },
+    "1229": {
+      "move": "blaze-kick",
+      "moveEs": "Patada Ígnea",
+      "machine": "https://pokeapi.co/api/v2/machine/1740/",
+      "versionGroupId": 20
+    },
+    "1230": {
+      "move": "hyper-voice",
+      "moveEs": "Vozarrón",
+      "machine": "https://pokeapi.co/api/v2/machine/1741/",
+      "versionGroupId": 20
+    },
+    "1231": {
+      "move": "overheat",
+      "moveEs": "Sofoco",
+      "machine": "https://pokeapi.co/api/v2/machine/1742/",
+      "versionGroupId": 20
+    },
+    "1232": {
+      "move": "cosmic-power",
+      "moveEs": "Masa Cósmica",
+      "machine": "https://pokeapi.co/api/v2/machine/1743/",
+      "versionGroupId": 20
+    },
+    "1233": {
+      "move": "muddy-water",
+      "moveEs": "Agua Lodosa",
+      "machine": "https://pokeapi.co/api/v2/machine/1744/",
+      "versionGroupId": 20
+    },
+    "1234": {
+      "move": "iron-defense",
+      "moveEs": "Defensa Férrea",
+      "machine": "https://pokeapi.co/api/v2/machine/1745/",
+      "versionGroupId": 20
+    },
+    "1235": {
+      "move": "dragon-claw",
+      "moveEs": "Garra Dragón",
+      "machine": "https://pokeapi.co/api/v2/machine/1746/",
+      "versionGroupId": 20
+    },
+    "1236": {
+      "move": "bulk-up",
+      "moveEs": "Corpulencia",
+      "machine": "https://pokeapi.co/api/v2/machine/1747/",
+      "versionGroupId": 20
+    },
+    "1237": {
+      "move": "calm-mind",
+      "moveEs": "Paz Mental",
+      "machine": "https://pokeapi.co/api/v2/machine/1748/",
+      "versionGroupId": 20
+    },
+    "1238": {
+      "move": "leaf-blade",
+      "moveEs": "Hoja Aguda",
+      "machine": "https://pokeapi.co/api/v2/machine/1749/",
+      "versionGroupId": 20
+    },
+    "1239": {
+      "move": "dragon-dance",
+      "moveEs": "Danza Dragón",
+      "machine": "https://pokeapi.co/api/v2/machine/1750/",
+      "versionGroupId": 20
+    },
+    "1240": {
+      "move": "gyro-ball",
+      "moveEs": "Giro Bola",
+      "machine": "https://pokeapi.co/api/v2/machine/1751/",
+      "versionGroupId": 20
+    },
+    "1241": {
+      "move": "close-combat",
+      "moveEs": "A Bocajarro",
+      "machine": "https://pokeapi.co/api/v2/machine/1752/",
+      "versionGroupId": 20
+    },
+    "1242": {
+      "move": "toxic-spikes",
+      "moveEs": "Púas Tóxicas",
+      "machine": "https://pokeapi.co/api/v2/machine/1753/",
+      "versionGroupId": 20
+    },
+    "1243": {
+      "move": "flare-blitz",
+      "moveEs": "Envite Ígneo",
+      "machine": "https://pokeapi.co/api/v2/machine/1754/",
+      "versionGroupId": 20
+    },
+    "1244": {
+      "move": "aura-sphere",
+      "moveEs": "Esfera Aural",
+      "machine": "https://pokeapi.co/api/v2/machine/1755/",
+      "versionGroupId": 20
+    },
+    "1245": {
+      "move": "poison-jab",
+      "moveEs": "Puya Nociva",
+      "machine": "https://pokeapi.co/api/v2/machine/1756/",
+      "versionGroupId": 20
+    },
+    "1246": {
+      "move": "dark-pulse",
+      "moveEs": "Pulso Umbrío",
+      "machine": "https://pokeapi.co/api/v2/machine/1757/",
+      "versionGroupId": 20
+    },
+    "1247": {
+      "move": "seed-bomb",
+      "moveEs": "Bomba Germen",
+      "machine": "https://pokeapi.co/api/v2/machine/1758/",
+      "versionGroupId": 20
+    },
+    "1248": {
+      "move": "x-scissor",
+      "moveEs": "Tijera X",
+      "machine": "https://pokeapi.co/api/v2/machine/1759/",
+      "versionGroupId": 20
+    },
+    "1249": {
+      "move": "bug-buzz",
+      "moveEs": "Zumbido",
+      "machine": "https://pokeapi.co/api/v2/machine/1760/",
+      "versionGroupId": 20
+    },
+    "1250": {
+      "move": "dragon-pulse",
+      "moveEs": "Pulso Dragón",
+      "machine": "https://pokeapi.co/api/v2/machine/1761/",
+      "versionGroupId": 20
+    },
+    "1251": {
+      "move": "power-gem",
+      "moveEs": "Joya de Luz",
+      "machine": "https://pokeapi.co/api/v2/machine/1762/",
+      "versionGroupId": 20
+    },
+    "1252": {
+      "move": "focus-blast",
+      "moveEs": "Onda Certera",
+      "machine": "https://pokeapi.co/api/v2/machine/1763/",
+      "versionGroupId": 20
+    },
+    "1253": {
+      "move": "energy-ball",
+      "moveEs": "Energibola",
+      "machine": "https://pokeapi.co/api/v2/machine/1764/",
+      "versionGroupId": 20
+    },
+    "1254": {
+      "move": "brave-bird",
+      "moveEs": "Pájaro Osado",
+      "machine": "https://pokeapi.co/api/v2/machine/1765/",
+      "versionGroupId": 20
+    },
+    "1255": {
+      "move": "earth-power",
+      "moveEs": "Tierra Viva",
+      "machine": "https://pokeapi.co/api/v2/machine/1766/",
+      "versionGroupId": 20
+    },
+    "1256": {
+      "move": "nasty-plot",
+      "moveEs": "Maquinación",
+      "machine": "https://pokeapi.co/api/v2/machine/1767/",
+      "versionGroupId": 20
+    },
+    "1257": {
+      "move": "zen-headbutt",
+      "moveEs": "Cabezazo Zen",
+      "machine": "https://pokeapi.co/api/v2/machine/1768/",
+      "versionGroupId": 20
+    },
+    "1258": {
+      "move": "flash-cannon",
+      "moveEs": "Foco Resplandor",
+      "machine": "https://pokeapi.co/api/v2/machine/1769/",
+      "versionGroupId": 20
+    },
+    "1259": {
+      "move": "leaf-storm",
+      "moveEs": "Lluevehojas",
+      "machine": "https://pokeapi.co/api/v2/machine/1770/",
+      "versionGroupId": 20
+    },
+    "1260": {
+      "move": "power-whip",
+      "moveEs": "Latigazo",
+      "machine": "https://pokeapi.co/api/v2/machine/1771/",
+      "versionGroupId": 20
+    },
+    "1261": {
+      "move": "gunk-shot",
+      "moveEs": "Lanzamugre",
+      "machine": "https://pokeapi.co/api/v2/machine/1772/",
+      "versionGroupId": 20
+    },
+    "1262": {
+      "move": "iron-head",
+      "moveEs": "Cabeza de Hierro",
+      "machine": "https://pokeapi.co/api/v2/machine/1773/",
+      "versionGroupId": 20
+    },
+    "1263": {
+      "move": "stone-edge",
+      "moveEs": "Roca Afilada",
+      "machine": "https://pokeapi.co/api/v2/machine/1774/",
+      "versionGroupId": 20
+    },
+    "1264": {
+      "move": "stealth-rock",
+      "moveEs": "Trampa Rocas",
+      "machine": "https://pokeapi.co/api/v2/machine/1775/",
+      "versionGroupId": 20
+    },
+    "1265": {
+      "move": "grass-knot",
+      "moveEs": "Hierba Lazo",
+      "machine": "https://pokeapi.co/api/v2/machine/1776/",
+      "versionGroupId": 20
+    },
+    "1266": {
+      "move": "sludge-wave",
+      "moveEs": "Onda Tóxica",
+      "machine": "https://pokeapi.co/api/v2/machine/1777/",
+      "versionGroupId": 20
+    },
+    "1267": {
+      "move": "heavy-slam",
+      "moveEs": "Cuerpo Pesado",
+      "machine": "https://pokeapi.co/api/v2/machine/1778/",
+      "versionGroupId": 20
+    },
+    "1268": {
+      "move": "electro-ball",
+      "moveEs": "Bola Voltio",
+      "machine": "https://pokeapi.co/api/v2/machine/1779/",
+      "versionGroupId": 20
+    },
+    "1269": {
+      "move": "foul-play",
+      "moveEs": "Juego Sucio",
+      "machine": "https://pokeapi.co/api/v2/machine/1780/",
+      "versionGroupId": 20
+    },
+    "1270": {
+      "move": "stored-power",
+      "moveEs": "Poder Reserva",
+      "machine": "https://pokeapi.co/api/v2/machine/1781/",
+      "versionGroupId": 20
+    },
+    "1271": {
+      "move": "ally-switch",
+      "moveEs": "Cambio de Banda",
+      "machine": "https://pokeapi.co/api/v2/machine/1782/",
+      "versionGroupId": 20
+    },
+    "1272": {
+      "move": "scald",
+      "moveEs": "Escaldar",
+      "machine": "https://pokeapi.co/api/v2/machine/1783/",
+      "versionGroupId": 20
+    },
+    "1273": {
+      "move": "work-up",
+      "moveEs": "Avivar",
+      "machine": "https://pokeapi.co/api/v2/machine/1784/",
+      "versionGroupId": 20
+    },
+    "1274": {
+      "move": "wild-charge",
+      "moveEs": "Voltio Cruel",
+      "machine": "https://pokeapi.co/api/v2/machine/1785/",
+      "versionGroupId": 20
+    },
+    "1275": {
+      "move": "drill-run",
+      "moveEs": "Taladradora",
+      "machine": "https://pokeapi.co/api/v2/machine/1786/",
+      "versionGroupId": 20
+    },
+    "1276": {
+      "move": "heat-crash",
+      "moveEs": "Golpe Calor",
+      "machine": "https://pokeapi.co/api/v2/machine/1787/",
+      "versionGroupId": 20
+    },
+    "1277": {
+      "move": "hurricane",
+      "moveEs": "Vendaval",
+      "machine": "https://pokeapi.co/api/v2/machine/1788/",
+      "versionGroupId": 20
+    },
+    "1278": {
+      "move": "play-rough",
+      "moveEs": "Carantoña",
+      "machine": "https://pokeapi.co/api/v2/machine/1789/",
+      "versionGroupId": 20
+    },
+    "1279": {
+      "move": "venom-drench",
+      "moveEs": "Trampa Venenosa",
+      "machine": "https://pokeapi.co/api/v2/machine/1790/",
+      "versionGroupId": 20
+    },
+    "1280": {
+      "move": "dazzling-gleam",
+      "moveEs": "Brillo Mágico",
+      "machine": "https://pokeapi.co/api/v2/machine/1791/",
+      "versionGroupId": 20
+    },
+    "1281": {
+      "move": "darkest-lariat",
+      "moveEs": "Lariat Oscuro",
+      "machine": "https://pokeapi.co/api/v2/machine/1792/",
+      "versionGroupId": 20
+    },
+    "1282": {
+      "move": "high-horsepower",
+      "moveEs": "Fuerza Equina",
+      "machine": "https://pokeapi.co/api/v2/machine/1793/",
+      "versionGroupId": 20
+    },
+    "1283": {
+      "move": "throat-chop",
+      "moveEs": "Golpe Mordaza",
+      "machine": "https://pokeapi.co/api/v2/machine/1794/",
+      "versionGroupId": 20
+    },
+    "1284": {
+      "move": "pollen-puff",
+      "moveEs": "Bola de Polen",
+      "machine": "https://pokeapi.co/api/v2/machine/1795/",
+      "versionGroupId": 20
+    },
+    "1285": {
+      "move": "psychic-fangs",
+      "moveEs": "Psicocolmillo",
+      "machine": "https://pokeapi.co/api/v2/machine/1796/",
+      "versionGroupId": 20
+    },
+    "1286": {
+      "move": "liquidation",
+      "moveEs": "Hidroariete",
+      "machine": "https://pokeapi.co/api/v2/machine/1797/",
+      "versionGroupId": 20
+    },
+    "1287": {
+      "move": "body-press",
+      "moveEs": "body-press",
+      "machine": "https://pokeapi.co/api/v2/machine/1798/",
+      "versionGroupId": 20
+    },
+    "1944": {
+      "move": "power-gem",
+      "moveEs": "Joya de Luz",
+      "machine": "https://pokeapi.co/api/v2/machine/1916/",
+      "versionGroupId": 25
+    },
+    "1945": {
+      "move": "gunk-shot",
+      "moveEs": "Lanzamugre",
+      "machine": "https://pokeapi.co/api/v2/machine/1917/",
+      "versionGroupId": 25
+    },
+    "1946": {
+      "move": "substitute",
+      "moveEs": "Sustituto",
+      "machine": "https://pokeapi.co/api/v2/machine/1918/",
+      "versionGroupId": 25
+    },
+    "1947": {
+      "move": "iron-defense",
+      "moveEs": "Defensa Férrea",
+      "machine": "https://pokeapi.co/api/v2/machine/1919/",
+      "versionGroupId": 25
+    },
+    "1948": {
+      "move": "x-scissor",
+      "moveEs": "Tijera X",
+      "machine": "https://pokeapi.co/api/v2/machine/1920/",
+      "versionGroupId": 25
+    },
+    "1949": {
+      "move": "drill-run",
+      "moveEs": "Taladradora",
+      "machine": "https://pokeapi.co/api/v2/machine/1921/",
+      "versionGroupId": 25
+    },
+    "1950": {
+      "move": "will-o-wisp",
+      "moveEs": "Fuego Fatuo",
+      "machine": "https://pokeapi.co/api/v2/machine/1922/",
+      "versionGroupId": 25
+    },
+    "1951": {
+      "move": "crunch",
+      "moveEs": "Triturar",
+      "machine": "https://pokeapi.co/api/v2/machine/1923/",
+      "versionGroupId": 25
+    },
+    "1952": {
+      "move": "trick",
+      "moveEs": "Truco",
+      "machine": "https://pokeapi.co/api/v2/machine/1924/",
+      "versionGroupId": 25
+    },
+    "1953": {
+      "move": "liquidation",
+      "moveEs": "Hidroariete",
+      "machine": "https://pokeapi.co/api/v2/machine/1925/",
+      "versionGroupId": 25
+    },
+    "1954": {
+      "move": "giga-drain",
+      "moveEs": "Gigadrenado",
+      "machine": "https://pokeapi.co/api/v2/machine/1926/",
+      "versionGroupId": 25
+    },
+    "1955": {
+      "move": "aura-sphere",
+      "moveEs": "Esfera Aural",
+      "machine": "https://pokeapi.co/api/v2/machine/1927/",
+      "versionGroupId": 25
+    },
+    "1956": {
+      "move": "tailwind",
+      "moveEs": "Viento Afín",
+      "machine": "https://pokeapi.co/api/v2/machine/1928/",
+      "versionGroupId": 25
+    },
+    "1957": {
+      "move": "shadow-ball",
+      "moveEs": "Bola Sombra",
+      "machine": "https://pokeapi.co/api/v2/machine/1929/",
+      "versionGroupId": 25
+    },
+    "1958": {
+      "move": "dragon-pulse",
+      "moveEs": "Pulso Dragón",
+      "machine": "https://pokeapi.co/api/v2/machine/1930/",
+      "versionGroupId": 25
+    },
+    "1959": {
+      "move": "stealth-rock",
+      "moveEs": "Trampa Rocas",
+      "machine": "https://pokeapi.co/api/v2/machine/1931/",
+      "versionGroupId": 25
+    },
+    "1960": {
+      "move": "hyper-voice",
+      "moveEs": "Vozarrón",
+      "machine": "https://pokeapi.co/api/v2/machine/1932/",
+      "versionGroupId": 25
+    },
+    "1961": {
+      "move": "heat-wave",
+      "moveEs": "Onda Ígnea",
+      "machine": "https://pokeapi.co/api/v2/machine/1933/",
+      "versionGroupId": 25
+    },
+    "1962": {
+      "move": "energy-ball",
+      "moveEs": "Energibola",
+      "machine": "https://pokeapi.co/api/v2/machine/1934/",
+      "versionGroupId": 25
+    },
+    "1963": {
+      "move": "psychic",
+      "moveEs": "Psíquico",
+      "machine": "https://pokeapi.co/api/v2/machine/1935/",
+      "versionGroupId": 25
+    },
+    "1964": {
+      "move": "heavy-slam",
+      "moveEs": "Cuerpo Pesado",
+      "machine": "https://pokeapi.co/api/v2/machine/1936/",
+      "versionGroupId": 25
+    },
+    "1965": {
+      "move": "encore",
+      "moveEs": "Otra Vez",
+      "machine": "https://pokeapi.co/api/v2/machine/1937/",
+      "versionGroupId": 25
+    },
+    "1966": {
+      "move": "surf",
+      "moveEs": "Surf",
+      "machine": "https://pokeapi.co/api/v2/machine/1938/",
+      "versionGroupId": 25
+    },
+    "1967": {
+      "move": "ice-spinner",
+      "moveEs": "ice-spinner",
+      "machine": "https://pokeapi.co/api/v2/machine/1939/",
+      "versionGroupId": 25
+    },
+    "1968": {
+      "move": "flamethrower",
+      "moveEs": "Lanzallamas",
+      "machine": "https://pokeapi.co/api/v2/machine/1940/",
+      "versionGroupId": 25
+    },
+    "1969": {
+      "move": "thunderbolt",
+      "moveEs": "Rayo",
+      "machine": "https://pokeapi.co/api/v2/machine/1941/",
+      "versionGroupId": 25
+    },
+    "1970": {
+      "move": "play-rough",
+      "moveEs": "Carantoña",
+      "machine": "https://pokeapi.co/api/v2/machine/1942/",
+      "versionGroupId": 25
+    },
+    "1971": {
+      "move": "amnesia",
+      "moveEs": "Amnesia",
+      "machine": "https://pokeapi.co/api/v2/machine/1943/",
+      "versionGroupId": 25
+    },
+    "1972": {
+      "move": "calm-mind",
+      "moveEs": "Paz Mental",
+      "machine": "https://pokeapi.co/api/v2/machine/1944/",
+      "versionGroupId": 25
+    },
+    "1973": {
+      "move": "helping-hand",
+      "moveEs": "Refuerzo",
+      "machine": "https://pokeapi.co/api/v2/machine/1945/",
+      "versionGroupId": 25
+    },
+    "1974": {
+      "move": "pollen-puff",
+      "moveEs": "Bola de Polen",
+      "machine": "https://pokeapi.co/api/v2/machine/1946/",
+      "versionGroupId": 25
+    },
+    "1975": {
+      "move": "baton-pass",
+      "moveEs": "Relevo",
+      "machine": "https://pokeapi.co/api/v2/machine/1947/",
+      "versionGroupId": 25
+    },
+    "1976": {
+      "move": "earth-power",
+      "moveEs": "Tierra Viva",
+      "machine": "https://pokeapi.co/api/v2/machine/1948/",
+      "versionGroupId": 25
+    },
+    "1977": {
+      "move": "reversal",
+      "moveEs": "Inversión",
+      "machine": "https://pokeapi.co/api/v2/machine/1949/",
+      "versionGroupId": 25
+    },
+    "1978": {
+      "move": "ice-beam",
+      "moveEs": "Rayo Hielo",
+      "machine": "https://pokeapi.co/api/v2/machine/1950/",
+      "versionGroupId": 25
+    },
+    "1979": {
+      "move": "electric-terrain",
+      "moveEs": "Campo Eléctrico",
+      "machine": "https://pokeapi.co/api/v2/machine/1951/",
+      "versionGroupId": 25
+    },
+    "1980": {
+      "move": "grassy-terrain",
+      "moveEs": "Campo de Hierba",
+      "machine": "https://pokeapi.co/api/v2/machine/1952/",
+      "versionGroupId": 25
+    },
+    "1981": {
+      "move": "psychic-terrain",
+      "moveEs": "Campo Psíquico",
+      "machine": "https://pokeapi.co/api/v2/machine/1953/",
+      "versionGroupId": 25
+    },
+    "1982": {
+      "move": "misty-terrain",
+      "moveEs": "Campo de Niebla",
+      "machine": "https://pokeapi.co/api/v2/machine/1954/",
+      "versionGroupId": 25
+    },
+    "1983": {
+      "move": "nasty-plot",
+      "moveEs": "Maquinación",
+      "machine": "https://pokeapi.co/api/v2/machine/1955/",
+      "versionGroupId": 25
+    },
+    "1984": {
+      "move": "fire-blast",
+      "moveEs": "Llamarada",
+      "machine": "https://pokeapi.co/api/v2/machine/1956/",
+      "versionGroupId": 25
+    },
+    "1985": {
+      "move": "hydro-pump",
+      "moveEs": "Hidrobomba",
+      "machine": "https://pokeapi.co/api/v2/machine/1957/",
+      "versionGroupId": 25
+    },
+    "1986": {
+      "move": "blizzard",
+      "moveEs": "Ventisca",
+      "machine": "https://pokeapi.co/api/v2/machine/1958/",
+      "versionGroupId": 25
+    },
+    "1987": {
+      "move": "fire-pledge",
+      "moveEs": "Voto Fuego",
+      "machine": "https://pokeapi.co/api/v2/machine/1959/",
+      "versionGroupId": 25
+    },
+    "1989": {
+      "move": "grass-pledge",
+      "moveEs": "Voto Planta",
+      "machine": "https://pokeapi.co/api/v2/machine/1961/",
+      "versionGroupId": 25
+    },
+    "1990": {
+      "move": "wild-charge",
+      "moveEs": "Voltio Cruel",
+      "machine": "https://pokeapi.co/api/v2/machine/1962/",
+      "versionGroupId": 25
+    },
+    "1991": {
+      "move": "sludge-bomb",
+      "moveEs": "Bomba Lodo",
+      "machine": "https://pokeapi.co/api/v2/machine/1963/",
+      "versionGroupId": 25
+    },
+    "1992": {
+      "move": "earthquake",
+      "moveEs": "Terremoto",
+      "machine": "https://pokeapi.co/api/v2/machine/1964/",
+      "versionGroupId": 25
+    },
+    "1993": {
+      "move": "stone-edge",
+      "moveEs": "Roca Afilada",
+      "machine": "https://pokeapi.co/api/v2/machine/1965/",
+      "versionGroupId": 25
+    },
+    "1994": {
+      "move": "phantom-force",
+      "moveEs": "Golpe Fantasma",
+      "machine": "https://pokeapi.co/api/v2/machine/1966/",
+      "versionGroupId": 25
+    },
+    "1995": {
+      "move": "giga-impact",
+      "moveEs": "Gigaimpacto",
+      "machine": "https://pokeapi.co/api/v2/machine/1967/",
+      "versionGroupId": 25
+    },
+    "1996": {
+      "move": "blast-burn",
+      "moveEs": "Anillo Ígneo",
+      "machine": "https://pokeapi.co/api/v2/machine/1968/",
+      "versionGroupId": 25
+    },
+    "1997": {
+      "move": "hydro-cannon",
+      "moveEs": "Hidrocañón",
+      "machine": "https://pokeapi.co/api/v2/machine/1969/",
+      "versionGroupId": 25
+    },
+    "1998": {
+      "move": "frenzy-plant",
+      "moveEs": "Planta Feroz",
+      "machine": "https://pokeapi.co/api/v2/machine/1970/",
+      "versionGroupId": 25
+    },
+    "1999": {
+      "move": "outrage",
+      "moveEs": "Enfado",
+      "machine": "https://pokeapi.co/api/v2/machine/1971/",
+      "versionGroupId": 25
+    },
+    "2000": {
+      "move": "overheat",
+      "moveEs": "Sofoco",
+      "machine": "https://pokeapi.co/api/v2/machine/1972/",
+      "versionGroupId": 25
+    },
+    "2001": {
+      "move": "focus-blast",
+      "moveEs": "Onda Certera",
+      "machine": "https://pokeapi.co/api/v2/machine/1973/",
+      "versionGroupId": 25
+    },
+    "2002": {
+      "move": "leaf-storm",
+      "moveEs": "Lluevehojas",
+      "machine": "https://pokeapi.co/api/v2/machine/1974/",
+      "versionGroupId": 25
+    },
+    "2003": {
+      "move": "hurricane",
+      "moveEs": "Vendaval",
+      "machine": "https://pokeapi.co/api/v2/machine/1975/",
+      "versionGroupId": 25
+    },
+    "2004": {
+      "move": "trick-room",
+      "moveEs": "Espacio Raro",
+      "machine": "https://pokeapi.co/api/v2/machine/1976/",
+      "versionGroupId": 25
+    },
+    "2005": {
+      "move": "bug-buzz",
+      "moveEs": "Zumbido",
+      "machine": "https://pokeapi.co/api/v2/machine/1977/",
+      "versionGroupId": 25
+    },
+    "2006": {
+      "move": "hyper-beam",
+      "moveEs": "Hiperrayo",
+      "machine": "https://pokeapi.co/api/v2/machine/1978/",
+      "versionGroupId": 25
+    },
+    "2007": {
+      "move": "brave-bird",
+      "moveEs": "Pájaro Osado",
+      "machine": "https://pokeapi.co/api/v2/machine/1979/",
+      "versionGroupId": 25
+    },
+    "2008": {
+      "move": "flare-blitz",
+      "moveEs": "Envite Ígneo",
+      "machine": "https://pokeapi.co/api/v2/machine/1980/",
+      "versionGroupId": 25
+    },
+    "2009": {
+      "move": "thunder",
+      "moveEs": "Trueno",
+      "machine": "https://pokeapi.co/api/v2/machine/1981/",
+      "versionGroupId": 25
+    },
+    "2010": {
+      "move": "close-combat",
+      "moveEs": "A Bocajarro",
+      "machine": "https://pokeapi.co/api/v2/machine/1982/",
+      "versionGroupId": 25
+    },
+    "2011": {
+      "move": "solar-beam",
+      "moveEs": "Rayo Solar",
+      "machine": "https://pokeapi.co/api/v2/machine/1983/",
+      "versionGroupId": 25
+    },
+    "2012": {
+      "move": "draco-meteor",
+      "moveEs": "Cometa Draco",
+      "machine": "https://pokeapi.co/api/v2/machine/1984/",
+      "versionGroupId": 25
+    },
+    "2013": {
+      "move": "steel-beam",
+      "moveEs": "steel-beam",
+      "machine": "https://pokeapi.co/api/v2/machine/1985/",
+      "versionGroupId": 25
+    },
+    "2014": {
+      "move": "tera-blast",
+      "moveEs": "tera-blast",
+      "machine": "https://pokeapi.co/api/v2/machine/1986/",
+      "versionGroupId": 25
+    },
+    "2161": {
+      "move": "roar",
+      "moveEs": "Rugido",
+      "machine": "https://pokeapi.co/api/v2/machine/1987/",
+      "versionGroupId": 25
+    },
+    "2162": {
+      "move": "charge",
+      "moveEs": "Carga",
+      "machine": "https://pokeapi.co/api/v2/machine/1988/",
+      "versionGroupId": 25
+    },
+    "2163": {
+      "move": "haze",
+      "moveEs": "Niebla",
+      "machine": "https://pokeapi.co/api/v2/machine/1989/",
+      "versionGroupId": 25
+    },
+    "2164": {
+      "move": "toxic",
+      "moveEs": "Tóxico",
+      "machine": "https://pokeapi.co/api/v2/machine/1990/",
+      "versionGroupId": 25
+    },
+    "2165": {
+      "move": "sand-tomb",
+      "moveEs": "Bucle Arena",
+      "machine": "https://pokeapi.co/api/v2/machine/1991/",
+      "versionGroupId": 25
+    },
+    "2166": {
+      "move": "spite",
+      "moveEs": "Rencor",
+      "machine": "https://pokeapi.co/api/v2/machine/1992/",
+      "versionGroupId": 25
+    },
+    "2167": {
+      "move": "gravity",
+      "moveEs": "Gravedad",
+      "machine": "https://pokeapi.co/api/v2/machine/1993/",
+      "versionGroupId": 25
+    },
+    "2168": {
+      "move": "smack-down",
+      "moveEs": "Antiaéreo",
+      "machine": "https://pokeapi.co/api/v2/machine/1994/",
+      "versionGroupId": 25
+    },
+    "2169": {
+      "move": "gyro-ball",
+      "moveEs": "Giro Bola",
+      "machine": "https://pokeapi.co/api/v2/machine/1995/",
+      "versionGroupId": 25
+    },
+    "2170": {
+      "move": "knock-off",
+      "moveEs": "Desarme",
+      "machine": "https://pokeapi.co/api/v2/machine/1996/",
+      "versionGroupId": 25
+    },
+    "2171": {
+      "move": "bug-bite",
+      "moveEs": "Picadura",
+      "machine": "https://pokeapi.co/api/v2/machine/1997/",
+      "versionGroupId": 25
+    },
+    "2172": {
+      "move": "super-fang",
+      "moveEs": "Superdiente",
+      "machine": "https://pokeapi.co/api/v2/machine/1998/",
+      "versionGroupId": 25
+    },
+    "2173": {
+      "move": "vacuum-wave",
+      "moveEs": "Onda Vacío",
+      "machine": "https://pokeapi.co/api/v2/machine/1999/",
+      "versionGroupId": 25
+    },
+    "2174": {
+      "move": "lunge",
+      "moveEs": "Plancha",
+      "machine": "https://pokeapi.co/api/v2/machine/2000/",
+      "versionGroupId": 25
+    }
+  }
+}

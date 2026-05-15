@@ -132,6 +132,15 @@
     return false;
   }
 
+  async function loadMachineMapFromFile() {
+    const fromFile = await tryLoadData('pokeapi_machine_item_moves_v1', null);
+    if (!fromFile || typeof fromFile !== 'object') return false;
+    const data = fromFile.data && typeof fromFile.data === 'object' ? fromFile.data : fromFile;
+    machineByItemId = { ...machineByItemId, ...data };
+    machineIndexReady = Object.keys(machineByItemId).length > 0;
+    return machineIndexReady;
+  }
+
   function saveMachineMapToLocalStorage() {
     try {
       localStorage.setItem(LS_MACHINE_KEY, JSON.stringify({
@@ -191,6 +200,7 @@
     if (machineIndexReady && Object.keys(machineByItemId).length) return machineByItemId;
     if (machineIndexPromise) return machineIndexPromise;
     if (loadMachineMapFromLocalStorage()) return machineByItemId;
+    if (await loadMachineMapFromFile()) return machineByItemId;
 
     machineIndexPromise = (async () => {
       await ensureMoveEsIndex();
@@ -342,7 +352,9 @@
     }
     await ensureItemEsIndex();
     await ensureMoveEsIndex();
-    loadMachineMapFromLocalStorage();
+    if (!loadMachineMapFromLocalStorage()) {
+      await loadMachineMapFromFile();
+    }
 
     // Construir índice ligero en memoria (sin pedir detalles de cada item)
     const lightIndex = (indexList?.results || []).map(r => {
@@ -366,6 +378,40 @@
         displayName: cached?.displayName || ''
       };
     });
+    const lightById = new Map(lightIndex.map(it => [String(it.id), it]));
+    const enrichingVisibleMachines = new Set();
+
+    function isLightMachine(it) {
+      return isMachineItem(it) || String(it.pocketEs || '').toLowerCase().includes('mt');
+    }
+
+    function mergeFullIntoLight(full) {
+      if (!full?.id) return;
+      const it = lightById.get(String(full.id));
+      if (!it) return;
+      it.nameEs = full.nameEs || it.nameEs || full.name || it.name;
+      it.name = full.name || it.name;
+      it.sprite = full.sprite || it.sprite;
+      it.pocketEs = full.pocketEs || it.pocketEs;
+      it.effectText = full.effectText || it.effectText;
+      it.machineMove = full.machineMove || it.machineMove;
+      it.machineMoveEs = full.machineMoveEs || it.machineMoveEs;
+      it.displayName = full.displayName || formatMachineDisplay(it) || it.displayName;
+    }
+
+    function enrichVisibleMachineResults(items, query) {
+      const visibleMachines = items.filter(isLightMachine).slice(0, maxResults);
+      for (const it of visibleMachines) {
+        if (it.machineMoveEs || enrichingVisibleMachines.has(it.id)) continue;
+        enrichingVisibleMachines.add(it.id);
+        getItemFull(it.id).then(full => {
+          mergeFullIntoLight(full);
+          if (normalize(input.value) === query) searchAndShow();
+        }).catch(() => {}).finally(() => {
+          enrichingVisibleMachines.delete(it.id);
+        });
+      }
+    }
 
     function renderList(items) {
       list.innerHTML = items.map(o => `
@@ -424,8 +470,9 @@
         ...enContains.slice(0, Math.max(0, maxResults - esPrefix.length - esContains.length - machineContains.length))
       ];
       renderList(results);
+      enrichVisibleMachineResults(results, q);
 
-      if (q.length >= 3 && results.length < maxResults && !machineIndexReady && !machineIndexPromise) {
+      if (q.length >= 3 && !machineIndexReady && !machineIndexPromise) {
         ensureMachineSearchIndex().then(() => {
           if (normalize(input.value) === q) searchAndShow();
         }).catch(() => {});
@@ -495,7 +542,9 @@
     await loadDetailCacheIfAny();  // ahora también mira localStorage
     await ensureItemEsIndex();     // cargar índice de nombres en español
     await ensureMoveEsIndex();
-    loadMachineMapFromLocalStorage();
+    if (!loadMachineMapFromLocalStorage()) {
+      await loadMachineMapFromFile();
+    }
     try { await ensureIndex(); indexReady = true; } catch { indexReady = false; }
   }
 
