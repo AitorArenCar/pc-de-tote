@@ -92,6 +92,11 @@
     return `${base} - ${move}`;
   }
 
+  function machineSpriteForType(moveType) {
+    const type = String(moveType || '').toLowerCase();
+    return type ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-${type}.png` : '';
+  }
+
   function toEsName(names){
     const es = names?.find(n => n.language?.name === lang)?.name;
     const en = names?.find(n => n.language?.name === 'en')?.name;
@@ -163,8 +168,10 @@
     if (mapped) {
       out.machineMove = mapped.move || '';
       out.machineMoveEs = mapped.moveEs || mapped.move || '';
+      out.machineMoveType = mapped.moveType || '';
+      out.sprite = machineSpriteForType(out.machineMoveType) || out.sprite;
       out.displayName = formatMachineDisplay(out);
-      out.searchText = [out.name, out.nameEs, out.machineMove, out.machineMoveEs, out.effectText].filter(Boolean).join(' ');
+      out.searchText = [out.name, out.nameEs, out.machineMove, out.machineMoveEs, out.machineMoveType, out.effectText].filter(Boolean).join(' ');
       return out;
     }
 
@@ -189,6 +196,7 @@
 
       out.machineMove = move;
       out.machineMoveEs = moveEs || move;
+      out.machineMoveType = '';
       out.displayName = formatMachineDisplay(out);
       out.searchText = [out.name, out.nameEs, out.machineMove, out.machineMoveEs, out.effectText].filter(Boolean).join(' ');
     } catch {}
@@ -352,9 +360,8 @@
     }
     await ensureItemEsIndex();
     await ensureMoveEsIndex();
-    if (!loadMachineMapFromLocalStorage()) {
-      await loadMachineMapFromFile();
-    }
+    loadMachineMapFromLocalStorage();
+    await loadMachineMapFromFile();
 
     // Construir índice ligero en memoria (sin pedir detalles de cada item)
     const lightIndex = (indexList?.results || []).map(r => {
@@ -375,6 +382,7 @@
         effectText: cached?.effectText || '',
         machineMove: cached?.machineMove || '',
         machineMoveEs: cached?.machineMoveEs || '',
+        machineMoveType: cached?.machineMoveType || '',
         displayName: cached?.displayName || ''
       };
     });
@@ -443,12 +451,14 @@
         if (mapped && !it.machineMoveEs) {
           it.machineMove = mapped.move || '';
           it.machineMoveEs = mapped.moveEs || mapped.move || '';
+          it.machineMoveType = mapped.moveType || '';
+          it.sprite = machineSpriteForType(it.machineMoveType) || it.sprite;
           it.displayName = formatMachineDisplay({ nameEs: it.nameEs || it.name, machineMoveEs: it.machineMoveEs });
         }
         const es = normalize(it.nameEs || '');
         const en = normalize(it.name || '');
         const display = normalize(it.displayName || '');
-        const move = normalize(`${it.machineMove || ''} ${it.machineMoveEs || ''} ${it.effectText || ''}`);
+        const move = normalize(`${it.machineMove || ''} ${it.machineMoveEs || ''} ${it.machineMoveType || ''} ${it.effectText || ''}`);
         
         if (display && display.startsWith(q)) {
           esPrefix.push(it);
@@ -542,9 +552,8 @@
     await loadDetailCacheIfAny();  // ahora también mira localStorage
     await ensureItemEsIndex();     // cargar índice de nombres en español
     await ensureMoveEsIndex();
-    if (!loadMachineMapFromLocalStorage()) {
-      await loadMachineMapFromFile();
-    }
+    loadMachineMapFromLocalStorage();
+    await loadMachineMapFromFile();
     try { await ensureIndex(); indexReady = true; } catch { indexReady = false; }
   }
 

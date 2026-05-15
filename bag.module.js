@@ -2,11 +2,12 @@
 // Depende de: items.api.js (ItemsAPI)
 
 (() => {
-  /** @typedef {{ id:string, nameEs:string, qty:number, sprite?:string|null, effectText?:string|null, desc?:null, pocket?:string, custom?:boolean, displayName?:string, machineMove?:string, machineMoveEs?:string, searchText?:string }} ItemPack */
+  /** @typedef {{ id:string, nameEs:string, qty:number, sprite?:string|null, effectText?:string|null, desc?:null, pocket?:string, custom?:boolean, displayName?:string, machineMove?:string, machineMoveEs?:string, machineMoveType?:string, searchText?:string }} ItemPack */
 
   const BAG_STORAGE_KEY = 'pcdetote_bag_v1';
   const BAG_ACTIVE_POCKET_KEY = 'pcdetote_bag_active_pocket_v1';
   const ITEM_SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
+  const CUSTOM_DEFAULT_ICON = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2230%22 height=%2230%22 viewBox=%220 0 30 30%22%3E%3Crect width=%2230%22 height=%2230%22 rx=%226%22 fill=%22%231a2448%22/%3E%3Cpath d=%22M11 10a4 4 0 1 1 6.6 3c-1.4 1.1-2.1 1.7-2.1 3.5%22 fill=%22none%22 stroke=%22%23e6eefb%22 stroke-width=%222.4%22 stroke-linecap=%22round%22/%3E%3Ccircle cx=%2215%22 cy=%2222%22 r=%221.5%22 fill=%22%23e6eefb%22/%3E%3C/svg%3E';
 
   const POCKET_META = {
     pokeballs: { title: 'Poké Balls', icon: `${ITEM_SPRITE_BASE}poke-ball.png` },
@@ -17,7 +18,6 @@
     key:       { title: 'Clave',      icon: `${ITEM_SPRITE_BASE}town-map.png` },
   };
   const POCKET_KEYS = Object.keys(POCKET_META);
-  const CUSTOM_ICON = `${ITEM_SPRITE_BASE}odd-keystone.png`;
 
   function createEmptyBag() {
     return {
@@ -69,13 +69,14 @@
     const nameEs = String(it?.nameEs ?? it?.displayName ?? cleanId);
     const machineMoveEs = it?.machineMoveEs ? String(it.machineMoveEs) : '';
     const machineMove = it?.machineMove ? String(it.machineMove) : '';
+    const machineMoveType = it?.machineMoveType ? String(it.machineMoveType) : '';
     const displayName = it?.displayName ? String(it.displayName) : formatMachineLabel({ nameEs, machineMoveEs });
 
     return {
       id: cleanId,
       nameEs,
       qty: clampQty(it?.qty),
-      sprite: it?.sprite ?? null,
+      sprite: it?.sprite ?? (custom ? CUSTOM_DEFAULT_ICON : null),
       effectText: it?.effectText ?? null,
       desc: null,
       pocket,
@@ -83,6 +84,7 @@
       displayName,
       machineMove,
       machineMoveEs,
+      machineMoveType,
       searchText: it?.searchText ? String(it.searchText) : '',
     };
   }
@@ -173,6 +175,7 @@
       pack.displayName,
       pack.machineMove,
       pack.machineMoveEs,
+      pack.machineMoveType,
       pack.effectText,
       pack.searchText,
       pack.pocket,
@@ -181,7 +184,7 @@
 
   function iconForPack(pack) {
     if (pack?.sprite) return pack.sprite;
-    if (isCustomItem(pack)) return CUSTOM_ICON;
+    if (isCustomItem(pack)) return CUSTOM_DEFAULT_ICON;
     return POCKET_META[pack?.pocket]?.icon || POCKET_META.battle.icon;
   }
 
@@ -232,13 +235,14 @@
       ...prev,
       nameEs: item.nameEs || prev.nameEs || item.id,
       qty: Math.min(999, Number(prev.qty || 0) + Number(item.qty || 1)),
-      sprite: item.sprite ?? prev.sprite ?? null,
+      sprite: item.sprite ?? prev.sprite ?? (isCustomItem(item) ? CUSTOM_DEFAULT_ICON : null),
       effectText: item.effectText ?? prev.effectText ?? null,
       desc: null,
       pocket: targetPocket,
       custom: !!item.custom || !!prev.custom || String(item.id || '').startsWith('custom-'),
       machineMove: item.machineMove ?? prev.machineMove ?? '',
       machineMoveEs: item.machineMoveEs ?? prev.machineMoveEs ?? '',
+      machineMoveType: item.machineMoveType ?? prev.machineMoveType ?? '',
       displayName: item.displayName || formatMachineLabel(item) || prev.displayName || prev.nameEs,
       searchText: item.searchText ?? prev.searchText ?? '',
     };
@@ -262,6 +266,7 @@
       custom: false,
       machineMove: full.machineMove || '',
       machineMoveEs: full.machineMoveEs || '',
+      machineMoveType: full.machineMoveType || '',
       displayName: display,
       searchText: full.searchText || '',
     });
@@ -278,13 +283,13 @@
     return id;
   }
 
-  function addCustom(name, desc = '', qty = 1, pocket = 'key') {
+  function addCustom(name, desc = '', qty = 1, pocket = 'key', sprite = CUSTOM_DEFAULT_ICON) {
     const cleanName = (name || 'Custom').trim();
     addItemPack(normalizePocket(pocket), {
       id: uniqueCustomId(cleanName),
       nameEs: cleanName,
       qty,
-      sprite: null,
+      sprite: sprite || CUSTOM_DEFAULT_ICON,
       effectText: (desc || '').trim(),
       pocket: normalizePocket(pocket),
       custom: true,
@@ -292,7 +297,7 @@
     });
   }
 
-  function updateCustom(id, { name, desc, pocket }) {
+  function updateCustom(id, { name, desc, pocket, sprite }) {
     const loc = findItemLocation(id);
     if (!loc || !isCustomItem(loc.pack)) return false;
 
@@ -302,6 +307,7 @@
       nameEs: (name || loc.pack.nameEs || id).trim(),
       displayName: (name || loc.pack.nameEs || id).trim(),
       effectText: (desc || '').trim(),
+      sprite: sprite || CUSTOM_DEFAULT_ICON,
       pocket: targetPocket,
       custom: true,
     };
@@ -343,6 +349,7 @@
           custom: !!pack.custom,
           machineMove: pack.machineMove || '',
           machineMoveEs: pack.machineMoveEs || '',
+          machineMoveType: pack.machineMoveType || '',
         };
         dict[id].qty -= 1;
         if (dict[id].qty === 0) delete dict[id];
@@ -367,6 +374,7 @@
       custom: !!item.custom || String(item.id || '').startsWith('custom-'),
       machineMove: item.machineMove || '',
       machineMoveEs: item.machineMoveEs || '',
+      machineMoveType: item.machineMoveType || '',
       displayName: item.displayName || formatMachineLabel(item) || nameEs,
     });
   }
@@ -449,6 +457,7 @@
           custom: !!meta.custom || !!reserved.custom,
           machineMove: meta.machineMove || reserved.machineMove || '',
           machineMoveEs: meta.machineMoveEs || reserved.machineMoveEs || '',
+          machineMoveType: meta.machineMoveType || reserved.machineMoveType || '',
         };
       }
     }
@@ -536,6 +545,22 @@
     `;
   }
 
+  function iconPickerHtml({ inputId, listId, previewId, selectedSprite = CUSTOM_DEFAULT_ICON }) {
+    return `
+      <div class="bag-icon-picker">
+        <label for="${attr(inputId)}">Icono</label>
+        <div class="bag-icon-picker-row">
+          <span class="bag-icon-preview"><img id="${attr(previewId)}" src="${attr(selectedSprite || CUSTOM_DEFAULT_ICON)}" alt="" /></span>
+          <div class="combo">
+            <input id="${attr(inputId)}" type="text" placeholder="Buscar objeto para usar su icono" autocomplete="off" data-icon-sprite="${attr(selectedSprite || CUSTOM_DEFAULT_ICON)}" />
+            <div id="${attr(listId)}" class="combo-list" hidden></div>
+          </div>
+          <button class="btn bag-icon-reset" type="button" data-input="${attr(inputId)}" data-preview="${attr(previewId)}">?</button>
+        </div>
+      </div>
+    `;
+  }
+
   function renderDetailView() {
     const loc = detailRef ? findItemLocation(detailRef.id) : null;
     if (!loc) {
@@ -567,6 +592,7 @@
             <textarea id="customEditDesc" rows="4">${escapeHtml(effect)}</textarea>
             <label for="customEditPocket">Bolsillo</label>
             <select id="customEditPocket">${pocketOptions(loc.pocket)}</select>
+            ${iconPickerHtml({ inputId: 'customEditIcon', listId: 'customEditIconList', previewId: 'customEditIconPreview', selectedSprite: pack.sprite || CUSTOM_DEFAULT_ICON })}
             <button id="customSaveBtn" class="btn btn-primary" type="button">Guardar cambios</button>
           </div>
         </section>
@@ -619,6 +645,7 @@
         <textarea id="customCreateDesc" rows="4" placeholder="¿Para qué sirve?"></textarea>
         <label for="customCreatePocket">Bolsillo</label>
         <select id="customCreatePocket">${pocketOptions('key')}</select>
+        ${iconPickerHtml({ inputId: 'customCreateIcon', listId: 'customCreateIconList', previewId: 'customCreateIconPreview', selectedSprite: CUSTOM_DEFAULT_ICON })}
         <label for="customCreateQty">Cantidad</label>
         <input id="customCreateQty" type="number" min="1" max="999" value="1" />
         <button id="customCreateBtn" class="btn btn-primary" type="button">Crear objeto</button>
@@ -662,13 +689,52 @@
 
     const save = document.querySelector('#customSaveBtn');
     if (save && detailRef) {
+      wireCustomIconPicker('customEditIcon', 'customEditIconList', 'customEditIconPreview');
       save.onclick = () => {
         const name = (document.querySelector('#customEditName')?.value || '').trim();
         const desc = (document.querySelector('#customEditDesc')?.value || '').trim();
         const pocket = document.querySelector('#customEditPocket')?.value || 'key';
+        const sprite = document.querySelector('#customEditIcon')?.dataset.iconSprite || CUSTOM_DEFAULT_ICON;
         if (!name) return;
-        updateCustom(detailRef.id, { name, desc, pocket });
+        updateCustom(detailRef.id, { name, desc, pocket, sprite });
         render();
+      };
+    }
+  }
+
+  function wireCustomIconPicker(inputId, listId, previewId) {
+    const input = document.querySelector(`#${inputId}`);
+    const list = document.querySelector(`#${listId}`);
+    const preview = document.querySelector(`#${previewId}`);
+    if (!input || !list || !preview || !window.ItemsAPI) return;
+
+    window.ItemsAPI.init({ lang: 'es' }).then(() => {
+      window.ItemsAPI.setupAutocomplete(input, list, { minLength: 1, maxResults: 8 });
+    }).catch(() => {});
+
+    list.addEventListener('click', () => {
+      setTimeout(async () => {
+        const id = input.dataset.selectedId;
+        if (!id) return;
+        try {
+          const full = await window.ItemsAPI.getItemFull(id);
+          const sprite = full?.sprite || CUSTOM_DEFAULT_ICON;
+          input.dataset.iconSprite = sprite;
+          preview.src = sprite;
+        } catch (_e) {
+          input.dataset.iconSprite = CUSTOM_DEFAULT_ICON;
+          preview.src = CUSTOM_DEFAULT_ICON;
+        }
+      }, 0);
+    });
+
+    const reset = document.querySelector(`.bag-icon-reset[data-input="${inputId}"]`);
+    if (reset) {
+      reset.onclick = () => {
+        input.value = '';
+        input.dataset.selectedId = '';
+        input.dataset.iconSprite = CUSTOM_DEFAULT_ICON;
+        preview.src = CUSTOM_DEFAULT_ICON;
       };
     }
   }
@@ -707,17 +773,19 @@
 
     const btn = document.querySelector('#customCreateBtn');
     if (!btn) return;
+    wireCustomIconPicker('customCreateIcon', 'customCreateIconList', 'customCreateIconPreview');
     btn.onclick = () => {
       const name = (document.querySelector('#customCreateName')?.value || '').trim();
       const desc = (document.querySelector('#customCreateDesc')?.value || '').trim();
       const pocket = document.querySelector('#customCreatePocket')?.value || 'key';
       const qty = Math.max(1, Math.min(999, Number(document.querySelector('#customCreateQty')?.value || 1)));
+      const sprite = document.querySelector('#customCreateIcon')?.dataset.iconSprite || CUSTOM_DEFAULT_ICON;
       const err = document.querySelector('#customError');
       if (!name) {
         if (err) err.textContent = 'Ponle un nombre al objeto.';
         return;
       }
-      addCustom(name, desc, qty, pocket);
+      addCustom(name, desc, qty, pocket, sprite);
       activePocket = normalizePocket(pocket);
       viewMode = 'list';
       rememberPocket();
