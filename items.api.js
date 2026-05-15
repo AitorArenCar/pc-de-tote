@@ -17,6 +17,8 @@
   let machineByItemId = {};
   let machineIndexReady = false;
   let machineIndexPromise = null;
+  let machineFileLoaded = false;
+  let machineFilePromise = null;
 
   /** @type {{ count:number, results: {name:string, url:string}[] } | null} */
   let indexList = null;
@@ -123,15 +125,33 @@
   return latest.text.replace(/\s+/g, ' ').trim();
 }
 
+  function machineEntryScore(entry = {}) {
+    return (entry.move ? 1 : 0) + (entry.moveType ? 2 : 0) + (entry.moveDescEs ? 4 : 0);
+  }
+
+  function mergeMachineMap(data, { preferIncoming = false } = {}) {
+    if (!data || typeof data !== 'object') return false;
+    for (const [id, entry] of Object.entries(data)) {
+      const prev = machineByItemId[id];
+      if (!prev) {
+        machineByItemId[id] = entry;
+      } else if (preferIncoming || machineEntryScore(entry) >= machineEntryScore(prev)) {
+        machineByItemId[id] = { ...prev, ...entry };
+      } else {
+        machineByItemId[id] = { ...entry, ...prev };
+      }
+    }
+    machineIndexReady = Object.keys(machineByItemId).length > 0;
+    return machineIndexReady;
+  }
+
   function loadMachineMapFromLocalStorage() {
     try {
       const raw = localStorage.getItem(LS_MACHINE_KEY);
       if (!raw) return false;
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === 'object' && parsed.data && typeof parsed.data === 'object') {
-        machineByItemId = parsed.data;
-        machineIndexReady = Object.keys(machineByItemId).length > 0;
-        return machineIndexReady;
+        return mergeMachineMap(parsed.data, { preferIncoming: false });
       }
     } catch {}
     return false;
@@ -141,9 +161,17 @@
     const fromFile = await tryLoadData('pokeapi_machine_item_moves_v1', null);
     if (!fromFile || typeof fromFile !== 'object') return false;
     const data = fromFile.data && typeof fromFile.data === 'object' ? fromFile.data : fromFile;
-    machineByItemId = { ...machineByItemId, ...data };
-    machineIndexReady = Object.keys(machineByItemId).length > 0;
-    return machineIndexReady;
+    machineFileLoaded = true;
+    return mergeMachineMap(data, { preferIncoming: true });
+  }
+
+  async function ensureMachineMapFromFile() {
+    if (machineFileLoaded) return machineIndexReady;
+    if (machineFilePromise) return machineFilePromise;
+    machineFilePromise = loadMachineMapFromFile().finally(() => {
+      machineFilePromise = null;
+    });
+    return machineFilePromise;
   }
 
   function saveMachineMapToLocalStorage() {
@@ -164,7 +192,14 @@
   async function enrichMachineItem(out, rawItemData = null) {
     if (!out || !isMachineItem(out)) return out;
 
-    const mapped = machineByItemId[String(out.id)];
+    const itemId = String(out.id);
+    let mapped = machineByItemId[itemId];
+    if (!mapped || !mapped.moveType || !mapped.moveDescEs) {
+      loadMachineMapFromLocalStorage();
+      await ensureMachineMapFromFile();
+      mapped = machineByItemId[itemId];
+    }
+
     if (mapped) {
       out.machineMove = mapped.move || '';
       out.machineMoveEs = mapped.moveEs || mapped.move || '';
@@ -192,7 +227,7 @@
       const moveEs = await getMoveNameEs(move);
       if (!move) return out;
 
-      machineByItemId[String(out.id)] = { move, moveEs, machine: machineUrl, moveDescEs: '' };
+      mergeMachineMap({ [String(out.id)]: { move, moveEs, machine: machineUrl, moveDescEs: '' } });
       saveMachineMapToLocalStorage();
 
       out.machineMove = move;
@@ -207,10 +242,11 @@
   }
 
   async function ensureMachineSearchIndex() {
-    if (machineIndexReady && Object.keys(machineByItemId).length) return machineByItemId;
+    if (machineIndexReady && machineFileLoaded && Object.keys(machineByItemId).length) return machineByItemId;
     if (machineIndexPromise) return machineIndexPromise;
     loadMachineMapFromLocalStorage();
-    if (await loadMachineMapFromFile()) return machineByItemId;
+    if (await ensureMachineMapFromFile()) return machineByItemId;
+    if (machineIndexReady && Object.keys(machineByItemId).length) return machineByItemId;
 
     machineIndexPromise = (async () => {
       await ensureMoveEsIndex();
@@ -239,8 +275,7 @@
 
       const workers = Array.from({ length: 8 }, () => worker());
       await Promise.all(workers);
-      machineByItemId = { ...machineByItemId, ...byItem };
-      machineIndexReady = Object.keys(machineByItemId).length > 0;
+      mergeMachineMap(byItem);
       saveMachineMapToLocalStorage();
       return machineByItemId;
     })();
@@ -363,7 +398,7 @@
     await ensureItemEsIndex();
     await ensureMoveEsIndex();
     loadMachineMapFromLocalStorage();
-    await loadMachineMapFromFile();
+    await ensureMachineMapFromFile();
 
     // Construir índice ligero en memoria (sin pedir detalles de cada item)
     const lightIndex = (indexList?.results || []).map(r => {
@@ -556,7 +591,7 @@
     await ensureItemEsIndex();     // cargar índice de nombres en español
     await ensureMoveEsIndex();
     loadMachineMapFromLocalStorage();
-    await loadMachineMapFromFile();
+    await ensureMachineMapFromFile();
     try { await ensureIndex(); indexReady = true; } catch { indexReady = false; }
   }
 
