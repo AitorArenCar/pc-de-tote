@@ -2,6 +2,7 @@
   const API = 'https://pokeapi.co/api/v2';
   const DATA_BASE = './data';
   const LS_KEY = 'pokeapi_item_cache_v1.json'; // <- nombre pedido
+  const LS_MACHINE_KEY = 'pokeapi_machine_item_moves_v1';
 
   /** @type {Record<string, any>} */
   let detailCache = {};
@@ -12,6 +13,12 @@
   const pocketCache = {};
   /** @type {Record<string, string>} */
   let itemEsIndex = {};
+  let moveEsIndex = {};
+  let machineByItemId = {};
+  let machineIndexReady = false;
+  let machineIndexPromise = null;
+  let machineFileLoaded = false;
+  let machineFilePromise = null;
 
   /** @type {{ count:number, results: {name:string, url:string}[] } | null} */
   let indexList = null;
@@ -53,12 +60,44 @@
     return {};
   }
 
+  async function ensureMoveEsIndex(){
+    if (Object.keys(moveEsIndex).length) return moveEsIndex;
+    const fromFile = await tryLoadData('pokebox_move_es_v1', null);
+    if (fromFile && typeof fromFile === 'object') { moveEsIndex = fromFile; return moveEsIndex; }
+    return {};
+  }
+
   function idFromUrl(url){
     const m = url.match(/\/(\d+)\/?$/);
     return m ? m[1] : null;
   }
 
   function normalize(str){ return (str||'').toLowerCase(); }
+
+  function isMachineItem(item = {}) {
+    const name = String(item.name || '').toLowerCase();
+    const pocket = String(item.pocket || '').toLowerCase();
+    const category = String(item.category || '').toLowerCase();
+    return pocket.includes('machine') || category.includes('machine') || /^t[rm]\d+/i.test(name) || /^hm\d+/i.test(name);
+  }
+
+  function versionGroupId(entry) {
+    const url = entry?.version_group?.url || '';
+    return Number((url.match(/\/(\d+)\/?$/) || [])[1] || 0);
+  }
+
+  function formatMachineDisplay(item) {
+    const base = item.nameEs || item.name || '';
+    const move = item.machineMoveEs || item.machineMove || '';
+    if (!move) return base;
+    if (normalize(base).includes(normalize(move))) return base;
+    return `${base} - ${move}`;
+  }
+
+  function machineSpriteForType(moveType) {
+    const type = String(moveType || '').toLowerCase();
+    return type ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-${type}.png` : '';
+  }
 
   function toEsName(names){
     const es = names?.find(n => n.language?.name === lang)?.name;
@@ -86,6 +125,168 @@
   return latest.text.replace(/\s+/g, ' ').trim();
 }
 
+  function machineEntryScore(entry = {}) {
+    return (entry.move ? 1 : 0) + (entry.moveType ? 2 : 0) + (entry.moveDescEs ? 4 : 0);
+  }
+
+  function mergeMachineMap(data, { preferIncoming = false } = {}) {
+    if (!data || typeof data !== 'object') return false;
+    for (const [id, entry] of Object.entries(data)) {
+      const prev = machineByItemId[id];
+      if (!prev) {
+        machineByItemId[id] = entry;
+      } else if (preferIncoming || machineEntryScore(entry) >= machineEntryScore(prev)) {
+        machineByItemId[id] = { ...prev, ...entry };
+      } else {
+        machineByItemId[id] = { ...entry, ...prev };
+      }
+    }
+    machineIndexReady = Object.keys(machineByItemId).length > 0;
+    return machineIndexReady;
+  }
+
+  function loadMachineMapFromLocalStorage() {
+    try {
+      const raw = localStorage.getItem(LS_MACHINE_KEY);
+      if (!raw) return false;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object' && parsed.data && typeof parsed.data === 'object') {
+        return mergeMachineMap(parsed.data, { preferIncoming: false });
+      }
+    } catch {}
+    return false;
+  }
+
+  async function loadMachineMapFromFile() {
+    const fromFile = await tryLoadData('pokeapi_machine_item_moves_v1', null);
+    if (!fromFile || typeof fromFile !== 'object') return false;
+    const data = fromFile.data && typeof fromFile.data === 'object' ? fromFile.data : fromFile;
+    machineFileLoaded = true;
+    return mergeMachineMap(data, { preferIncoming: true });
+  }
+
+  async function ensureMachineMapFromFile() {
+    if (machineFileLoaded) return machineIndexReady;
+    if (machineFilePromise) return machineFilePromise;
+    machineFilePromise = loadMachineMapFromFile().finally(() => {
+      machineFilePromise = null;
+    });
+    return machineFilePromise;
+  }
+
+  function saveMachineMapToLocalStorage() {
+    try {
+      localStorage.setItem(LS_MACHINE_KEY, JSON.stringify({
+        meta: { version: 1, savedAt: new Date().toISOString(), count: Object.keys(machineByItemId).length },
+        data: machineByItemId,
+      }));
+    } catch {}
+  }
+
+  async function getMoveNameEs(moveName) {
+    if (!moveName) return '';
+    await ensureMoveEsIndex();
+    return moveEsIndex[moveName] || moveName;
+  }
+
+  async function enrichMachineItem(out, rawItemData = null) {
+    if (!out || !isMachineItem(out)) return out;
+
+    const itemId = String(out.id);
+    let mapped = machineByItemId[itemId];
+    if (!mapped || !mapped.moveType || !mapped.moveDescEs) {
+      loadMachineMapFromLocalStorage();
+      await ensureMachineMapFromFile();
+      mapped = machineByItemId[itemId];
+    }
+
+    if (mapped) {
+      out.machineMove = mapped.move || '';
+      out.machineMoveEs = mapped.moveEs || mapped.move || '';
+      out.machineMoveType = mapped.moveType || '';
+      out.sprite = machineSpriteForType(out.machineMoveType) || out.sprite;
+      out.effectText = mapped.moveDescEs || '';
+      out.displayName = formatMachineDisplay(out);
+      out.searchText = [out.name, out.nameEs, out.machineMove, out.machineMoveEs, out.machineMoveType, out.effectText].filter(Boolean).join(' ');
+      return out;
+    }
+
+    try {
+      let itemData = rawItemData;
+      if (!itemData?.machines?.length) {
+        itemData = await fetchJson(`${API}/item/${out.id || out.name}`);
+      }
+      const machineEntry = (itemData?.machines || [])
+        .slice()
+        .sort((a, b) => versionGroupId(b) - versionGroupId(a))[0];
+      const machineUrl = machineEntry?.machine?.url || machineEntry?.url || '';
+      if (!machineUrl) return out;
+
+      const machine = await fetchJson(machineUrl);
+      const move = machine?.move?.name || '';
+      const moveEs = await getMoveNameEs(move);
+      if (!move) return out;
+
+      mergeMachineMap({ [String(out.id)]: { move, moveEs, machine: machineUrl, moveDescEs: '' } });
+      saveMachineMapToLocalStorage();
+
+      out.machineMove = move;
+      out.machineMoveEs = moveEs || move;
+      out.machineMoveType = '';
+      out.effectText = '';
+      out.displayName = formatMachineDisplay(out);
+      out.searchText = [out.name, out.nameEs, out.machineMove, out.machineMoveEs, out.effectText].filter(Boolean).join(' ');
+    } catch {}
+
+    return out;
+  }
+
+  async function ensureMachineSearchIndex() {
+    if (machineIndexReady && machineFileLoaded && Object.keys(machineByItemId).length) return machineByItemId;
+    if (machineIndexPromise) return machineIndexPromise;
+    loadMachineMapFromLocalStorage();
+    if (await ensureMachineMapFromFile()) return machineByItemId;
+    if (machineIndexReady && Object.keys(machineByItemId).length) return machineByItemId;
+
+    machineIndexPromise = (async () => {
+      await ensureMoveEsIndex();
+      const index = await fetchJson(`${API}/machine?limit=2000`);
+      const urls = (index?.results || []).map(r => r.url).filter(Boolean);
+      const queue = [...urls];
+      const byItem = {};
+
+      async function worker() {
+        while (queue.length) {
+          const url = queue.shift();
+          try {
+            const machine = await fetchJson(url);
+            const itemId = idFromUrl(machine?.item?.url || '');
+            const move = machine?.move?.name || '';
+            if (!itemId || !move) continue;
+            const moveEs = moveEsIndex[move] || move;
+            const prev = byItem[itemId];
+            const vg = versionGroupId(machine);
+            if (!prev || vg >= Number(prev.versionGroupId || 0)) {
+              byItem[itemId] = { move, moveEs, machine: url, versionGroupId: vg, moveDescEs: '' };
+            }
+          } catch {}
+        }
+      }
+
+      const workers = Array.from({ length: 8 }, () => worker());
+      await Promise.all(workers);
+      mergeMachineMap(byItem);
+      saveMachineMapToLocalStorage();
+      return machineByItemId;
+    })();
+
+    try {
+      return await machineIndexPromise;
+    } finally {
+      machineIndexPromise = null;
+    }
+  }
+
 
   // === NUEVO: guardar / cargar desde localStorage ===
   function saveDetailCacheToLocalStorage() {
@@ -105,11 +306,14 @@
   async function loadDetailCacheIfAny(){
     // 1) intentar localStorage primero
     try {
-      const raw = localStorage.getItem(LS_KEY);
+      const raw = localStorage.getItem(LS_KEY) || localStorage.getItem('pokeapi_item_cache_v1');
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && typeof parsed === 'object' && parsed.data && typeof parsed.data === 'object') {
           detailCache = parsed.data;
+          return;
+        } else if (parsed && typeof parsed === 'object') {
+          detailCache = parsed;
           return;
         }
       }
@@ -117,7 +321,7 @@
 
     // 2) fallback a fichero físico si existiera (compatibilidad)
     const dump = await tryLoadData('pokeapi_item_cache_v1', {});
-    if (dump && typeof dump === 'object') detailCache = dump;
+    if (dump && typeof dump === 'object') detailCache = (dump.data && typeof dump.data === 'object') ? dump.data : dump;
   }
 
   // --- helpers para pocket ---
@@ -141,7 +345,7 @@
 
   async function getItemFull(idOrName){
     const key = String(idOrName).toLowerCase();
-    if (detailCache[key]) return detailCache[key];
+    if (detailCache[key]) return enrichMachineItem(detailCache[key]);
 
     const data = await fetchJson(`${API}/item/${key}`);
 
@@ -167,10 +371,18 @@
       // effectText: toEffectEs(data.effect_entries),
   effectText: toFlavorEs(data.flavor_text_entries),
       pocket: pocketSlug || null,
-      pocketEs: pocketEs || null
+      pocketEs: pocketEs || null,
+      machineMove: '',
+      machineMoveEs: '',
+      displayName: ''
     };
 
+    await enrichMachineItem(out, data);
+    if (!out.displayName) out.displayName = out.nameEs || out.name;
+    out.searchText = [out.name, out.nameEs, out.displayName, out.machineMove, out.machineMoveEs, out.effectText].filter(Boolean).join(' ');
+
     detailCache[key] = out;
+    detailCache[String(out.id)] = out;
     await sleep(15); // suavizar rate limit
     return out;
   }
@@ -184,6 +396,9 @@
       try { await ensureIndex(); } catch {}
     }
     await ensureItemEsIndex();
+    await ensureMoveEsIndex();
+    loadMachineMapFromLocalStorage();
+    await ensureMachineMapFromFile();
 
     // Construir índice ligero en memoria (sin pedir detalles de cada item)
     const lightIndex = (indexList?.results || []).map(r => {
@@ -200,15 +415,54 @@
         nameEs: nameEs,
         name: nameEn,
         sprite: cached?.sprite || null,
-        pocketEs: cached?.pocketEs || ''
+        pocketEs: cached?.pocketEs || '',
+        effectText: cached?.effectText || '',
+        machineMove: cached?.machineMove || '',
+        machineMoveEs: cached?.machineMoveEs || '',
+        machineMoveType: cached?.machineMoveType || '',
+        displayName: cached?.displayName || ''
       };
     });
+    const lightById = new Map(lightIndex.map(it => [String(it.id), it]));
+    const enrichingVisibleMachines = new Set();
+
+    function isLightMachine(it) {
+      return isMachineItem(it) || String(it.pocketEs || '').toLowerCase().includes('mt');
+    }
+
+    function mergeFullIntoLight(full) {
+      if (!full?.id) return;
+      const it = lightById.get(String(full.id));
+      if (!it) return;
+      it.nameEs = full.nameEs || it.nameEs || full.name || it.name;
+      it.name = full.name || it.name;
+      it.sprite = full.sprite || it.sprite;
+      it.pocketEs = full.pocketEs || it.pocketEs;
+      it.effectText = full.effectText ?? it.effectText;
+      it.machineMove = full.machineMove || it.machineMove;
+      it.machineMoveEs = full.machineMoveEs || it.machineMoveEs;
+      it.displayName = full.displayName || formatMachineDisplay(it) || it.displayName;
+    }
+
+    function enrichVisibleMachineResults(items, query) {
+      const visibleMachines = items.filter(isLightMachine).slice(0, maxResults);
+      for (const it of visibleMachines) {
+        if (it.machineMoveEs || enrichingVisibleMachines.has(it.id)) continue;
+        enrichingVisibleMachines.add(it.id);
+        getItemFull(it.id).then(full => {
+          mergeFullIntoLight(full);
+          if (normalize(input.value) === query) searchAndShow();
+        }).catch(() => {}).finally(() => {
+          enrichingVisibleMachines.delete(it.id);
+        });
+      }
+    }
 
     function renderList(items) {
       list.innerHTML = items.map(o => `
-        <div class="combo-item" data-id="${o.id}" data-es="${(o.nameEs || o.name).replace(/"/g,'&quot;')}">
+        <div class="combo-item" data-id="${o.id}" data-es="${(o.displayName || o.nameEs || o.name).replace(/"/g,'&quot;')}">
           ${o.sprite ? `<img src="${o.sprite}" width="20" height="20" alt="">` : ''}
-          <span>${o.nameEs || o.name}</span>
+          <span>${o.displayName || o.nameEs || o.name}</span>
           ${o.pocketEs ? `<em class="pocket">(${o.pocketEs})</em>` : ''}
         </div>
       `).join("");
@@ -227,15 +481,31 @@
       const esPrefix = [];
       const esContains = [];
       const enContains = [];
+      const machineContains = [];
       
       for (const it of lightIndex) {
+        const mapped = machineByItemId[String(it.id)];
+        if (mapped) {
+          it.machineMove = mapped.move || '';
+          it.machineMoveEs = mapped.moveEs || mapped.move || '';
+          it.machineMoveType = mapped.moveType || '';
+          it.effectText = mapped.moveDescEs || '';
+          it.sprite = machineSpriteForType(it.machineMoveType) || it.sprite;
+          it.displayName = formatMachineDisplay({ nameEs: it.nameEs || it.name, machineMoveEs: it.machineMoveEs });
+        }
         const es = normalize(it.nameEs || '');
         const en = normalize(it.name || '');
+        const display = normalize(it.displayName || '');
+        const move = normalize(`${it.machineMove || ''} ${it.machineMoveEs || ''} ${it.machineMoveType || ''} ${it.effectText || ''}`);
         
-        if (es && es.startsWith(q)) {
+        if (display && display.startsWith(q)) {
           esPrefix.push(it);
-        } else if (es && es.includes(q)) {
+        } else if (es && es.startsWith(q)) {
+          esPrefix.push(it);
+        } else if ((display && display.includes(q)) || (es && es.includes(q))) {
           esContains.push(it);
+        } else if (move && move.includes(q)) {
+          machineContains.push(it);
         } else if (en && en.includes(q) && !es) {
           enContains.push(it);
         }
@@ -244,9 +514,17 @@
       const results = [
         ...esPrefix.slice(0, maxResults),
         ...esContains.slice(0, Math.max(0, maxResults - esPrefix.length)),
-        ...enContains.slice(0, Math.max(0, maxResults - esPrefix.length - esContains.length))
+        ...machineContains.slice(0, Math.max(0, maxResults - esPrefix.length - esContains.length)),
+        ...enContains.slice(0, Math.max(0, maxResults - esPrefix.length - esContains.length - machineContains.length))
       ];
       renderList(results);
+      enrichVisibleMachineResults(results, q);
+
+      if (q.length >= 3 && !machineIndexReady && !machineIndexPromise) {
+        ensureMachineSearchIndex().then(() => {
+          if (normalize(input.value) === q) searchAndShow();
+        }).catch(() => {});
+      }
     }
 
     input.addEventListener('input', searchAndShow);
@@ -311,6 +589,9 @@
     lang = opts.lang || 'es';
     await loadDetailCacheIfAny();  // ahora también mira localStorage
     await ensureItemEsIndex();     // cargar índice de nombres en español
+    await ensureMoveEsIndex();
+    loadMachineMapFromLocalStorage();
+    await ensureMachineMapFromFile();
     try { await ensureIndex(); indexReady = true; } catch { indexReady = false; }
   }
 
