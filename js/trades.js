@@ -375,6 +375,8 @@ function setupTradeEvents() {
                 targetUserId: currentTradeState.selectedUserId,
                 initiatorPokemonId: currentTradeState.myPokemonId,
                 targetPokemonId: currentTradeState.targetPokemonId,
+                initiatorBoxId: currentCloudBoxId || null,
+                targetBoxId: currentTradeState.selectedUserBoxId || null,
                 initiator_pokemon_data: myPokemon ? {
                     ...myPokemon,
                     __boxId: currentBoxId,
@@ -572,8 +574,8 @@ async function findTradePokemonBox(userId, pokemonId, preferredBoxId = null) {
 }
 
 async function completeTradeUsingBoxIds(trade) {
-    const preferredInitiatorBoxId = trade.initiator_pokemon_data?.__cloudBoxId || null;
-    const preferredTargetBoxId = trade.target_pokemon_data?.__cloudBoxId || null;
+    const preferredInitiatorBoxId = trade.initiator_box_id || trade.initiator_pokemon_data?.__cloudBoxId || null;
+    const preferredTargetBoxId = trade.target_box_id || trade.target_pokemon_data?.__cloudBoxId || null;
 
     const [initiatorBox, targetBox] = await Promise.all([
         findTradePokemonBox(trade.initiator_id, trade.initiator_pokemon_id, preferredInitiatorBoxId),
@@ -634,7 +636,7 @@ async function acceptPendingTrade(tradeId, role = 'receiver') {
             throw new Error('Este intercambio solo necesita aceptación del receptor.');
         }
 
-        const requestedCloudBoxId = trade.target_pokemon_data?.__cloudBoxId || null;
+        const requestedCloudBoxId = trade.target_box_id || trade.target_pokemon_data?.__cloudBoxId || null;
         if (requestedCloudBoxId && String(currentCloudBoxId || '') !== String(requestedCloudBoxId)) {
             await refreshCloudBoxCatalog?.();
             const requestedBox = (__boxCatalog || []).find(box =>
@@ -648,6 +650,18 @@ async function acceptPendingTrade(tradeId, role = 'receiver') {
 
         if (dirty && typeof saveToSupabase === 'function') {
             await saveToSupabase({ reason: 'trade-accept' });
+        }
+
+        if (typeof window.Supa?.acceptBoxTrade === 'function') {
+            try {
+                await window.Supa.acceptBoxTrade(tradeId);
+                toast('Intercambio completado', 'success');
+                await loadPendingTrades();
+                await updatePendingTradesBadge();
+                return;
+            } catch (e) {
+                console.warn('[trades] accept_box_trade falló, usando fallback cliente:', e);
+            }
         }
 
         const completedByBoxId = await completeTradeUsingBoxIds(trade);

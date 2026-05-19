@@ -285,24 +285,40 @@ async function getUser() {
     const user = await getUser();
     if (!user) throw new Error('Debes iniciar sesión');
 
-    // permitimos guardar también los datos completos de los Pokémon
-    const { data, error } = await sb
+    const row = {
+      initiator_id: user.id,
+      initiator_email: user.email,
+      target_user_id: tradeData.targetUserId,
+      initiator_pokemon_id: tradeData.initiatorPokemonId,
+      target_pokemon_id: tradeData.targetPokemonId,
+      initiator_box_id: tradeData.initiatorBoxId || tradeData.initiator_pokemon_data?.__cloudBoxId || null,
+      target_box_id: tradeData.targetBoxId || tradeData.target_pokemon_data?.__cloudBoxId || null,
+      initiator_pokemon_data: tradeData.initiator_pokemon_data || null,
+      target_pokemon_data: tradeData.target_pokemon_data || null,
+      status: 'pending', // global status (kept for backward compat)
+      receiver_status: 'pending',
+      initiator_status: 'pending',
+      created_at: new Date().toISOString()
+    };
+
+    // permitimos guardar también los datos completos de los Pokémon.
+    // Si la migración de columnas de caja no está aplicada aún, caemos al esquema antiguo.
+    let { data, error } = await sb
       .from('trades')
-      .insert({
-        initiator_id: user.id,
-        initiator_email: user.email,
-        target_user_id: tradeData.targetUserId,
-        initiator_pokemon_id: tradeData.initiatorPokemonId,
-        target_pokemon_id: tradeData.targetPokemonId,
-        initiator_pokemon_data: tradeData.initiator_pokemon_data || null,
-        target_pokemon_data: tradeData.target_pokemon_data || null,
-        status: 'pending', // global status (kept for backward compat)
-        receiver_status: 'pending',
-        initiator_status: 'pending',
-        created_at: new Date().toISOString()
-      })
+      .insert(row)
       .select('id')
       .single();
+
+    if (error && String(error.message || '').includes('_box_id')) {
+      const { initiator_box_id, target_box_id, ...legacyRow } = row;
+      const legacy = await sb
+        .from('trades')
+        .insert(legacyRow)
+        .select('id')
+        .single();
+      data = legacy.data;
+      error = legacy.error;
+    }
 
     if (error) throw error;
     return data;
@@ -365,6 +381,12 @@ async function getUser() {
       .select('*')
       .single();
 
+    if (error) throw error;
+    return data;
+  }
+
+  async function acceptBoxTrade(tradeId) {
+    const { data, error } = await sb.rpc('accept_box_trade', { p_trade_id: tradeId });
     if (error) throw error;
     return data;
   }
@@ -486,7 +508,7 @@ async function getUser() {
   window.Supa = { 
     signUp, signIn, signOut, getUser, uploadBg, saveBox, loadBox, listBoxes, listUserBoxes, renameBox, getBoxById, updateBoxById,
     createBoxBackup, listBoxBackups, subscribeBoxChanges,
-    listUsers, createTrade, getPendingTrades, getUserTrades, acceptTrade, rejectTrade, 
+    listUsers, createTrade, getPendingTrades, getUserTrades, acceptTrade, acceptBoxTrade, rejectTrade, 
     completeTrade, markTradeCompleted, getTradeById, updateBoxForUser, subscribeTrades
   };
 })();
