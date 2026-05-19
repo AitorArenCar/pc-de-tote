@@ -134,6 +134,13 @@ function rememberCloudRow(row) {
     if (!row) return;
     __lastCloudUpdatedAt = getCloudRowTime(row);
     __lastCloudRevision = Number(row.data?.revision || __lastCloudRevision || 0);
+    if (row.id) {
+        currentCloudBoxId = String(row.id);
+        updateActiveBoxRecord?.({
+            name: normalizeBoxName?.(row.name || currentBoxName) || (row.name || currentBoxName),
+            cloudId: currentCloudBoxId
+        });
+    }
     backup();
 }
 
@@ -157,6 +164,8 @@ async function serializeAppState() {
         version: 3,
         revision: Number(__lastCloudRevision || 0) + 1,
         deviceId: __deviceId,
+        boxId: currentBoxId,
+        boxName: currentBoxName,
         updatedAt: now,
         entries: db,
         bg,
@@ -226,7 +235,7 @@ async function saveToSupabase({ manual = false, reason = 'manual' } = {}) {
     __autosaveInFlight = true;
     try {
         const payload = await serializeAppState();
-        const row = await window.Supa.saveBox(payload, 'Mi caja');
+        const row = await window.Supa.saveBox(payload, currentBoxName || 'Mi caja', currentCloudBoxId || null);
         rememberCloudRow(row);
 
         if (!__lastLocalChangeAt || __lastLocalChangeAt === savingLocalChangeAt) {
@@ -248,9 +257,9 @@ async function saveToSupabase({ manual = false, reason = 'manual' } = {}) {
     }
 }
 
-async function loadFromSupabase({ silent = false } = {}) {
+async function loadFromSupabase({ silent = false, boxId = null } = {}) {
     try {
-        const row = await window.Supa.loadBox();
+        const row = await window.Supa.loadBox(boxId || currentCloudBoxId || null);
         if (!row) {
             if (!silent) alert('Aún no tienes datos guardados.');
             return null;
@@ -266,7 +275,7 @@ async function loadFromSupabase({ silent = false } = {}) {
 }
 
 async function syncOnLogin() {
-    const row = await window.Supa.loadBox();
+    const row = await window.Supa.loadBox(currentCloudBoxId || null);
     if (row) rememberCloudRow(row);
 
     await maybeCreateDailyBackup(row?.data || null);
@@ -292,6 +301,7 @@ async function subscribeOwnBox() {
     try {
         __boxSubscription = await window.Supa.subscribeBoxChanges((payload) => {
             const row = payload.new || payload.old;
+            if (currentCloudBoxId && row?.id && String(row.id) !== String(currentCloudBoxId)) return;
             const data = row?.data;
             if (!data || data.deviceId === __deviceId) return;
 
@@ -356,7 +366,7 @@ async function maybeCreateDailyBackup(fallbackData = null) {
         if (!user) return;
 
         const today = new Date().toISOString().slice(0, 10);
-        const key = `${user.id}:${today}`;
+        const key = `${user.id}:${currentBoxId}:${today}`;
         if (localStorage.getItem(LS_DAILY_BACKUP) === key) return;
 
         const payload = fallbackData || await serializeAppState();
@@ -417,6 +427,97 @@ async function restoreBackupFromCloud() {
         toast('Copia restaurada y sincronizada', 'success');
     } catch (e) {
         toast('No se pudo restaurar la copia: ' + (e?.message || e), 'error', 5000);
+    }
+}
+
+async function refreshCloudBoxCatalog() {
+    try {
+        const rows = await window.Supa?.listBoxes?.();
+        if (Array.isArray(rows)) {
+            mergeCloudBoxes?.(rows);
+            updateBoxSwitchUI?.();
+        }
+        return rows || [];
+    } catch (e) {
+        console.warn('[box-switch] no se pudo listar cajas:', e);
+        return [];
+    }
+}
+
+async function switchBox(box, { loadCloud = true } = {}) {
+    const next = normalizeBoxRecord?.(box);
+    if (!next || next.id === currentBoxId) return;
+
+    try {
+        backup();
+        if (dirty && __isLoggedIn && !__applyingRemoteSync) {
+            await saveToSupabase({ reason: 'switch-box' });
+        }
+    } catch (e) {
+        console.warn('[box-switch] no se pudo guardar la caja anterior:', e);
+    }
+
+    setActiveBoxRecord(next);
+    __lastCloudRevision = 0;
+    __lastCloudUpdatedAt = '';
+    __lastLocalChangeAt = '';
+    dirty = false;
+    await restore();
+
+    if (loadCloud && next.cloudId && (await window.Supa?.getUser?.())) {
+        await loadFromSupabase({ silent: true, boxId: next.cloudId });
+    }
+
+    updateCloudStatus();
+    updateBoxSwitchUI?.();
+    toast(`Caja activa: ${currentBoxName}`, 'info');
+}
+
+async function createBoxFromPrompt() {
+    const rawName = prompt('Nombre de la nueva caja:', 'Nueva caja');
+    if (rawName === null) return;
+    const name = normalizeBoxName(rawName);
+
+    const box = { id: createLocalBoxId(), name, cloudId: null };
+    await switchBox(box, { loadCloud: false });
+
+    db = [];
+    window.Bag?.setState?.({ pockets: { pokeballs: {}, medicine: {}, berries: {}, battle: {}, key: {}, custom: {} } }, { silent: true });
+    window.setBackgroundDataUrl?.(null, { silent: true });
+    currentFileName = `${name}.json`;
+    setDirty(false);
+    backup();
+    render();
+    updateTeamBtnLabel();
+    updateBoxSwitchUI?.();
+
+    if (__isLoggedIn || (await window.Supa?.getUser?.())) {
+        try {
+            await saveToSupabase({ reason: 'create-box' });
+        } catch { }
+    }
+}
+
+async function renameActiveBoxFromPrompt() {
+    const rawName = prompt('Nuevo nombre de la caja:', currentBoxName || 'Mi caja');
+    if (rawName === null) return;
+    const name = normalizeBoxName(rawName);
+    if (name === currentBoxName) return;
+
+    currentBoxName = name;
+    currentFileName = `${name}.json`;
+    updateActiveBoxRecord?.({ name });
+    backup();
+    updateBoxSwitchUI?.();
+    updateStatus();
+
+    if (currentCloudBoxId && (await window.Supa?.getUser?.())) {
+        try {
+            const row = await window.Supa?.renameBox?.(currentCloudBoxId, name);
+            if (row) rememberCloudRow(row);
+        } catch (e) {
+            toast('No se pudo renombrar en la nube: ' + (e?.message || e), 'error', 4000);
+        }
     }
 }
 

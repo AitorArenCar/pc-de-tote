@@ -33,6 +33,8 @@ let $tradePendingDialog = null;
 let $authDialog = null;
 let $sideMenu = null;
 let $hamburgerBtn = null;
+let $boxSwitchBtn = null;
+let $boxSwitchMenu = null;
 let $menuOverlay = null;
 
 // UI refs
@@ -82,6 +84,10 @@ let __boxSubscription = null;
 let __lastCloudRevision = 0;
 let __lastCloudUpdatedAt = '';
 let __lastLocalChangeAt = '';
+let currentBoxId = DEFAULT_BOX_ID;
+let currentBoxName = 'Mi caja';
+let currentCloudBoxId = null;
+let __boxCatalog = [];
 
 function getDeviceId() {
     try {
@@ -97,6 +103,124 @@ function getDeviceId() {
 }
 
 const __deviceId = getDeviceId();
+
+function createLocalBoxId() {
+    return `local-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizeBoxName(name) {
+    return String(name || '').trim() || 'Mi caja';
+}
+
+function normalizeBoxRecord(box) {
+    if (!box || typeof box !== 'object') return null;
+    const id = String(box.id || '').trim();
+    if (!id) return null;
+    return {
+        id,
+        name: normalizeBoxName(box.name),
+        cloudId: box.cloudId ? String(box.cloudId) : null
+    };
+}
+
+function loadBoxCatalog() {
+    try {
+        const raw = localStorage.getItem(LS_BOX_CATALOG);
+        const parsed = JSON.parse(raw || '[]');
+        if (Array.isArray(parsed)) {
+            __boxCatalog = parsed.map(normalizeBoxRecord).filter(Boolean);
+        }
+    } catch {
+        __boxCatalog = [];
+    }
+
+    if (!__boxCatalog.some(box => box.id === DEFAULT_BOX_ID)) {
+        const legacyName = localStorage.getItem(LS_NAME);
+        __boxCatalog.unshift({ id: DEFAULT_BOX_ID, name: normalizeBoxName(legacyName || 'Mi caja'), cloudId: null });
+    }
+
+    const seen = new Set();
+    __boxCatalog = __boxCatalog.filter(box => {
+        if (seen.has(box.id)) return false;
+        seen.add(box.id);
+        return true;
+    });
+
+    const active = localStorage.getItem(LS_ACTIVE_BOX) || DEFAULT_BOX_ID;
+    const selected = __boxCatalog.find(box => box.id === active) || __boxCatalog[0];
+    currentBoxId = selected.id;
+    currentBoxName = selected.name;
+    currentCloudBoxId = selected.cloudId || null;
+    saveBoxCatalog();
+}
+
+function saveBoxCatalog() {
+    try {
+        localStorage.setItem(LS_BOX_CATALOG, JSON.stringify(__boxCatalog));
+        localStorage.setItem(LS_ACTIVE_BOX, currentBoxId);
+    } catch { }
+}
+
+function getActiveBoxRecord() {
+    let box = __boxCatalog.find(item => item.id === currentBoxId);
+    if (!box) {
+        box = { id: currentBoxId || DEFAULT_BOX_ID, name: currentBoxName || 'Mi caja', cloudId: currentCloudBoxId || null };
+        __boxCatalog.push(box);
+    }
+    box.name = normalizeBoxName(currentBoxName || box.name);
+    box.cloudId = currentCloudBoxId || box.cloudId || null;
+    return box;
+}
+
+function setActiveBoxRecord(box) {
+    const normalized = normalizeBoxRecord(box);
+    if (!normalized) return;
+    currentBoxId = normalized.id;
+    currentBoxName = normalized.name;
+    currentCloudBoxId = normalized.cloudId || null;
+
+    const index = __boxCatalog.findIndex(item => item.id === normalized.id);
+    if (index >= 0) {
+        __boxCatalog[index] = { ...__boxCatalog[index], ...normalized };
+    } else {
+        __boxCatalog.push(normalized);
+    }
+    saveBoxCatalog();
+}
+
+function updateActiveBoxRecord(patch = {}) {
+    const box = getActiveBoxRecord();
+    Object.assign(box, patch);
+    currentBoxName = normalizeBoxName(box.name);
+    currentCloudBoxId = box.cloudId || null;
+    saveBoxCatalog();
+}
+
+function mergeCloudBoxes(rows = []) {
+    let changed = false;
+    rows.forEach(row => {
+        if (!row?.id) return;
+        const cloudId = String(row.id);
+        const name = normalizeBoxName(row.name || row.data?.boxName || 'Mi caja');
+        let box = __boxCatalog.find(item => item.cloudId === cloudId);
+        if (!box) {
+            box = { id: `cloud-${cloudId}`, name, cloudId };
+            __boxCatalog.push(box);
+            changed = true;
+        } else if (box.name !== name) {
+            box.name = name;
+            changed = true;
+        }
+    });
+    if (changed) saveBoxCatalog();
+}
+
+function getScopedStorageKey(key, boxId = currentBoxId) {
+    const scopedBoxId = boxId || DEFAULT_BOX_ID;
+    return scopedBoxId === DEFAULT_BOX_ID ? key : `${key}:${scopedBoxId}`;
+}
+
+window.getScopedStorageKey = getScopedStorageKey;
 
 // Toast timer
 let __toastTimer = null;

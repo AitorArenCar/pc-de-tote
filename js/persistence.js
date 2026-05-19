@@ -4,10 +4,11 @@
 
 function backup() {
     try {
-        localStorage.setItem(LS_DB, JSON.stringify(db));
-        if (currentFileName) localStorage.setItem(LS_NAME, currentFileName);
+        updateActiveBoxRecord?.({ name: currentBoxName, cloudId: currentCloudBoxId || null });
+        localStorage.setItem(getScopedStorageKey(LS_DB), JSON.stringify(db));
+        if (currentFileName) localStorage.setItem(getScopedStorageKey(LS_NAME), currentFileName);
         if (__lastLocalChangeAt || __lastCloudUpdatedAt || __lastCloudRevision) {
-            localStorage.setItem(LS_SYNC_META, JSON.stringify({
+            localStorage.setItem(getScopedStorageKey(LS_SYNC_META), JSON.stringify({
                 localUpdatedAt: __lastLocalChangeAt || '',
                 cloudUpdatedAt: __lastCloudUpdatedAt || '',
                 cloudRevision: __lastCloudRevision || 0,
@@ -19,7 +20,9 @@ function backup() {
 
 async function restore() {
     try {
-        const raw = localStorage.getItem(LS_DB);
+        loadBoxCatalog?.();
+        const raw = localStorage.getItem(getScopedStorageKey(LS_DB));
+        db = [];
         if (raw) {
             const arr = JSON.parse(raw);
             if (Array.isArray(arr)) {
@@ -33,9 +36,9 @@ async function restore() {
             }
         }
 
-        currentFileName = localStorage.getItem(LS_NAME) || null;
+        currentFileName = localStorage.getItem(getScopedStorageKey(LS_NAME)) || `${currentBoxName}.json`;
         try {
-            const meta = JSON.parse(localStorage.getItem(LS_SYNC_META) || '{}');
+            const meta = JSON.parse(localStorage.getItem(getScopedStorageKey(LS_SYNC_META)) || '{}');
             __lastLocalChangeAt = meta.localUpdatedAt || '';
             __lastCloudUpdatedAt = meta.cloudUpdatedAt || '';
             __lastCloudRevision = Number(meta.cloudRevision || 0);
@@ -89,10 +92,13 @@ async function restore() {
         localStorage.setItem(LS_ABILITY_ES, JSON.stringify(abilityEsCache));
         localStorage.setItem(LS_NATURE_ES, JSON.stringify(natureEsCache));
 
+        window.reloadBackgroundFromStorage?.();
+        window.Bag?.loadFromStorage?.();
         if (window.Bag?.render) window.Bag.render();
 
         render();
         updateStatus();
         updateTeamBtnLabel();
+        updateBoxSwitchUI?.();
     } catch { }
 }

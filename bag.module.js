@@ -15,6 +15,10 @@
   // ===== Persistencia =====
   const BAG_STORAGE_KEY = 'pcdetote_bag_v1';
 
+  function bagStorageKey() {
+    return window.getScopedStorageKey ? window.getScopedStorageKey(BAG_STORAGE_KEY) : BAG_STORAGE_KEY;
+  }
+
   function createEmptyBag() {
     return {
       pockets: {
@@ -61,7 +65,7 @@
 
   function loadBagFromStorage() {
     try {
-      const raw = localStorage.getItem(BAG_STORAGE_KEY);
+      const raw = localStorage.getItem(bagStorageKey());
       if (!raw) return createEmptyBag();
       return sanitizeLoadedBag(raw);
     } catch (_e) {
@@ -71,7 +75,7 @@
 
   function saveBagToStorage(state) {
     try {
-      localStorage.setItem(BAG_STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(bagStorageKey(), JSON.stringify(state));
       window.dispatchEvent(new CustomEvent('bag:saved'));
     } catch (_e) {}
   }
@@ -486,6 +490,10 @@
         render();
         if (!opts.silent) notify();
       }
+    },
+    loadFromStorage: () => {
+      bag = loadBagFromStorage();
+      render();
     },
     onChange: (cb) => { _onChange = cb; },
   };
