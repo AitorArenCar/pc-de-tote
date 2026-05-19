@@ -227,7 +227,7 @@ async function getUser() {
         device_id: payload?.deviceId || null
       })
       .select('id, created_at')
-      .single();
+      .maybeSingle();
     if (error) throw error;
     return data;
   }

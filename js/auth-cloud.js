@@ -370,7 +370,7 @@ async function maybeCreateDailyBackup(fallbackData = null) {
         if (localStorage.getItem(LS_DAILY_BACKUP) === key) return;
 
         const payload = fallbackData || await serializeAppState();
-        await window.Supa.createBoxBackup(payload, 'daily-login');
+        await window.Supa.createBoxBackup(payload, 'auto');
         localStorage.setItem(LS_DAILY_BACKUP, key);
     } catch (e) {
         console.warn('[backup] no se pudo crear backup diario:', e);
