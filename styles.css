@@ -1737,7 +1737,6 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
   }
 
   header .box-switch-btn {
-    width: 100%;
     max-width: none;
   }
 
