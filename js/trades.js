@@ -361,6 +361,13 @@ function setupTradeEvents() {
 
     $tradeConfirmSend?.addEventListener('click', async () => {
         try {
+            if (typeof saveToSupabase === 'function') {
+                await saveToSupabase({ reason: 'trade-send' });
+            }
+            if (!currentCloudBoxId) {
+                throw new Error('Tu caja actual todavía no está guardada en la nube. Guarda la caja y vuelve a intentarlo.');
+            }
+
             const myPokemon = db.find(p => p.id === currentTradeState.myPokemonId);
             const targetPokemon = currentTradeState.selectedUserPokemonList.find(p => p.id === currentTradeState.targetPokemonId);
 
@@ -533,6 +540,91 @@ function tradeSubtitle(trade, { isReceiver, isInitiator }) {
     return 'solicitud de intercambio';
 }
 
+function cleanTradePokemonForBox(pokemon) {
+    if (!pokemon || typeof pokemon !== 'object') return null;
+    const { __boxId, __cloudBoxId, __boxName, ...clean } = pokemon;
+    return clean;
+}
+
+function withNextBoxRevision(boxData) {
+    const now = new Date().toISOString();
+    return {
+        ...(boxData || {}),
+        version: Math.max(3, Number(boxData?.version || 3)),
+        revision: Number(boxData?.revision || 0) + 1,
+        deviceId: __deviceId,
+        updatedAt: now
+    };
+}
+
+async function findTradePokemonBox(userId, pokemonId, preferredBoxId = null) {
+    if (preferredBoxId) {
+        const preferredBox = await window.Supa?.getBoxById?.(preferredBoxId);
+        const entries = Array.isArray(preferredBox?.data?.entries) ? preferredBox.data.entries : [];
+        if (entries.some(p => p.id === pokemonId)) return preferredBox;
+    }
+
+    const boxes = await window.Supa?.listUserBoxes?.(userId);
+    return (boxes || []).find(box => {
+        const entries = Array.isArray(box?.data?.entries) ? box.data.entries : [];
+        return entries.some(p => p.id === pokemonId);
+    }) || null;
+}
+
+async function completeTradeUsingBoxIds(trade) {
+    const preferredInitiatorBoxId = trade.initiator_pokemon_data?.__cloudBoxId || null;
+    const preferredTargetBoxId = trade.target_pokemon_data?.__cloudBoxId || null;
+
+    const [initiatorBox, targetBox] = await Promise.all([
+        findTradePokemonBox(trade.initiator_id, trade.initiator_pokemon_id, preferredInitiatorBoxId),
+        findTradePokemonBox(trade.target_user_id, trade.target_pokemon_id, preferredTargetBoxId)
+    ]);
+
+    if (!initiatorBox?.data) throw new Error('No se encontró la caja del jugador que envió la solicitud.');
+    if (!targetBox?.data) throw new Error('No se encontró tu caja seleccionada para este intercambio.');
+    const initiatorBoxId = initiatorBox.id;
+    const targetBoxId = targetBox.id;
+
+    const initiatorEntries = Array.isArray(initiatorBox.data.entries) ? initiatorBox.data.entries : [];
+    const targetEntries = Array.isArray(targetBox.data.entries) ? targetBox.data.entries : [];
+    const initiatorPokemon = initiatorEntries.find(p => p.id === trade.initiator_pokemon_id);
+    const targetPokemon = targetEntries.find(p => p.id === trade.target_pokemon_id);
+
+    if (!initiatorPokemon) {
+        const boxName = trade.initiator_pokemon_data?.__boxName || initiatorBox.name || 'la caja del otro jugador';
+        throw new Error(`El Pokémon que te iban a enviar ya no está en "${boxName}".`);
+    }
+    if (!targetPokemon) {
+        const boxName = trade.target_pokemon_data?.__boxName || targetBox.name || 'tu caja seleccionada';
+        throw new Error(`Tu Pokémon ya no está en "${boxName}".`);
+    }
+
+    const cleanInitiatorPokemon = cleanTradePokemonForBox(initiatorPokemon);
+    const cleanTargetPokemon = cleanTradePokemonForBox(targetPokemon);
+    const nextInitiatorData = withNextBoxRevision({
+        ...initiatorBox.data,
+        entries: initiatorEntries
+            .filter(p => p.id !== trade.initiator_pokemon_id)
+            .concat(cleanTargetPokemon)
+    });
+    const nextTargetData = withNextBoxRevision({
+        ...targetBox.data,
+        entries: targetEntries
+            .filter(p => p.id !== trade.target_pokemon_id)
+            .concat(cleanInitiatorPokemon)
+    });
+
+    await window.Supa?.updateBoxById?.(initiatorBoxId, nextInitiatorData, initiatorBox.name || nextInitiatorData.boxName || 'Mi caja');
+    await window.Supa?.updateBoxById?.(targetBoxId, nextTargetData, targetBox.name || nextTargetData.boxName || 'Mi caja');
+    await window.Supa?.markTradeCompleted?.(trade.id);
+
+    if (String(currentCloudBoxId || '') === String(targetBoxId)) {
+        applyAppState?.(nextTargetData, { silent: true });
+    }
+
+    return true;
+}
+
 async function acceptPendingTrade(tradeId, role = 'receiver') {
     try {
         const trade = await window.Supa?.getTradeById?.(tradeId);
@@ -554,11 +646,24 @@ async function acceptPendingTrade(tradeId, role = 'receiver') {
             }
         }
 
+        if (dirty && typeof saveToSupabase === 'function') {
+            await saveToSupabase({ reason: 'trade-accept' });
+        }
+
+        const completedByBoxId = await completeTradeUsingBoxIds(trade);
+        if (completedByBoxId) {
+            toast('Intercambio completado', 'success');
+            await loadPendingTrades();
+            await updatePendingTradesBadge();
+            return;
+        }
+
         const myPokemon = db.find(p => p.id === trade.target_pokemon_id);
         if (!myPokemon) {
             const boxName = trade.target_pokemon_data?.__boxName || 'la caja seleccionada';
             throw new Error(`Ese Pokémon ya no está en tu caja activa. Cambia a "${boxName}" y vuelve a intentarlo, o rechaza la solicitud.`);
         }
+
         const updated = await window.Supa?.acceptTrade?.(tradeId, 'receiver');
         if (!updated) throw new Error('No se pudo aceptar la solicitud');
         toast('Intercambio completado', 'success');

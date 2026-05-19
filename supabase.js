@@ -179,6 +179,39 @@ async function getUser() {
     return data;
   }
 
+  async function getBoxById(boxId) {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+    if (!boxId) return null;
+
+    const { data, error } = await sb
+      .from('poke_boxes')
+      .select('id, user_id, name, data, updated_at')
+      .eq('id', boxId)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+
+  async function updateBoxById(boxId, boxData, name = 'Mi caja') {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+    if (!boxId) throw new Error('Falta el ID de la caja');
+
+    const { data, error } = await sb
+      .from('poke_boxes')
+      .update({
+        data: boxData,
+        name,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', boxId)
+      .select('id, user_id, name, data, updated_at')
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
   async function createBoxBackup(payload, reason = 'manual') {
     const user = await getUser();
     if (!user) throw new Error('Debes iniciar sesión');
@@ -353,6 +386,23 @@ async function getUser() {
     return data;
   }
 
+  async function markTradeCompleted(tradeId) {
+    const { data, error } = await sb
+      .from('trades')
+      .update({
+        status: 'completed',
+        receiver_status: 'accepted',
+        initiator_status: 'accepted',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', tradeId)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
   async function getTradeById(tradeId) {
     const { data, error } = await sb
       .from('trades')
@@ -434,9 +484,9 @@ async function getUser() {
 
   // expone helpers
   window.Supa = { 
-    signUp, signIn, signOut, getUser, uploadBg, saveBox, loadBox, listBoxes, listUserBoxes, renameBox,
+    signUp, signIn, signOut, getUser, uploadBg, saveBox, loadBox, listBoxes, listUserBoxes, renameBox, getBoxById, updateBoxById,
     createBoxBackup, listBoxBackups, subscribeBoxChanges,
     listUsers, createTrade, getPendingTrades, getUserTrades, acceptTrade, rejectTrade, 
-    completeTrade, getTradeById, updateBoxForUser, subscribeTrades
+    completeTrade, markTradeCompleted, getTradeById, updateBoxForUser, subscribeTrades
   };
 })();
