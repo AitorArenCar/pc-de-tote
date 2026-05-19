@@ -172,3 +172,100 @@ function setupCloudMenu() {
         }
     });
 }
+
+function renderBoxSwitchMenu() {
+    if (!$boxSwitchMenu) return;
+    const boxes = (__boxCatalog || []).slice().sort((a, b) => {
+        if (a.id === currentBoxId) return -1;
+        if (b.id === currentBoxId) return 1;
+        return a.name.localeCompare(b.name, 'es');
+    });
+
+    const boxButtons = boxes.map(box => `
+        <button type="button" class="menu-item box-menu-item ${box.id === currentBoxId ? 'active' : ''}" data-box-id="${escapeHtml(box.id)}">
+            <span>${escapeHtml(box.name)}</span>
+        </button>
+    `).join('');
+
+    $boxSwitchMenu.innerHTML = `
+        <div class="box-menu-title">Caja activa</div>
+        <div class="box-menu-list">
+            ${boxButtons || '<div class="menu-item disabled">No hay cajas</div>'}
+        </div>
+        <div class="menu-sep"></div>
+        <button type="button" class="menu-item" data-action="new">＋ Nueva caja</button>
+        <button type="button" class="menu-item" data-action="rename">Renombrar caja</button>
+        <button type="button" class="menu-item" data-action="refresh">Actualizar nube</button>
+    `;
+}
+
+function closeBoxSwitchMenu() {
+    if (!$boxSwitchMenu || !$boxSwitchBtn) return;
+    $boxSwitchMenu.hidden = true;
+    $boxSwitchBtn.setAttribute('aria-expanded', 'false');
+}
+
+function setupBoxSwitchMenu() {
+    updateBoxSwitchUI?.();
+
+    $boxSwitchBtn?.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const open = !$boxSwitchMenu?.hidden;
+        if (open) {
+            closeBoxSwitchMenu();
+            return;
+        }
+
+        renderBoxSwitchMenu();
+        $boxSwitchMenu.hidden = false;
+        $boxSwitchBtn.setAttribute('aria-expanded', 'true');
+
+        if (__isLoggedIn || (await window.Supa?.getUser?.())) {
+            await refreshCloudBoxCatalog?.();
+            renderBoxSwitchMenu();
+        }
+    });
+
+    $boxSwitchMenu?.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+
+        const action = btn.dataset.action;
+        const boxId = btn.dataset.boxId;
+
+        if (boxId) {
+            const box = __boxCatalog.find(item => item.id === boxId);
+            closeBoxSwitchMenu();
+            if (box) await switchBox?.(box);
+            return;
+        }
+
+        if (action === 'new') {
+            closeBoxSwitchMenu();
+            await createBoxFromPrompt?.();
+            return;
+        }
+
+        if (action === 'rename') {
+            closeBoxSwitchMenu();
+            await renameActiveBoxFromPrompt?.();
+            return;
+        }
+
+        if (action === 'refresh') {
+            await refreshCloudBoxCatalog?.();
+            renderBoxSwitchMenu();
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if ($boxSwitchMenu && !$boxSwitchMenu.hidden) {
+            const within = el => el && (el === e.target || el.contains(e.target));
+            if (!within($boxSwitchMenu) && !within($boxSwitchBtn)) closeBoxSwitchMenu();
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && $boxSwitchMenu && !$boxSwitchMenu.hidden) closeBoxSwitchMenu();
+    });
+}

@@ -16,7 +16,7 @@ function setupFileHandling() {
 
         currentFileName = file.name;
         try {
-            localStorage.setItem(LS_NAME, currentFileName);
+            localStorage.setItem(getScopedStorageKey(LS_NAME), currentFileName);
         } catch { }
 
         const reader = new FileReader();

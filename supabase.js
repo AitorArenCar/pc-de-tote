@@ -60,8 +60,9 @@ async function getUser() {
   }
 
   // === Helpers DB: poke_boxes ===
-  // Si quieres una sola caja por usuario, actualizamos por UPSERT usando user_id único
-  async function saveBox(payload, name = 'Mi caja') {
+  // Cada fila de poke_boxes representa una caja. boxId actualiza una caja concreta;
+  // si no existe, se inserta una caja nueva para el usuario.
+  async function saveBox(payload, name = 'Mi caja', boxId = null) {
     const user = await getUser();
     if (!user) throw new Error('Debes iniciar sesión');
     const rowData = {
@@ -71,37 +72,62 @@ async function getUser() {
       updated_at: new Date().toISOString()
     };
 
-    // si quieres “una por usuario”, puedes upsert por user_id:
-    const { data: existing } = await sb
-      .from('poke_boxes')
-      .select('id')
-      .eq('user_id', user.id)
-      .limit(1)
-      .maybeSingle();
-
-    if (existing) {
+    if (boxId) {
       const { data, error } = await sb
         .from('poke_boxes')
         .update(rowData)
-        .eq('id', existing.id)
+        .eq('id', boxId)
+        .eq('user_id', user.id)
         .select('id, name, data, updated_at')
         .single();
-      if (error) throw error;
-      return data;
-    } else {
+      if (!error) return data;
+      console.warn('No se pudo actualizar la caja, se intentará crear una nueva:', error);
+    }
+
+    const { data, error } = await sb
+      .from('poke_boxes')
+      .insert({ user_id: user.id, ...rowData })
+      .select('id, name, data, updated_at')
+      .single();
+
+    if (!error) return data;
+
+    // Compatibilidad con instalaciones antiguas que tuvieran user_id único:
+    // en ese caso no se pueden crear varias cajas hasta quitar esa restricción.
+    const { data: existing, error: existingError } = await sb
+      .from('poke_boxes')
+      .select('id')
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (existingError || !existing) throw error;
+
+    const { data: fallback, error: fallbackError } = await sb
+      .from('poke_boxes')
+      .update(rowData)
+      .eq('id', existing.id)
+      .select('id, name, data, updated_at')
+      .single();
+    if (fallbackError) throw fallbackError;
+    return fallback;
+  }
+
+  async function loadBox(boxId = null) {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+
+    if (boxId) {
       const { data, error } = await sb
         .from('poke_boxes')
-        .insert({ user_id: user.id, ...rowData })
         .select('id, name, data, updated_at')
-        .single();
+        .eq('user_id', user.id)
+        .eq('id', boxId)
+        .maybeSingle();
       if (error) throw error;
       return data;
     }
-  }
 
-  async function loadBox() {
-    const user = await getUser();
-    if (!user) throw new Error('Debes iniciar sesión');
     const { data, error } = await sb
       .from('poke_boxes')
       .select('id, name, data, updated_at')
@@ -111,6 +137,79 @@ async function getUser() {
       .maybeSingle();
     if (error) throw error;
     return data; // puede ser null si aún no hay caja
+  }
+
+  async function listBoxes() {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+    const { data, error } = await sb
+      .from('poke_boxes')
+      .select('id, name, data, updated_at')
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function listUserBoxes(userId) {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+    if (!userId) return [];
+
+    const { data, error } = await sb
+      .from('poke_boxes')
+      .select('id, name, data, updated_at')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function renameBox(boxId, name) {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+    const { data, error } = await sb
+      .from('poke_boxes')
+      .update({ name, updated_at: new Date().toISOString() })
+      .eq('id', boxId)
+      .eq('user_id', user.id)
+      .select('id, name, data, updated_at')
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function getBoxById(boxId) {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+    if (!boxId) return null;
+
+    const { data, error } = await sb
+      .from('poke_boxes')
+      .select('id, user_id, name, data, updated_at')
+      .eq('id', boxId)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+
+  async function updateBoxById(boxId, boxData, name = 'Mi caja') {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+    if (!boxId) throw new Error('Falta el ID de la caja');
+
+    const { data, error } = await sb
+      .from('poke_boxes')
+      .update({
+        data: boxData,
+        name,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', boxId)
+      .select('id, user_id, name, data, updated_at')
+      .single();
+    if (error) throw error;
+    return data;
   }
 
   async function createBoxBackup(payload, reason = 'manual') {
@@ -168,7 +267,14 @@ async function getUser() {
         .limit(100);
       
       if (boxError) throw boxError;
-      return (boxes || []).map(b => ({ id: b.user_id, email: b.user_email }));
+      const seen = new Set();
+      return (boxes || [])
+        .filter(b => {
+          if (!b.user_id || seen.has(b.user_id)) return false;
+          seen.add(b.user_id);
+          return true;
+        })
+        .map(b => ({ id: b.user_id, email: b.user_email }));
     }
     
     return data || [];
@@ -179,24 +285,40 @@ async function getUser() {
     const user = await getUser();
     if (!user) throw new Error('Debes iniciar sesión');
 
-    // permitimos guardar también los datos completos de los Pokémon
-    const { data, error } = await sb
+    const row = {
+      initiator_id: user.id,
+      initiator_email: user.email,
+      target_user_id: tradeData.targetUserId,
+      initiator_pokemon_id: tradeData.initiatorPokemonId,
+      target_pokemon_id: tradeData.targetPokemonId,
+      initiator_box_id: tradeData.initiatorBoxId || tradeData.initiator_pokemon_data?.__cloudBoxId || null,
+      target_box_id: tradeData.targetBoxId || tradeData.target_pokemon_data?.__cloudBoxId || null,
+      initiator_pokemon_data: tradeData.initiator_pokemon_data || null,
+      target_pokemon_data: tradeData.target_pokemon_data || null,
+      status: 'pending', // global status (kept for backward compat)
+      receiver_status: 'pending',
+      initiator_status: 'pending',
+      created_at: new Date().toISOString()
+    };
+
+    // permitimos guardar también los datos completos de los Pokémon.
+    // Si la migración de columnas de caja no está aplicada aún, caemos al esquema antiguo.
+    let { data, error } = await sb
       .from('trades')
-      .insert({
-        initiator_id: user.id,
-        initiator_email: user.email,
-        target_user_id: tradeData.targetUserId,
-        initiator_pokemon_id: tradeData.initiatorPokemonId,
-        target_pokemon_id: tradeData.targetPokemonId,
-        initiator_pokemon_data: tradeData.initiator_pokemon_data || null,
-        target_pokemon_data: tradeData.target_pokemon_data || null,
-        status: 'pending', // global status (kept for backward compat)
-        receiver_status: 'pending',
-        initiator_status: 'pending',
-        created_at: new Date().toISOString()
-      })
+      .insert(row)
       .select('id')
       .single();
+
+    if (error && String(error.message || '').includes('_box_id')) {
+      const { initiator_box_id, target_box_id, ...legacyRow } = row;
+      const legacy = await sb
+        .from('trades')
+        .insert(legacyRow)
+        .select('id')
+        .single();
+      data = legacy.data;
+      error = legacy.error;
+    }
 
     if (error) throw error;
     return data;
@@ -263,6 +385,12 @@ async function getUser() {
     return data;
   }
 
+  async function acceptBoxTrade(tradeId) {
+    const { data, error } = await sb.rpc('accept_box_trade', { p_trade_id: tradeId });
+    if (error) throw error;
+    return data;
+  }
+
   async function rejectTrade(tradeId) {
     const { data, error } = await sb
       .from('trades')
@@ -275,6 +403,23 @@ async function getUser() {
 
   async function completeTrade(tradeId) {
     const { data, error } = await sb.rpc('complete_trade_swap', { p_trade_id: tradeId });
+
+    if (error) throw error;
+    return data;
+  }
+
+  async function markTradeCompleted(tradeId) {
+    const { data, error } = await sb
+      .from('trades')
+      .update({
+        status: 'completed',
+        receiver_status: 'accepted',
+        initiator_status: 'accepted',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', tradeId)
+      .select('*')
+      .single();
 
     if (error) throw error;
     return data;
@@ -361,9 +506,9 @@ async function getUser() {
 
   // expone helpers
   window.Supa = { 
-    signUp, signIn, signOut, getUser, uploadBg, saveBox, loadBox,
+    signUp, signIn, signOut, getUser, uploadBg, saveBox, loadBox, listBoxes, listUserBoxes, renameBox, getBoxById, updateBoxById,
     createBoxBackup, listBoxBackups, subscribeBoxChanges,
-    listUsers, createTrade, getPendingTrades, getUserTrades, acceptTrade, rejectTrade, 
-    completeTrade, getTradeById, updateBoxForUser, subscribeTrades
+    listUsers, createTrade, getPendingTrades, getUserTrades, acceptTrade, acceptBoxTrade, rejectTrade, 
+    completeTrade, markTradeCompleted, getTradeById, updateBoxForUser, subscribeTrades
   };
 })();

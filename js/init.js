@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     $authDialog = document.getElementById('authDialog');
     $sideMenu = document.getElementById('sideMenu');
     $hamburgerBtn = document.getElementById('hamburgerBtn');
+    $boxSwitchBtn = document.getElementById('boxSwitchBtn');
+    $boxSwitchMenu = document.getElementById('boxSwitchMenu');
     $menuOverlay = document.getElementById('menuOverlay');
     $statusBtn = document.getElementById('statusBtn');
     $statusMenu = document.getElementById('statusMenu');
@@ -30,6 +32,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     $feedback = document.getElementById('feedback');
     $matches = document.getElementById('matches');
     $result = document.getElementById('searchResult');
+
+    loadBoxCatalog?.();
 
     const $closeDetail = document.getElementById('closeDetail');
     if ($closeDetail) {
@@ -67,6 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupMenuEvents();
     setupStatusMenu();
     setupCloudMenu();
+    setupBoxSwitchMenu();
 
     // Diálogos y confirmar
     setupConfirmBtn();

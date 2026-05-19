@@ -6,6 +6,9 @@ const $bgBtn      = document.getElementById('bgBtn');
 const $bgClearBtn = document.getElementById('bgClearBtn');
 const DEFAULT_BG = 'images/fondo-default.png';
 
+function bgStorageKey() {
+  return window.getScopedStorageKey ? window.getScopedStorageKey(LS_BG) : LS_BG;
+}
 
 function applyBackground(dataUrlOrNone) {
   // Si no llega nada o es 'none', usa el fondo por defecto del proyecto
@@ -15,7 +18,7 @@ function applyBackground(dataUrlOrNone) {
 
 function loadBackgroundFromStorage() {
   try {
-    const dataUrl = localStorage.getItem(LS_BG); // puede ser null
+    const dataUrl = localStorage.getItem(bgStorageKey()); // puede ser null
     applyBackground(dataUrl); // si es null, apply usará DEFAULT_BG
   } catch {
     applyBackground(null); // asegúrate de pintar el default
@@ -43,7 +46,7 @@ function setBackgroundFromFile(file) {
       const user = await window.Supa?.getUser?.();
       if (user) {
         const url = await window.Supa.uploadBg(file);
-        try { localStorage.setItem(LS_BG, url); } catch {}
+        try { localStorage.setItem(bgStorageKey(), url); } catch {}
         applyBackground(url);
         if (typeof setDirty === 'function') setDirty(true);
         return;
@@ -56,7 +59,7 @@ function setBackgroundFromFile(file) {
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result;
-      try { localStorage.setItem(LS_BG, dataUrl); } catch {}
+      try { localStorage.setItem(bgStorageKey(), dataUrl); } catch {}
       applyBackground(dataUrl);
       if (typeof setDirty === 'function') setDirty(true);
     };
@@ -66,18 +69,18 @@ function setBackgroundFromFile(file) {
 
 
 function clearBackground() {
-  try { localStorage.removeItem(LS_BG); } catch {}
+  try { localStorage.removeItem(bgStorageKey()); } catch {}
   applyBackground(null); // vuelve al default
   if (typeof setDirty === 'function') setDirty(true);
 }
 // Exponer helpers para script.js
 window.getBackgroundDataUrl = () => {
-  try { return localStorage.getItem(LS_BG) || null; } catch { return null; }
+  try { return localStorage.getItem(bgStorageKey()) || null; } catch { return null; }
 };
 window.setBackgroundDataUrl = (dataUrl, opts = {}) => {
   try {
-    if (dataUrl) localStorage.setItem(LS_BG, dataUrl);
-    else localStorage.removeItem(LS_BG);
+    if (dataUrl) localStorage.setItem(bgStorageKey(), dataUrl);
+    else localStorage.removeItem(bgStorageKey());
   } catch {}
   applyBackground(dataUrl || 'none');
   if (!opts.silent && typeof setDirty === 'function') setDirty(true);
@@ -87,12 +90,13 @@ window.applyBackground = applyBackground;
 window.applyBackgroundFromJson = (maybeUrl) => {
   // Si el JSON trae fondo, lo guardamos y aplicamos; si no, caemos al default/LS
   if (maybeUrl && maybeUrl.trim() !== '') {
-    try { localStorage.setItem(LS_BG, maybeUrl); } catch {}
+    try { localStorage.setItem(bgStorageKey(), maybeUrl); } catch {}
     applyBackground(maybeUrl);
   } else {
     loadBackgroundFromStorage(); // usará lo guardado o el default
   }
 };
+window.reloadBackgroundFromStorage = loadBackgroundFromStorage;
 
 // Eventos UI
 if ($bgInput) {

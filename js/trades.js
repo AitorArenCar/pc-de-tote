@@ -10,6 +10,9 @@ function resetTradeState() {
     currentTradeState = {
         selectedUserId: null,
         selectedUserEmail: null,
+        selectedUserBoxes: [],
+        selectedUserBoxId: null,
+        selectedUserBoxName: null,
         selectedUserPokemonList: [],
         myPokemonId: null,
         targetPokemonId: null,
@@ -70,10 +73,18 @@ async function initiateTrade() {
     const $tradeStep2 = document.getElementById('tradeStep2');
     const $tradeSummary = document.getElementById('tradeSummary');
     const $tradeUserSelect = document.getElementById('tradeUserSelect');
+    const $tradeUserInfo = document.getElementById('tradeUserInfo');
+    const $tradeUserBoxSelect = document.getElementById('tradeUserBoxSelect');
+    const $tradeUserBoxField = document.getElementById('tradeUserBoxField');
+    const $tradeUserPokemon = document.getElementById('tradeUserPokemon');
 
     $tradeStep1.hidden = false;
     $tradeStep2.hidden = true;
     $tradeSummary.hidden = true;
+    if ($tradeUserInfo) $tradeUserInfo.style.display = 'none';
+    if ($tradeUserBoxField) $tradeUserBoxField.hidden = true;
+    if ($tradeUserBoxSelect) $tradeUserBoxSelect.innerHTML = '<option value="">-- Selecciona una caja --</option>';
+    if ($tradeUserPokemon) $tradeUserPokemon.innerHTML = '';
 
     try {
         const users = await window.Supa?.listUsers?.();
@@ -97,39 +108,65 @@ async function initiateTrade() {
     }
 }
 
-async function loadUserPokemon(userId) {
+async function loadUserBoxes(userId) {
     try {
-        const { data, error } = await window.sb
-            .from('poke_boxes')
-            .select('data')
-            .eq('user_id', userId)
-            .order('updated_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
+        const boxes = await window.Supa?.listUserBoxes?.(userId);
+        return Array.isArray(boxes) ? boxes : [];
+    } catch (e) {
+        toast('Error cargando cajas del usuario: ' + e.message, 'error');
+        return [];
+    }
+}
 
-        if (error || !data) {
-            toast('Este usuario no tiene una caja de Pokémon registrada', 'info');
-            return [];
-        }
+async function loadUserPokemon(userId, boxId) {
+    try {
+        const boxes = currentTradeState.selectedUserBoxes?.length
+            ? currentTradeState.selectedUserBoxes
+            : await loadUserBoxes(userId);
+        const selectedBox = boxes.find(box => String(box.id) === String(boxId));
 
-        const boxData = data.data || {};
+        if (!selectedBox) return [];
+
+        const boxData = selectedBox.data || {};
         const pokemonList = boxData.entries || [];
-        return pokemonList;
+        return pokemonList.map(p => ({
+            ...p,
+            __boxId: selectedBox.id,
+            __boxName: selectedBox.name || boxData.boxName || 'Mi caja'
+        }));
     } catch (e) {
         toast('Error cargando Pokémon del usuario: ' + e.message, 'error');
         return [];
     }
 }
 
+function renderUserBoxes(boxes) {
+    const $tradeUserBoxSelect = document.getElementById('tradeUserBoxSelect');
+    const $tradeUserBoxField = document.getElementById('tradeUserBoxField');
+    if (!$tradeUserBoxSelect || !$tradeUserBoxField) return;
+
+    $tradeUserBoxSelect.innerHTML = '<option value="">-- Selecciona una caja --</option>';
+    boxes.forEach(box => {
+        const entries = Array.isArray(box.data?.entries) ? box.data.entries : [];
+        const option = document.createElement('option');
+        option.value = box.id;
+        option.textContent = `${box.name || box.data?.boxName || 'Mi caja'} (${entries.length})`;
+        $tradeUserBoxSelect.appendChild(option);
+    });
+
+    $tradeUserBoxField.hidden = boxes.length === 0;
+}
+
 function renderUserPokemon(pokemonList) {
     const $tradeUserPokemon = document.getElementById('tradeUserPokemon');
+    const boxName = currentTradeState.selectedUserBoxName || 'la caja seleccionada';
     if (!pokemonList || pokemonList.length === 0) {
-        $tradeUserPokemon.innerHTML = '<p class="muted">Este usuario no tiene Pokémon.</p>';
+        $tradeUserPokemon.innerHTML = `<p class="muted">No hay Pokémon en ${escapeHtml(boxName)}.</p>`;
         return;
     }
 
     const html = `
-        <p style="margin:0 0 6px; font-size:12px; color:var(--muted);">Pokémon disponibles (${pokemonList.length}):</p>
+        <p style="margin:0 0 6px; font-size:12px; color:var(--muted);">Pokémon disponibles en ${escapeHtml(boxName)} (${pokemonList.length}):</p>
         <div style="display:flex; flex-wrap:wrap; gap:6px;">
             ${pokemonList.slice(0, 6).map(p => `
                 <span class="chip" style="font-size:11px;">
@@ -146,6 +183,8 @@ function setupTradeEvents() {
     const $tradeUserSelect = document.getElementById('tradeUserSelect');
     const $tradeUserInfo = document.getElementById('tradeUserInfo');
     const $tradeUserName = document.getElementById('tradeUserName');
+    const $tradeUserBoxSelect = document.getElementById('tradeUserBoxSelect');
+    const $tradeUserBoxField = document.getElementById('tradeUserBoxField');
     const $tradeStep1 = document.getElementById('tradeStep1');
     const $tradeStep1Next = document.getElementById('tradeStep1Next');
     const $tradeStep2 = document.getElementById('tradeStep2');
@@ -168,6 +207,9 @@ function setupTradeEvents() {
         const userId = e.target.value;
         if (!userId) {
             $tradeUserInfo.style.display = 'none';
+            if ($tradeUserBoxField) $tradeUserBoxField.hidden = true;
+            if ($tradeUserBoxSelect) $tradeUserBoxSelect.innerHTML = '<option value="">-- Selecciona una caja --</option>';
+            document.getElementById('tradeUserPokemon').innerHTML = '';
             $tradeStep1Next.disabled = true;
             return;
         }
@@ -175,18 +217,51 @@ function setupTradeEvents() {
         const userEmail = e.target.selectedOptions[0].textContent;
         currentTradeState.selectedUserId = userId;
         currentTradeState.selectedUserEmail = userEmail;
+        currentTradeState.selectedUserBoxes = [];
+        currentTradeState.selectedUserBoxId = null;
+        currentTradeState.selectedUserBoxName = null;
+        currentTradeState.selectedUserPokemonList = [];
+        currentTradeState.targetPokemonId = null;
 
         $tradeUserName.textContent = `Usuario: ${userEmail}`;
-        const pokemonList = await loadUserPokemon(userId);
+        const boxes = await loadUserBoxes(userId);
+        currentTradeState.selectedUserBoxes = boxes;
+        renderUserBoxes(boxes);
+        $tradeUserInfo.style.display = 'block';
+        if (!boxes.length) {
+            document.getElementById('tradeUserPokemon').innerHTML = '<p class="muted">Este usuario no tiene cajas guardadas.</p>';
+        } else {
+            document.getElementById('tradeUserPokemon').innerHTML = '<p class="muted">Selecciona una caja para ver sus Pokémon.</p>';
+        }
+        $tradeStep1Next.disabled = true;
+    });
+
+    $tradeUserBoxSelect?.addEventListener('change', async (e) => {
+        const boxId = e.target.value;
+        currentTradeState.selectedUserBoxId = boxId || null;
+        currentTradeState.selectedUserBoxName = null;
+        currentTradeState.selectedUserPokemonList = [];
+        currentTradeState.targetPokemonId = null;
+        $tradeStep1Next.disabled = true;
+
+        if (!boxId || !currentTradeState.selectedUserId) {
+            document.getElementById('tradeUserPokemon').innerHTML = '<p class="muted">Selecciona una caja para ver sus Pokémon.</p>';
+            return;
+        }
+
+        const selectedBox = currentTradeState.selectedUserBoxes.find(box => String(box.id) === String(boxId));
+        currentTradeState.selectedUserBoxName = selectedBox?.name || selectedBox?.data?.boxName || 'Mi caja';
+        const pokemonList = await loadUserPokemon(currentTradeState.selectedUserId, boxId);
         currentTradeState.selectedUserPokemonList = pokemonList;
         renderUserPokemon(pokemonList);
-        $tradeUserInfo.style.display = 'block';
         $tradeStep1Next.disabled = pokemonList.length === 0;
     });
 
     $tradeStep1Next?.addEventListener('click', () => {
-        if (!currentTradeState.selectedUserId) return;
+        if (!currentTradeState.selectedUserId || !currentTradeState.selectedUserBoxId) return;
 
+        currentTradeState.myPokemonId = null;
+        currentTradeState.targetPokemonId = null;
         $tradeMyPokemon.innerHTML = '<option value="">-- Selecciona --</option>';
         db.forEach(p => {
             const option = document.createElement('option');
@@ -205,6 +280,9 @@ function setupTradeEvents() {
             $tradeTargetPokemon.appendChild(option);
         });
 
+        $tradeMyPokemonInfo.style.display = 'none';
+        $tradeTargetPokemonInfo.style.display = 'none';
+        $tradeStep2Next.disabled = true;
         $tradeStep1.hidden = true;
         $tradeStep2.hidden = false;
     });
@@ -212,7 +290,9 @@ function setupTradeEvents() {
     $tradeMyPokemon?.addEventListener('change', (e) => {
         const pokemonId = e.target.value;
         if (!pokemonId) {
+            currentTradeState.myPokemonId = null;
             $tradeMyPokemonInfo.style.display = 'none';
+            checkTradeStep2Ready();
             return;
         }
 
@@ -233,7 +313,9 @@ function setupTradeEvents() {
     $tradeTargetPokemon?.addEventListener('change', (e) => {
         const pokemonId = e.target.value;
         if (!pokemonId) {
+            currentTradeState.targetPokemonId = null;
             $tradeTargetPokemonInfo.style.display = 'none';
+            checkTradeStep2Ready();
             return;
         }
 
@@ -265,7 +347,7 @@ function setupTradeEvents() {
         const targetPokemon = currentTradeState.selectedUserPokemonList.find(p => p.id === currentTradeState.targetPokemonId);
 
         $summaryMyPokemon.textContent = `${cap(myPokemon?.nickname || myPokemon?.name)} Nv.${myPokemon?.level || '?'}`;
-        $summaryTargetPokemon.textContent = `${cap(targetPokemon?.nickname || targetPokemon?.name)} Nv.${targetPokemon?.level || '?'}`;
+        $summaryTargetPokemon.textContent = `${cap(targetPokemon?.nickname || targetPokemon?.name)} Nv.${targetPokemon?.level || '?'} (${currentTradeState.selectedUserBoxName || 'Mi caja'})`;
         $summaryTargetUser.textContent = `📬 Enviando a: ${currentTradeState.selectedUserEmail}`;
 
         $tradeStep2.hidden = true;
@@ -279,6 +361,13 @@ function setupTradeEvents() {
 
     $tradeConfirmSend?.addEventListener('click', async () => {
         try {
+            if (typeof saveToSupabase === 'function') {
+                await saveToSupabase({ reason: 'trade-send' });
+            }
+            if (!currentCloudBoxId) {
+                throw new Error('Tu caja actual todavía no está guardada en la nube. Guarda la caja y vuelve a intentarlo.');
+            }
+
             const myPokemon = db.find(p => p.id === currentTradeState.myPokemonId);
             const targetPokemon = currentTradeState.selectedUserPokemonList.find(p => p.id === currentTradeState.targetPokemonId);
 
@@ -286,8 +375,20 @@ function setupTradeEvents() {
                 targetUserId: currentTradeState.selectedUserId,
                 initiatorPokemonId: currentTradeState.myPokemonId,
                 targetPokemonId: currentTradeState.targetPokemonId,
-                initiator_pokemon_data: myPokemon || null,
-                target_pokemon_data: targetPokemon || null
+                initiatorBoxId: currentCloudBoxId || null,
+                targetBoxId: currentTradeState.selectedUserBoxId || null,
+                initiator_pokemon_data: myPokemon ? {
+                    ...myPokemon,
+                    __boxId: currentBoxId,
+                    __cloudBoxId: currentCloudBoxId || null,
+                    __boxName: currentBoxName || 'Mi caja'
+                } : null,
+                target_pokemon_data: targetPokemon ? {
+                    ...targetPokemon,
+                    __boxId: currentTradeState.selectedUserBoxId,
+                    __cloudBoxId: currentTradeState.selectedUserBoxId,
+                    __boxName: currentTradeState.selectedUserBoxName || 'Mi caja'
+                } : null
             });
 
             toast('Solicitud de intercambio enviada', 'success');
@@ -357,6 +458,8 @@ async function loadPendingTrades() {
 
             const initiatorPokemon = trade.initiator_pokemon_data || null;
             const targetPokemon = trade.target_pokemon_data || null;
+            const initiatorBoxName = initiatorPokemon?.__boxName || 'Mi caja';
+            const targetBoxName = targetPokemon?.__boxName || 'Mi caja';
             const initiatorEmail = trade.initiator_email || `Usuario ${trade.initiator_id.slice(0, 8)}`;
 
             let actionsHtml = '';
@@ -385,12 +488,12 @@ async function loadPendingTrades() {
                     <div class="trade-card-info">
                         <div class="trade-card-pokemon">
                             <strong>${cap(initiatorPokemon?.nickname || initiatorPokemon?.name || '?')}</strong><br>
-                            <span style="font-size:11px; opacity:.8;">Nv.${initiatorPokemon?.level || '?'}</span>
+                            <span style="font-size:11px; opacity:.8;">Nv.${initiatorPokemon?.level || '?'} · ${escapeHtml(initiatorBoxName)}</span>
                         </div>
                         <div style="text-align:center; align-self:center;">⇄</div>
                         <div class="trade-card-pokemon" style="border-left-color:#34d399; background:rgba(52,211,153,.1);">
                             <strong>${cap(targetPokemon?.nickname || targetPokemon?.name || '?')}</strong><br>
-                            <span style="font-size:11px; opacity:.8;">Nv.${targetPokemon?.level || '?'}</span>
+                            <span style="font-size:11px; opacity:.8;">Nv.${targetPokemon?.level || '?'} · ${escapeHtml(targetBoxName)}</span>
                         </div>
                     </div>
                     <div class="trade-card-actions">
@@ -439,6 +542,91 @@ function tradeSubtitle(trade, { isReceiver, isInitiator }) {
     return 'solicitud de intercambio';
 }
 
+function cleanTradePokemonForBox(pokemon) {
+    if (!pokemon || typeof pokemon !== 'object') return null;
+    const { __boxId, __cloudBoxId, __boxName, ...clean } = pokemon;
+    return clean;
+}
+
+function withNextBoxRevision(boxData) {
+    const now = new Date().toISOString();
+    return {
+        ...(boxData || {}),
+        version: Math.max(3, Number(boxData?.version || 3)),
+        revision: Number(boxData?.revision || 0) + 1,
+        deviceId: __deviceId,
+        updatedAt: now
+    };
+}
+
+async function findTradePokemonBox(userId, pokemonId, preferredBoxId = null) {
+    if (preferredBoxId) {
+        const preferredBox = await window.Supa?.getBoxById?.(preferredBoxId);
+        const entries = Array.isArray(preferredBox?.data?.entries) ? preferredBox.data.entries : [];
+        if (entries.some(p => p.id === pokemonId)) return preferredBox;
+    }
+
+    const boxes = await window.Supa?.listUserBoxes?.(userId);
+    return (boxes || []).find(box => {
+        const entries = Array.isArray(box?.data?.entries) ? box.data.entries : [];
+        return entries.some(p => p.id === pokemonId);
+    }) || null;
+}
+
+async function completeTradeUsingBoxIds(trade) {
+    const preferredInitiatorBoxId = trade.initiator_box_id || trade.initiator_pokemon_data?.__cloudBoxId || null;
+    const preferredTargetBoxId = trade.target_box_id || trade.target_pokemon_data?.__cloudBoxId || null;
+
+    const [initiatorBox, targetBox] = await Promise.all([
+        findTradePokemonBox(trade.initiator_id, trade.initiator_pokemon_id, preferredInitiatorBoxId),
+        findTradePokemonBox(trade.target_user_id, trade.target_pokemon_id, preferredTargetBoxId)
+    ]);
+
+    if (!initiatorBox?.data) throw new Error('No se encontró la caja del jugador que envió la solicitud.');
+    if (!targetBox?.data) throw new Error('No se encontró tu caja seleccionada para este intercambio.');
+    const initiatorBoxId = initiatorBox.id;
+    const targetBoxId = targetBox.id;
+
+    const initiatorEntries = Array.isArray(initiatorBox.data.entries) ? initiatorBox.data.entries : [];
+    const targetEntries = Array.isArray(targetBox.data.entries) ? targetBox.data.entries : [];
+    const initiatorPokemon = initiatorEntries.find(p => p.id === trade.initiator_pokemon_id);
+    const targetPokemon = targetEntries.find(p => p.id === trade.target_pokemon_id);
+
+    if (!initiatorPokemon) {
+        const boxName = trade.initiator_pokemon_data?.__boxName || initiatorBox.name || 'la caja del otro jugador';
+        throw new Error(`El Pokémon que te iban a enviar ya no está en "${boxName}".`);
+    }
+    if (!targetPokemon) {
+        const boxName = trade.target_pokemon_data?.__boxName || targetBox.name || 'tu caja seleccionada';
+        throw new Error(`Tu Pokémon ya no está en "${boxName}".`);
+    }
+
+    const cleanInitiatorPokemon = cleanTradePokemonForBox(initiatorPokemon);
+    const cleanTargetPokemon = cleanTradePokemonForBox(targetPokemon);
+    const nextInitiatorData = withNextBoxRevision({
+        ...initiatorBox.data,
+        entries: initiatorEntries
+            .filter(p => p.id !== trade.initiator_pokemon_id)
+            .concat(cleanTargetPokemon)
+    });
+    const nextTargetData = withNextBoxRevision({
+        ...targetBox.data,
+        entries: targetEntries
+            .filter(p => p.id !== trade.target_pokemon_id)
+            .concat(cleanInitiatorPokemon)
+    });
+
+    await window.Supa?.updateBoxById?.(initiatorBoxId, nextInitiatorData, initiatorBox.name || nextInitiatorData.boxName || 'Mi caja');
+    await window.Supa?.updateBoxById?.(targetBoxId, nextTargetData, targetBox.name || nextTargetData.boxName || 'Mi caja');
+    await window.Supa?.markTradeCompleted?.(trade.id);
+
+    if (String(currentCloudBoxId || '') === String(targetBoxId)) {
+        applyAppState?.(nextTargetData, { silent: true });
+    }
+
+    return true;
+}
+
 async function acceptPendingTrade(tradeId, role = 'receiver') {
     try {
         const trade = await window.Supa?.getTradeById?.(tradeId);
@@ -448,10 +636,48 @@ async function acceptPendingTrade(tradeId, role = 'receiver') {
             throw new Error('Este intercambio solo necesita aceptación del receptor.');
         }
 
+        const requestedCloudBoxId = trade.target_box_id || trade.target_pokemon_data?.__cloudBoxId || null;
+        if (requestedCloudBoxId && String(currentCloudBoxId || '') !== String(requestedCloudBoxId)) {
+            await refreshCloudBoxCatalog?.();
+            const requestedBox = (__boxCatalog || []).find(box =>
+                String(box.cloudId || '') === String(requestedCloudBoxId) ||
+                String(box.id || '') === `cloud-${requestedCloudBoxId}`
+            );
+            if (requestedBox) {
+                await switchBox?.(requestedBox, { loadCloud: true });
+            }
+        }
+
+        if (dirty && typeof saveToSupabase === 'function') {
+            await saveToSupabase({ reason: 'trade-accept' });
+        }
+
+        if (typeof window.Supa?.acceptBoxTrade === 'function') {
+            try {
+                await window.Supa.acceptBoxTrade(tradeId);
+                toast('Intercambio completado', 'success');
+                await loadPendingTrades();
+                await updatePendingTradesBadge();
+                return;
+            } catch (e) {
+                console.warn('[trades] accept_box_trade falló, usando fallback cliente:', e);
+            }
+        }
+
+        const completedByBoxId = await completeTradeUsingBoxIds(trade);
+        if (completedByBoxId) {
+            toast('Intercambio completado', 'success');
+            await loadPendingTrades();
+            await updatePendingTradesBadge();
+            return;
+        }
+
         const myPokemon = db.find(p => p.id === trade.target_pokemon_id);
         if (!myPokemon) {
-            throw new Error('Ese Pokémon ya no está en tu caja. Rechaza la solicitud o pide una nueva.');
+            const boxName = trade.target_pokemon_data?.__boxName || 'la caja seleccionada';
+            throw new Error(`Ese Pokémon ya no está en tu caja activa. Cambia a "${boxName}" y vuelve a intentarlo, o rechaza la solicitud.`);
         }
+
         const updated = await window.Supa?.acceptTrade?.(tradeId, 'receiver');
         if (!updated) throw new Error('No se pudo aceptar la solicitud');
         toast('Intercambio completado', 'success');
