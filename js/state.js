@@ -62,6 +62,9 @@ let editingId = null;
 let currentTradeState = {
     selectedUserId: null,
     selectedUserEmail: null,
+    selectedUserBoxes: [],
+    selectedUserBoxId: null,
+    selectedUserBoxName: null,
     selectedUserPokemonList: [],
     myPokemonId: null,
     targetPokemonId: null,

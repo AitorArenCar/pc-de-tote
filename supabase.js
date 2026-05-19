@@ -151,6 +151,20 @@ async function getUser() {
     return data || [];
   }
 
+  async function listUserBoxes(userId) {
+    const user = await getUser();
+    if (!user) throw new Error('Debes iniciar sesión');
+    if (!userId) return [];
+
+    const { data, error } = await sb
+      .from('poke_boxes')
+      .select('id, name, data, updated_at')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  }
+
   async function renameBox(boxId, name) {
     const user = await getUser();
     if (!user) throw new Error('Debes iniciar sesión');
@@ -420,7 +434,7 @@ async function getUser() {
 
   // expone helpers
   window.Supa = { 
-    signUp, signIn, signOut, getUser, uploadBg, saveBox, loadBox, listBoxes, renameBox,
+    signUp, signIn, signOut, getUser, uploadBg, saveBox, loadBox, listBoxes, listUserBoxes, renameBox,
     createBoxBackup, listBoxBackups, subscribeBoxChanges,
     listUsers, createTrade, getPendingTrades, getUserTrades, acceptTrade, rejectTrade, 
     completeTrade, getTradeById, updateBoxForUser, subscribeTrades
