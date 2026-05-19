@@ -474,9 +474,12 @@ async function switchBox(box, { loadCloud = true } = {}) {
 }
 
 async function createBoxFromPrompt() {
-    const rawName = prompt('Nombre de la nueva caja:', 'Nueva caja');
+    const rawName = prompt(`Nombre de la nueva caja (máx. ${BOX_NAME_MAX_LENGTH} caracteres):`, 'Nueva caja');
     if (rawName === null) return;
     const name = normalizeBoxName(rawName);
+    if (isBoxNameOverLimit?.(rawName)) {
+        toast(`El nombre se ha recortado a ${BOX_NAME_MAX_LENGTH} caracteres.`, 'info');
+    }
 
     const box = { id: createLocalBoxId(), name, cloudId: null };
     await switchBox(box, { loadCloud: false });
@@ -499,9 +502,12 @@ async function createBoxFromPrompt() {
 }
 
 async function renameActiveBoxFromPrompt() {
-    const rawName = prompt('Nuevo nombre de la caja:', currentBoxName || 'Mi caja');
+    const rawName = prompt(`Nuevo nombre de la caja (máx. ${BOX_NAME_MAX_LENGTH} caracteres):`, currentBoxName || 'Mi caja');
     if (rawName === null) return;
     const name = normalizeBoxName(rawName);
+    if (isBoxNameOverLimit?.(rawName)) {
+        toast(`El nombre se ha recortado a ${BOX_NAME_MAX_LENGTH} caracteres.`, 'info');
+    }
     if (name === currentBoxName) return;
 
     currentBoxName = name;

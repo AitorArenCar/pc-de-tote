@@ -112,7 +112,13 @@ function createLocalBoxId() {
 }
 
 function normalizeBoxName(name) {
-    return String(name || '').trim() || 'Mi caja';
+    const cleanName = String(name || '').trim();
+    const limitedName = Array.from(cleanName).slice(0, BOX_NAME_MAX_LENGTH).join('').trim();
+    return limitedName || 'Mi caja';
+}
+
+function isBoxNameOverLimit(name) {
+    return Array.from(String(name || '').trim()).length > BOX_NAME_MAX_LENGTH;
 }
 
 function normalizeBoxRecord(box) {
