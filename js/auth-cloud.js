@@ -286,7 +286,7 @@ async function syncOnLogin({ userChanged = false } = {}) {
     const currentUserRows = Array.isArray(rows) ? rows : [];
     const currentCloudIds = new Set(currentUserRows.map(row => String(row.id)));
     const boxRecordForCloudRow = (row) => (__boxCatalog || []).find(box => String(box.cloudId || '') === String(row.id)) || {
-        id: `cloud-${row.id}`,
+        id: createCloudBoxId(row.id),
         name: row.name || row.data?.boxName || 'Mi caja',
         cloudId: String(row.id),
         cloudOwnerId: __cloudUserId,

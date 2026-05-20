@@ -116,6 +116,10 @@ function createUserLocalBoxId(userId) {
     return `local-user-${String(userId || 'anon')}`;
 }
 
+function createCloudBoxId(cloudId) {
+    return `cloud-${String(cloudId || '').trim()}`;
+}
+
 function normalizeBoxName(name) {
     const cleanName = String(name || '').trim();
     const limitedName = Array.from(cleanName).slice(0, BOX_NAME_MAX_LENGTH).join('').trim();
@@ -129,14 +133,38 @@ function isBoxNameOverLimit(name) {
 function normalizeBoxRecord(box) {
     if (!box || typeof box !== 'object') return null;
     const id = String(box.id || '').trim();
-    if (!id) return null;
+    const cloudId = box.cloudId ? String(box.cloudId) : null;
+    if (!id && !cloudId) return null;
     return {
-        id,
+        id: cloudId ? createCloudBoxId(cloudId) : id,
         name: normalizeBoxName(box.name),
-        cloudId: box.cloudId ? String(box.cloudId) : null,
+        cloudId,
         cloudOwnerId: box.cloudOwnerId ? String(box.cloudOwnerId) : null,
         localOwnerId: box.localOwnerId ? String(box.localOwnerId) : null
     };
+}
+
+function compactBoxCatalog() {
+    const mergedById = new Map();
+    (__boxCatalog || []).forEach(rawBox => {
+        const box = normalizeBoxRecord(rawBox);
+        if (!box) return;
+        const existing = mergedById.get(box.id);
+        if (!existing) {
+            mergedById.set(box.id, box);
+            return;
+        }
+        mergedById.set(box.id, {
+            ...existing,
+            ...box,
+            name: box.name || existing.name,
+            cloudId: box.cloudId || existing.cloudId || null,
+            cloudOwnerId: box.cloudOwnerId || existing.cloudOwnerId || null,
+            localOwnerId: box.localOwnerId || existing.localOwnerId || null
+        });
+    });
+    __boxCatalog = Array.from(mergedById.values());
+    if (currentCloudBoxId) currentBoxId = createCloudBoxId(currentCloudBoxId);
 }
 
 function loadBoxCatalog() {
@@ -155,18 +183,14 @@ function loadBoxCatalog() {
         __boxCatalog.unshift({ id: DEFAULT_BOX_ID, name: normalizeBoxName(legacyName || 'Mi caja'), cloudId: null });
     }
 
-    const seen = new Set();
-    __boxCatalog = __boxCatalog.filter(box => {
-        if (seen.has(box.id)) return false;
-        seen.add(box.id);
-        return true;
-    });
+    compactBoxCatalog();
 
     const active = localStorage.getItem(LS_ACTIVE_BOX) || DEFAULT_BOX_ID;
-    const selected = __boxCatalog.find(box => box.id === active) || __boxCatalog[0];
+    const selected = __boxCatalog.find(box => box.id === active) || __boxCatalog.find(box => box.cloudId && createCloudBoxId(box.cloudId) === active) || __boxCatalog[0];
     currentBoxId = selected.id;
     currentBoxName = selected.name;
     currentCloudBoxId = selected.cloudId || null;
+    compactBoxCatalog();
     saveBoxCatalog();
 }
 
@@ -191,6 +215,10 @@ function getActiveBoxRecord() {
     }
     box.name = normalizeBoxName(currentBoxName || box.name);
     box.cloudId = currentCloudBoxId || box.cloudId || null;
+    if (box.cloudId) {
+        box.id = createCloudBoxId(box.cloudId);
+        currentBoxId = box.id;
+    }
     if (box.cloudId && __cloudUserId) box.cloudOwnerId = box.cloudOwnerId || __cloudUserId;
     if (!box.cloudId && __cloudUserId) box.localOwnerId = box.localOwnerId || __cloudUserId;
     return box;
@@ -209,6 +237,7 @@ function setActiveBoxRecord(box) {
     } else {
         __boxCatalog.push(normalized);
     }
+    compactBoxCatalog();
     saveBoxCatalog();
 }
 
@@ -217,6 +246,8 @@ function updateActiveBoxRecord(patch = {}) {
     Object.assign(box, patch);
     currentBoxName = normalizeBoxName(box.name);
     currentCloudBoxId = box.cloudId || null;
+    if (currentCloudBoxId) currentBoxId = createCloudBoxId(currentCloudBoxId);
+    compactBoxCatalog();
     saveBoxCatalog();
 }
 
@@ -229,10 +260,16 @@ function mergeCloudBoxes(rows = [], ownerId = __cloudUserId) {
         const name = normalizeBoxName(row.name || row.data?.boxName || 'Mi caja');
         let box = __boxCatalog.find(item => item.cloudId === cloudId);
         if (!box) {
-            box = { id: `cloud-${cloudId}`, name, cloudId, cloudOwnerId, localOwnerId: null };
+            box = { id: createCloudBoxId(cloudId), name, cloudId, cloudOwnerId, localOwnerId: null };
             __boxCatalog.push(box);
             changed = true;
         } else {
+            const canonicalId = createCloudBoxId(cloudId);
+            if (box.id !== canonicalId) {
+                box.id = canonicalId;
+                if (currentCloudBoxId === cloudId) currentBoxId = canonicalId;
+                changed = true;
+            }
             if (box.name !== name) {
                 box.name = name;
                 changed = true;
@@ -243,6 +280,7 @@ function mergeCloudBoxes(rows = [], ownerId = __cloudUserId) {
             }
         }
     });
+    compactBoxCatalog();
     if (changed) saveBoxCatalog();
 }
 
@@ -259,6 +297,7 @@ function ensureUserLocalBox(userId, name = 'Caja local') {
 }
 
 function getVisibleBoxCatalog() {
+    compactBoxCatalog();
     const boxes = __boxCatalog || [];
     if (!__isLoggedIn || !__cloudUserId) return boxes;
     return boxes.filter(box => {
