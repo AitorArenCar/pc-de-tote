@@ -87,6 +87,7 @@ let __boxSubscription = null;
 let __lastCloudRevision = 0;
 let __lastCloudUpdatedAt = '';
 let __lastLocalChangeAt = '';
+let __cloudUserId = '';
 let currentBoxId = DEFAULT_BOX_ID;
 let currentBoxName = 'Mi caja';
 let currentCloudBoxId = null;
@@ -111,6 +112,10 @@ function createLocalBoxId() {
     return `local-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function createUserLocalBoxId(userId) {
+    return `local-user-${String(userId || 'anon')}`;
+}
+
 function normalizeBoxName(name) {
     const cleanName = String(name || '').trim();
     const limitedName = Array.from(cleanName).slice(0, BOX_NAME_MAX_LENGTH).join('').trim();
@@ -128,7 +133,9 @@ function normalizeBoxRecord(box) {
     return {
         id,
         name: normalizeBoxName(box.name),
-        cloudId: box.cloudId ? String(box.cloudId) : null
+        cloudId: box.cloudId ? String(box.cloudId) : null,
+        cloudOwnerId: box.cloudOwnerId ? String(box.cloudOwnerId) : null,
+        localOwnerId: box.localOwnerId ? String(box.localOwnerId) : null
     };
 }
 
@@ -173,11 +180,19 @@ function saveBoxCatalog() {
 function getActiveBoxRecord() {
     let box = __boxCatalog.find(item => item.id === currentBoxId);
     if (!box) {
-        box = { id: currentBoxId || DEFAULT_BOX_ID, name: currentBoxName || 'Mi caja', cloudId: currentCloudBoxId || null };
+        box = {
+            id: currentBoxId || DEFAULT_BOX_ID,
+            name: currentBoxName || 'Mi caja',
+            cloudId: currentCloudBoxId || null,
+            cloudOwnerId: currentCloudBoxId && __cloudUserId ? __cloudUserId : null,
+            localOwnerId: !currentCloudBoxId && __cloudUserId ? __cloudUserId : null
+        };
         __boxCatalog.push(box);
     }
     box.name = normalizeBoxName(currentBoxName || box.name);
     box.cloudId = currentCloudBoxId || box.cloudId || null;
+    if (box.cloudId && __cloudUserId) box.cloudOwnerId = box.cloudOwnerId || __cloudUserId;
+    if (!box.cloudId && __cloudUserId) box.localOwnerId = box.localOwnerId || __cloudUserId;
     return box;
 }
 
@@ -205,23 +220,51 @@ function updateActiveBoxRecord(patch = {}) {
     saveBoxCatalog();
 }
 
-function mergeCloudBoxes(rows = []) {
+function mergeCloudBoxes(rows = [], ownerId = __cloudUserId) {
     let changed = false;
     rows.forEach(row => {
         if (!row?.id) return;
         const cloudId = String(row.id);
+        const cloudOwnerId = ownerId ? String(ownerId) : null;
         const name = normalizeBoxName(row.name || row.data?.boxName || 'Mi caja');
         let box = __boxCatalog.find(item => item.cloudId === cloudId);
         if (!box) {
-            box = { id: `cloud-${cloudId}`, name, cloudId };
+            box = { id: `cloud-${cloudId}`, name, cloudId, cloudOwnerId, localOwnerId: null };
             __boxCatalog.push(box);
             changed = true;
-        } else if (box.name !== name) {
-            box.name = name;
-            changed = true;
+        } else {
+            if (box.name !== name) {
+                box.name = name;
+                changed = true;
+            }
+            if (cloudOwnerId && box.cloudOwnerId !== cloudOwnerId) {
+                box.cloudOwnerId = cloudOwnerId;
+                changed = true;
+            }
         }
     });
     if (changed) saveBoxCatalog();
+}
+
+function ensureUserLocalBox(userId, name = 'Caja local') {
+    const localOwnerId = String(userId || '');
+    const id = createUserLocalBoxId(localOwnerId);
+    let box = __boxCatalog.find(item => item.id === id);
+    if (!box) {
+        box = { id, name: normalizeBoxName(name), cloudId: null, cloudOwnerId: null, localOwnerId };
+        __boxCatalog.push(box);
+        saveBoxCatalog();
+    }
+    return box;
+}
+
+function getVisibleBoxCatalog() {
+    const boxes = __boxCatalog || [];
+    if (!__isLoggedIn || !__cloudUserId) return boxes;
+    return boxes.filter(box => {
+        if (box.cloudId) return box.cloudOwnerId === __cloudUserId;
+        return box.localOwnerId === __cloudUserId;
+    });
 }
 
 function getScopedStorageKey(key, boxId = currentBoxId) {

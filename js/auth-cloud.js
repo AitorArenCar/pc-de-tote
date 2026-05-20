@@ -55,6 +55,7 @@ function setupAuthUI() {
         try {
             await window.Supa.signOut();
             await stopAutosave();
+            __cloudUserId = '';
             setAuthUi(false, '');
         } catch (e) {
             alert(e.message);
@@ -100,6 +101,7 @@ function setupAuthStateListener() {
         window.sb?.auth?.onAuthStateChange(async (_event, session) => {
             __isLoggedIn = !!session?.user;
             __cloudEmail = session?.user?.email || '';
+            __cloudUserId = session?.user?.id ? String(session.user.id) : '';
             if (!__isLoggedIn) await stopAutosave();
             updateCloudStatus();
         });
@@ -110,6 +112,7 @@ function setupAuthStateListener() {
             const usr = await window.Supa?.getUser?.();
             __isLoggedIn = !!usr;
             __cloudEmail = usr?.email || '';
+            __cloudUserId = usr?.id ? String(usr.id) : '';
             updateCloudStatus();
         } catch { }
     })();
@@ -138,8 +141,11 @@ function rememberCloudRow(row) {
         currentCloudBoxId = String(row.id);
         updateActiveBoxRecord?.({
             name: normalizeBoxName?.(row.name || currentBoxName) || (row.name || currentBoxName),
-            cloudId: currentCloudBoxId
+            cloudId: currentCloudBoxId,
+            cloudOwnerId: __cloudUserId || null,
+            localOwnerId: null
         });
+        updateBoxSwitchUI?.();
     }
     backup();
 }
@@ -274,14 +280,73 @@ async function loadFromSupabase({ silent = false, boxId = null } = {}) {
     }
 }
 
-async function syncOnLogin() {
-    const row = await window.Supa.loadBox(currentCloudBoxId || null);
+async function syncOnLogin({ userChanged = false } = {}) {
+    const user = await window.Supa?.getUser?.();
+    const rows = await window.Supa?.listBoxes?.();
+    const currentUserRows = Array.isArray(rows) ? rows : [];
+    const currentCloudIds = new Set(currentUserRows.map(row => String(row.id)));
+    const boxRecordForCloudRow = (row) => (__boxCatalog || []).find(box => String(box.cloudId || '') === String(row.id)) || {
+        id: `cloud-${row.id}`,
+        name: row.name || row.data?.boxName || 'Mi caja',
+        cloudId: String(row.id),
+        cloudOwnerId: __cloudUserId,
+        localOwnerId: null
+    };
+    if (user?.id) {
+        __cloudUserId = String(user.id);
+        mergeCloudBoxes?.(currentUserRows, __cloudUserId);
+    }
+
+    if (currentCloudBoxId && !currentCloudIds.has(String(currentCloudBoxId))) {
+        currentCloudBoxId = null;
+        if (currentUserRows.length) {
+            setActiveBoxRecord?.(boxRecordForCloudRow(currentUserRows[0]));
+        } else {
+            updateActiveBoxRecord?.({ cloudId: null, cloudOwnerId: null });
+        }
+    }
+
+    if (userChanged) {
+        dirty = false;
+        __lastLocalChangeAt = '';
+        __lastCloudRevision = 0;
+        __lastCloudUpdatedAt = '';
+    }
+
+    if (userChanged && currentUserRows.length) {
+        setActiveBoxRecord?.(boxRecordForCloudRow(currentUserRows[0]));
+    } else if (userChanged && user?.id) {
+        setActiveBoxRecord?.(ensureUserLocalBox?.(user.id) || {
+            id: createUserLocalBoxId(user.id),
+            name: 'Caja local',
+            cloudId: null,
+            cloudOwnerId: null,
+            localOwnerId: String(user.id)
+        });
+        db = [];
+        currentFileName = `${currentBoxName}.json`;
+        window.Bag?.setState?.({ pockets: { pokeballs: {}, medicine: {}, berries: {}, battle: {}, key: {}, custom: {} } }, { silent: true });
+        window.setBackgroundDataUrl?.(null, { silent: true });
+        backup();
+        window.Bag?.render?.();
+        render();
+        updateStatus();
+        updateTeamBtnLabel();
+        updateBoxSwitchUI?.();
+    }
+
+    const row = currentCloudBoxId
+        ? (currentUserRows.find(item => String(item.id) === String(currentCloudBoxId)) || await window.Supa.loadBox(currentCloudBoxId))
+        : (currentUserRows[0] || await window.Supa.loadBox(null));
     if (row) rememberCloudRow(row);
 
-    await maybeCreateDailyBackup(row?.data || null);
+    if (row || !userChanged) {
+        await maybeCreateDailyBackup(row?.data || null);
+    }
 
     if (!row) {
-        if (hasLocalSyncData()) await saveToSupabase({ reason: 'login' });
+        if (!userChanged && hasLocalSyncData()) await saveToSupabase({ reason: 'login' });
+        updateBoxSwitchUI?.();
         return;
     }
 
@@ -326,13 +391,18 @@ async function initializeCloudSyncAfterRestore() {
         const usr = await window.Supa?.getUser?.();
         __isLoggedIn = !!usr;
         __cloudEmail = usr?.email || '';
+        const previousUserId = localStorage.getItem(LS_LAST_CLOUD_USER) || '';
+        const currentUserId = usr?.id ? String(usr.id) : '';
+        const userChanged = !!(previousUserId && currentUserId && previousUserId !== currentUserId);
+        __cloudUserId = currentUserId;
         if (!usr) {
             updateCloudStatus();
             return;
         }
+        localStorage.setItem(LS_LAST_CLOUD_USER, currentUserId);
 
         __syncReady = true;
-        await syncOnLogin();
+        await syncOnLogin({ userChanged });
         await subscribeOwnBox();
         await setupTradesSubscription?.();
         await updatePendingTradesBadge?.();
@@ -432,9 +502,11 @@ async function restoreBackupFromCloud() {
 
 async function refreshCloudBoxCatalog() {
     try {
+        const user = await window.Supa?.getUser?.();
+        __cloudUserId = user?.id ? String(user.id) : __cloudUserId;
         const rows = await window.Supa?.listBoxes?.();
         if (Array.isArray(rows)) {
-            mergeCloudBoxes?.(rows);
+            mergeCloudBoxes?.(rows, __cloudUserId);
             updateBoxSwitchUI?.();
         }
         return rows || [];
@@ -481,7 +553,7 @@ async function createBoxFromPrompt() {
         toast(`El nombre se ha recortado a ${BOX_NAME_MAX_LENGTH} caracteres.`, 'info');
     }
 
-    const box = { id: createLocalBoxId(), name, cloudId: null };
+    const box = { id: createLocalBoxId(), name, cloudId: null, cloudOwnerId: null, localOwnerId: __cloudUserId || null };
     await switchBox(box, { loadCloud: false });
 
     db = [];
@@ -581,6 +653,7 @@ function setupCloudButtons() {
             await window.Supa?.signOut?.();
         } catch { }
         __cloudEmail = '';
+        __cloudUserId = '';
         await stopAutosave();
         updateCloudStatus();
     });

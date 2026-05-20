@@ -105,6 +105,32 @@ header #addBtn {
     gap: 10px;
 }
 
+.box-menu-item > span:first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.box-menu-badge {
+    flex: 0 0 auto;
+    padding: 2px 6px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.box-menu-badge.cloud {
+    color: #14532d;
+    background: #dcfce7;
+}
+
+.box-menu-badge.local {
+    color: #7c2d12;
+    background: #ffedd5;
+}
+
 .box-menu-item.active::after {
     content: "✓";
     color: var(--ok);

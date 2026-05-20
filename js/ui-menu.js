@@ -109,6 +109,7 @@ function setupMenuEvents() {
         try {
             await window.Supa?.signOut?.();
             __cloudEmail = '';
+            __cloudUserId = '';
             await stopAutosave?.();
             updateCloudStatus();
         } catch { }
@@ -175,17 +176,22 @@ function setupCloudMenu() {
 
 function renderBoxSwitchMenu() {
     if (!$boxSwitchMenu) return;
-    const boxes = (__boxCatalog || []).slice().sort((a, b) => {
+    const boxes = (getVisibleBoxCatalog?.() || __boxCatalog || []).slice().sort((a, b) => {
         if (a.id === currentBoxId) return -1;
         if (b.id === currentBoxId) return 1;
         return a.name.localeCompare(b.name, 'es');
     });
 
-    const boxButtons = boxes.map(box => `
+    const boxButtons = boxes.map(box => {
+        const isCloud = !!box.cloudId;
+        const sourceLabel = isCloud ? 'Nube' : 'Local';
+        return `
         <button type="button" class="menu-item box-menu-item ${box.id === currentBoxId ? 'active' : ''}" data-box-id="${escapeHtml(box.id)}">
             <span>${escapeHtml(box.name)}</span>
+            <span class="box-menu-badge ${isCloud ? 'cloud' : 'local'}">${sourceLabel}</span>
         </button>
-    `).join('');
+    `;
+    }).join('');
 
     $boxSwitchMenu.innerHTML = `
         <div class="box-menu-title">Caja activa</div>

@@ -61,6 +61,7 @@ const LS_DEVICE_ID = 'pokebox_device_id_v1';
 const LS_DAILY_BACKUP = 'pokebox_daily_backup_v1';
 const LS_BOX_CATALOG = 'pokebox_box_catalog_v1';
 const LS_ACTIVE_BOX = 'pokebox_active_box_v1';
+const LS_LAST_CLOUD_USER = 'pokebox_last_cloud_user_v1';
 const DEFAULT_BOX_ID = 'default';
 const BOX_NAME_MAX_LENGTH = 30;
 
