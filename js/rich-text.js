@@ -107,6 +107,58 @@ window.RichText = (() => {
         toolbar.querySelector('select').onchange = event => command('fontSize', event.target.value);
         toolbar.querySelector('input').oninput = event => command('foreColor', event.target.value);
         editor.addEventListener('input', sync);
+        function deleteAdjacentRule(event, backwards) {
+            if (event.isComposing) return;
+            const selection = window.getSelection();
+            if (!selection.rangeCount || !selection.isCollapsed) return;
+            const caret = selection.getRangeAt(0);
+            if (!editor.contains(caret.startContainer)) return;
+            const rules = Array.from(editor.querySelectorAll('hr'));
+            if (backwards) rules.reverse();
+            for (const rule of rules) {
+                const index = Array.prototype.indexOf.call(rule.parentNode.childNodes, rule);
+                const position = caret.comparePoint(rule.parentNode, index);
+                if (backwards ? position !== -1 : position < 0) continue;
+                const gap = document.createRange();
+                if (backwards) {
+                    gap.setStartAfter(rule);
+                    gap.setEnd(caret.startContainer, caret.startOffset);
+                } else {
+                    gap.setStart(caret.startContainer, caret.startOffset);
+                    gap.setEndBefore(rule);
+                }
+                const contents = gap.cloneContents();
+                // A placeholder BR in an empty paragraph is not editable text.
+                if (contents.textContent || contents.querySelector('hr') || contents.querySelectorAll('br').length > 1) return;
+                event.preventDefault();
+                const range = document.createRange();
+                range.selectNode(rule);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                document.execCommand('delete');
+                sync();
+                return;
+            }
+        }
+        editor.addEventListener('keydown', event => {
+            if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+            if (event.key === 'Backspace' || event.key === 'Delete') deleteAdjacentRule(event, event.key === 'Backspace');
+        });
+        // Mobile keyboards can send beforeinput without a keydown event.
+        editor.addEventListener('beforeinput', event => {
+            if (event.inputType === 'deleteContentBackward' || event.inputType === 'deleteContentForward') {
+                deleteAdjacentRule(event, event.inputType === 'deleteContentBackward');
+            }
+        });
+        editor.addEventListener('click', event => {
+            if (event.target.tagName !== 'HR') return;
+            const range = document.createRange();
+            range.selectNode(event.target);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            remember();
+        });
         editor.addEventListener('keyup', remember);
         editor.addEventListener('mouseup', remember);
         editor.addEventListener('blur', remember);

@@ -57,6 +57,38 @@ try {
     editor.dispatchEvent(new Event('input'));
     check(RichText.render(input.value) === 'resto', 'Sin envoltorios vacíos');
     check(!RichText.render('richtext:v1:<img src=x onerror=alert(1)><script>alert(1)<\/script><b>seguro</b>').includes('script'), 'HTML sanitizado');
+    function caretAt(node, offset) {
+        editor.focus();
+        const range = document.createRange();
+        range.setStart(node, offset);
+        range.collapse(true);
+        getSelection().removeAllRanges();
+        getSelection().addRange(range);
+    }
+    editor.innerHTML = '<div>Antes</div><hr><div><br></div>';
+    caretAt(editor.lastChild, 0);
+    editor.dispatchEvent(new KeyboardEvent('keydown', {key:'Backspace', cancelable:true}));
+    check(!editor.querySelector('hr') && editor.textContent === 'Antes', 'Retroceso tras separador en párrafo vacío');
+    check(!RichText.render(input.value).includes('<hr'), 'Separador eliminado también en guardado');
+    document.execCommand('undo');
+    check(!!editor.querySelector('hr'), 'Deshacer recupera separador');
+    editor.innerHTML = '<div><br></div><hr><div>Después</div>';
+    caretAt(editor.firstChild, 0);
+    editor.dispatchEvent(new KeyboardEvent('keydown', {key:'Delete', cancelable:true}));
+    check(!editor.querySelector('hr') && editor.textContent === 'Después', 'Suprimir antes del separador');
+    editor.innerHTML = '<hr><div><br></div>';
+    caretAt(editor.lastChild, 0);
+    editor.dispatchEvent(new InputEvent('beforeinput', {inputType:'deleteContentBackward', cancelable:true}));
+    check(!editor.querySelector('hr') && input.value === '', 'Borrar último separador con teclado móvil');
+    editor.innerHTML = '<hr><hr>';
+    caretAt(editor, 0);
+    editor.dispatchEvent(new KeyboardEvent('keydown', {key:'Delete', cancelable:true}));
+    check(editor.querySelectorAll('hr').length === 1, 'Suprimir junto al separador borra solo uno');
+    editor.innerHTML = '<hr><div>Texto</div>';
+    caretAt(editor.lastChild.firstChild, 3);
+    const ordinaryDelete = new KeyboardEvent('keydown', {key:'Backspace', cancelable:true});
+    editor.dispatchEvent(ordinaryDelete);
+    check(!ordinaryDelete.defaultPrevented && !!editor.querySelector('hr'), 'Borrar texto no elimina separadores alejados');
     window.calcDamageTier = () => 3;
     window.DAMAGE_TIER_MAP = {3: 'media'};
     const pokemon = {types: ['fire'], stats: {atk: 5, spa: 9}};
