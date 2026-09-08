@@ -25,20 +25,51 @@ function updateStatus() {
     }
 }
 
+function escapeHtml(text) {
+    return String(text ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[ch]);
+}
+
+function updateBoxSwitchUI() {
+    const label = currentBoxName || 'Mi caja';
+    if ($boxSwitchBtn) {
+        $boxSwitchBtn.title = `Cambiar caja: ${label}`;
+        $boxSwitchBtn.setAttribute('aria-label', `Cambiar caja: ${label}`);
+        $boxSwitchBtn.innerHTML = `
+            <svg aria-hidden="true" viewBox="0 0 24 24" class="header-svg-icon">
+                <ellipse cx="12" cy="5" rx="7" ry="3"></ellipse>
+                <path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5"></path>
+                <path d="M5 11v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"></path>
+            </svg>
+            <span class="box-switch-label">${escapeHtml(label)}</span>
+        `;
+    }
+}
+
 function updateCloudStatus() {
     const base = __cloudEmail ? `Nube: ${__cloudEmail}` : 'Nube: desconectado';
     const text = dirty ? `${base} • sincronizando cambios` : base;
 
     if ($cloudBtn) {
-        $cloudBtn.textContent = text;
-        $cloudBtn.title = text;
-        $cloudBtn.classList.toggle('disabled', !__isLoggedIn);
+        const label = __isLoggedIn ? text : 'Iniciar sesión';
+        $cloudBtn.textContent = label;
+        $cloudBtn.title = label;
+        $cloudBtn.classList.remove('disabled');
     }
 
+    const $sideCloudSection = document.getElementById('sideCloudSection');
     const $sideCloudStatus = document.getElementById('sideCloudStatus');
+    if ($sideCloudSection) {
+        $sideCloudSection.hidden = true;
+    }
     if ($sideCloudStatus) {
         const prefix = '☁️ ';
-        $sideCloudStatus.textContent = `${prefix}${__cloudEmail ? base : 'Nube: desconectado'}`;
+        $sideCloudStatus.textContent = `${prefix}${__cloudEmail ? base : 'Nube'}`;
         $sideCloudStatus.title = base;
         $sideCloudStatus.classList.toggle('disabled', !__isLoggedIn);
     }
@@ -62,7 +93,22 @@ function teamCount() {
 }
 
 function updateTeamBtnLabel() {
-    if ($teamBtn) $teamBtn.textContent = `Equipo (${teamCount()})`;
+    if (!$teamBtn) return;
+
+    const count = teamCount();
+    const label = `Ver equipo (${count})`;
+    $teamBtn.title = label;
+    $teamBtn.setAttribute('aria-label', label);
+
+    if ($teamBtn.classList.contains('header-icon-btn')) {
+        $teamBtn.dataset.count = String(count);
+        if (typeof teamIconSVG === 'function') {
+            $teamBtn.innerHTML = teamIconSVG(count > 0);
+        }
+        return;
+    }
+
+    $teamBtn.textContent = `Equipo (${count})`;
 }
 
 function toggleTeam(p) {

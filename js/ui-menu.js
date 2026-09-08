@@ -92,6 +92,7 @@ function setupMenuEvents() {
     });
 
     $sideCloudStatus?.addEventListener('click', async (e) => {
+        if ($sideCloudStatus.tagName.toLowerCase() === 'summary') return;
         e.preventDefault();
         const usr = await window.Supa?.getUser?.();
         if (!usr) {
