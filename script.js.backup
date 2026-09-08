@@ -141,6 +141,34 @@
         });
     }
 
+// ----- Menú Hamburguesa -----
+const $hamburgerBtn = document.getElementById('hamburgerBtn');
+const $sideMenu = document.getElementById('sideMenu');
+const $menuOverlay = document.getElementById('menuOverlay');
+const $sideMenuOpen = document.getElementById('sideMenuOpen');
+const $sideMenuSave = document.getElementById('sideMenuSave');
+const $sideMenuBg = document.getElementById('sideMenuBg');
+const $sideMenuBgClear = document.getElementById('sideMenuBgClear');
+const $sideCloudStatus = document.getElementById('sideCloudStatus');
+const $sideCloudSave = document.getElementById('sideCloudSave');
+const $sideCloudLoad = document.getElementById('sideCloudLoad');
+const $sideCloudSignout = document.getElementById('sideCloudSignout');
+
+// ----- Nube (UI) -----
+const $cloudBtn  = document.getElementById('cloudBtn');
+const $cloudMenu = document.getElementById('cloudMenu');
+const $cloudSave = document.getElementById('cloudMenuSave');
+const $cloudLoad = document.getElementById('cloudMenuLoad');
+const $cloudOut  = document.getElementById('cloudMenuSignout');
+
+// Auth dialog
+const $authDialog = document.getElementById('authDialog');
+const $authEmail  = document.getElementById('authEmail');
+const $authPass   = document.getElementById('authPass');
+const $authIn     = document.getElementById('authSignin');
+const $authUp     = document.getElementById('authSignup');
+const $authClose  = document.getElementById('closeAuth');
+
     // Dialog Añadir
     const $dialog = document.getElementById('addDialog');
     const $closeDialog = document.getElementById('closeDialog');
@@ -151,6 +179,7 @@
     const $result = document.getElementById('searchResult');
     const $extra = document.getElementById('extraFields');
     const $gender = document.getElementById('genderSelect');
+    const $shinyToggle = document.getElementById('shinyToggle');
 
     const $ballInput = document.getElementById('ballInput');
     const $ballMatches = document.getElementById('ballMatches');
@@ -181,6 +210,40 @@
     const $teamContent = document.getElementById('teamContent');
     const $closeTeam = document.getElementById('closeTeam');
 
+    // Dialog Intercambios
+    const $tradeInitDialog = document.getElementById('tradeInitDialog');
+    const $closeTradeInit = document.getElementById('closeTradeInit');
+    const $tradePendingDialog = document.getElementById('tradePendingDialog');
+    const $closeTradePending = document.getElementById('closeTradePending');
+
+    // Elementos de Step 1 (seleccionar usuario)
+    const $tradeUserSelect = document.getElementById('tradeUserSelect');
+    const $tradeUserInfo = document.getElementById('tradeUserInfo');
+    const $tradeUserName = document.getElementById('tradeUserName');
+    const $tradeUserPokemon = document.getElementById('tradeUserPokemon');
+    const $tradeStep1 = document.getElementById('tradeStep1');
+    const $tradeStep1Next = document.getElementById('tradeStep1Next');
+
+    // Elementos de Step 2 (seleccionar pokémon)
+    const $tradeStep2 = document.getElementById('tradeStep2');
+    const $tradeMyPokemon = document.getElementById('tradeMyPokemon');
+    const $tradeTargetPokemon = document.getElementById('tradeTargetPokemon');
+    const $tradeMyPokemonInfo = document.getElementById('tradeMyPokemonInfo');
+    const $tradeTargetPokemonInfo = document.getElementById('tradeTargetPokemonInfo');
+    const $tradeStep2Back = document.getElementById('tradeStep2Back');
+    const $tradeStep2Next = document.getElementById('tradeStep2Next');
+
+    // Elementos de Resumen
+    const $tradeSummary = document.getElementById('tradeSummary');
+    const $summaryMyPokemon = document.getElementById('summaryMyPokemon');
+    const $summaryTargetPokemon = document.getElementById('summaryTargetPokemon');
+    const $summaryTargetUser = document.getElementById('summaryTargetUser');
+    const $tradeConfirmBack = document.getElementById('tradeConfirmBack');
+    const $tradeConfirmSend = document.getElementById('tradeConfirmSend');
+
+    // Lista de solicitudes pendientes
+    const $tradePendingList = document.getElementById('tradePendingList');
+
 
 
 
@@ -188,6 +251,13 @@
     const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
     const uuid = () => (crypto?.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36));
     const norm = s => (s || '').toLowerCase();
+
+    const spriteUrlOf = (p) => {
+        if (!p) return '';
+        const shinyUrl = p.spriteShiny || p.sprite_shiny || '';
+        if (p.shiny && shinyUrl) return shinyUrl;
+        return p.sprite || '';
+    };
 
     // ==== Sprites de Poké Ball (PokeAPI) ====
     const BALL_SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
@@ -274,7 +344,9 @@
                     db = arr.map(x => ({
                         id: x.id || (crypto?.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)),
                         inTeam: !!x.inTeam,
-                        ...x
+                        ...x,
+                        shiny: !!x.shiny,
+                        spriteShiny: x.spriteShiny || x.sprite_shiny || ''
                     }));
                 }
             }
@@ -282,15 +354,39 @@
             currentFileName = localStorage.getItem(LS_NAME) || null;
 
             // === CARGA ESTÁTICOS DESDE /data ===
-            // Mapas ES
+            // Mapas ES (traducciones ya procesadas)
             moveEsCache = await loadDataJson('pokebox_move_es_v1', {}) || {};
             ballEsCache = await loadDataJson('pokebox_ball_es_v1', {}) || {};
             abilityEsCache = await loadDataJson('pokebox_ability_es_v1', {}) || {};
             natureEsCache = await loadDataJson('pokebox_nature_es_v1', {}) || {};
 
-            // Índices (si existen en /data) — se usan como primer intento
-            // (los ensure* tendrán fallback online si no hay fichero)
-            // Nota: no asignamos aquí; los ensure* sabrán mirar primero en /data
+            // Índices completos (priorizar ficheros locales para uso offline)
+            const mi = await loadDataJson('moveIndex_v1', null);
+            if (mi && mi.names && mi.names.length) { moveIndex = mi; localStorage.setItem('moveIndex_v1', JSON.stringify(mi)); }
+
+            const bi = await loadDataJson('ballIndex_v1', null);
+            if (Array.isArray(bi) && bi.length) { ballIndex = bi; localStorage.setItem('ballIndex_v1', JSON.stringify(bi)); }
+
+            const ni = await loadDataJson('natureIndex_v1', null);
+            if (Array.isArray(ni) && ni.length) { natureIndex = ni; localStorage.setItem('natureIndex_v1', JSON.stringify(ni)); }
+
+            const ai = await loadDataJson('abilityIndex_v2', null);
+            if (Array.isArray(ai) && ai.length) { abilityIndex = ai; localStorage.setItem('abilityIndex_v2', JSON.stringify(ai)); }
+
+            const pi = await loadDataJson('pokeIndex_v1', null);
+            if (pi && pi.names && pi.names.length) { pokemonIndex = pi; localStorage.setItem('pokeIndex_v1', JSON.stringify(pi)); }
+
+            // Item caches (si existen) — útil para mochila/offline
+            const itemCache = await loadDataJson('pokeapi_item_cache_v1', null);
+            if (itemCache) localStorage.setItem('pokeapi_item_cache_v1', JSON.stringify(itemCache));
+            const itemIndex = await loadDataJson('pokeapi_item_index_v1', null);
+            if (itemIndex) localStorage.setItem('pokeapi_item_index_v1', JSON.stringify(itemIndex));
+
+            // También persistir traducciones en localStorage para evitar recargas
+            localStorage.setItem(LS_MOVE_ES, JSON.stringify(moveEsCache));
+            localStorage.setItem(LS_BALL_ES, JSON.stringify(ballEsCache));
+            localStorage.setItem(LS_ABILITY_ES, JSON.stringify(abilityEsCache));
+            localStorage.setItem(LS_NATURE_ES, JSON.stringify(natureEsCache));
 
             // re-render mochila si procede
             if (window.Bag?.render) window.Bag.render();
@@ -303,7 +399,7 @@
 
 
 
-    function setDirty(v) { dirty = v; updateStatus(); backup(); }
+    function setDirty(v) { dirty = v; updateStatus(); backup(); updateCloudStatus(); }
     function updateStatus() {
         const text = currentFileName
             ? `${currentFileName}${dirty ? ' • cambios sin guardar' : ''}`
@@ -314,6 +410,31 @@
             $statusBtn.title = text;
         }
     }
+
+                function updateCloudStatus() {
+    const base = __cloudEmail ? `Nube: ${__cloudEmail}` : 'Nube: desconectado';
+    const text = dirty ? `${base} • cambios sin guardar` : base;
+
+    // Botón de la cabecera / menú desplegable
+    if ($cloudBtn) {
+        $cloudBtn.textContent = text;
+        $cloudBtn.title = text;
+        $cloudBtn.classList.toggle('disabled', !__isLoggedIn);
+    }
+
+    // Estado en el menú lateral
+    if ($sideCloudStatus) {
+        const prefix = '☁️ ';
+        $sideCloudStatus.textContent = `${prefix}${__cloudEmail ? base : 'Nube: desconectado'}`;
+        $sideCloudStatus.title = base;
+        $sideCloudStatus.classList.toggle('disabled', !__isLoggedIn);
+    }
+
+    // Mostrar/ocultar acciones en el menú lateral según estado
+    if ($sideCloudSave) $sideCloudSave.hidden = !__isLoggedIn;
+    if ($sideCloudLoad) $sideCloudLoad.hidden = !__isLoggedIn;
+    if ($sideCloudSignout) $sideCloudSignout.hidden = !__isLoggedIn;
+}
 
 
     // ===== Helpers Equipo =====
@@ -345,12 +466,16 @@
         if (!team.length) {
             $teamContent.innerHTML = `<div class="muted" style="padding:12px">No tienes Pokémon en el equipo todavía.</div>`;
         } else {
-            $teamContent.innerHTML = team.map(p => `
+            $teamContent.innerHTML = team.map(p => {
+                const shinySymbol = p.shiny ? ' ★' : '';
+                const sprite = spriteUrlOf(p);
+                return `
       <button class="team-item" data-id="${p.id}" title="#${p.dexId}">
-        <img src="${p.sprite}" alt="${p.name}" width="64" height="64" />
-        <div class="team-name">${cap(p.name)} <span class="muted">#${p.dexId}</span></div>
+        <img src="${sprite}" alt="${p.name}" width="64" height="64" />
+        <div class="team-name">${cap(p.name)}${shinySymbol} <span class="muted">#${p.dexId}</span></div>
       </button>
-    `).join('');
+    `;
+            }).join('');
         }
 
         // Abrir
@@ -383,6 +508,36 @@
         $grid.appendChild(add);
     }
 
+    // ---- Toast helper ----
+let __toastTimer = null;
+function toast(message, variant = 'success', ms = 2200) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  // limpia estado previo
+  el.className = 'toast';
+  // asigna variante
+  el.classList.add(variant);
+  // contenido
+  el.textContent = message;
+  // muestra
+  el.classList.add('show');
+
+  // reinicia temporizador si está activo
+  if (__toastTimer) clearTimeout(__toastTimer);
+  __toastTimer = setTimeout(() => {
+    el.classList.remove('show');
+  }, ms);
+}
+
+// opcional: cerrar al pulsar ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const el = document.getElementById('toast');
+    if (el) el.classList.remove('show');
+    if (__toastTimer) clearTimeout(__toastTimer);
+  }
+});
+
 
 // ===== Render caja =====
 function render() {
@@ -409,7 +564,8 @@ function render() {
     const img = document.createElement('img');
     img.alt = p.name;
     img.loading = 'lazy';
-    img.src = p.sprite || '';
+    const cardSprite = spriteUrlOf(p);
+    img.src = cardSprite;
 
     const tag = document.createElement('div');
     tag.className = 'tag';
@@ -441,9 +597,10 @@ function render() {
     const genderSymbol =
       p.gender === 'male'   ? ' ♂️' :
       p.gender === 'female' ? ' ♀️' : '';
+    const shinySymbol = p.shiny ? ' ★' : '';
 
     // Importante: usar innerHTML para que el span de nivel exista en el DOM
-    name.innerHTML = `${baseName}${levelHtml}${genderSymbol}`;
+    name.innerHTML = `${baseName}${levelHtml}${genderSymbol}${shinySymbol}`;
 
     // Botón equipo (solo clases; sin estilos inline)
     const tbtn = document.createElement('button');
@@ -477,16 +634,18 @@ function render() {
       const displayName =
         (p.nickname?.trim() ? p.nickname : cap(p.name)) +
         (typeof p.level === 'number' ? ` Nv.: ${p.level}` : '') +
-        (p.gender === 'male' ? ' ♂️' : p.gender === 'female' ? ' ♀️' : '');
+        (p.gender === 'male' ? ' ♂️' : p.gender === 'female' ? ' ♀️' : '') +
+        (p.shiny ? ' ★' : '');
 
       if (confirm(`¿Eliminar ${displayName}?`)) {
                 // Devolver objeto equipado (si lo hay) a la mochila antes de borrar
         if (p.heldItem && window.Bag && typeof window.Bag.equipRelease === 'function') {
           try { window.Bag.equipRelease(p.heldItem); } catch (e) { /* noop */ }
         }
-x => x.id !== p.id;
-        setDirty(true);
-        render();
+  db = db.filter(x => x.id !== p.id);
+
+  setDirty(true);
+  render();
       }
     });
 
@@ -715,12 +874,16 @@ async function ensureNatureIndex() {
             || d.sprites.other?.['official-artwork']?.front_default
             || d.sprites.other?.dream_world?.front_default
             || '';
+        const spriteShiny = d.sprites.front_shiny
+            || d.sprites.other?.['official-artwork']?.front_shiny
+            || '';
 
         return {
             dexId: d.id,
             name: d.name,
             types: d.types.map(t => t.type.name),
             sprite,
+            spriteShiny,
             abilities: d.abilities.map(a => a.ability.name),
             height: d.height,  // en decímetros
             weight: d.weight   // en hectogramos
@@ -758,18 +921,45 @@ async function ensureNatureIndex() {
 
     let pendingBase = null; // snapshot del pokémon elegido
 
+    const currentPendingSprite = () => {
+        if (!pendingBase) return '';
+        const wantsShiny = !!$shinyToggle?.checked;
+        if (wantsShiny) {
+            const shinyUrl = pendingBase.spriteShiny || pendingBase.sprite_shiny || '';
+            if (shinyUrl) return shinyUrl;
+        }
+        return pendingBase.sprite || '';
+    };
+
+    const renderPendingPreview = () => {
+        if (!$result) return;
+        if (!pendingBase) {
+            $result.innerHTML = '';
+            return;
+        }
+        const sprite = currentPendingSprite();
+        $result.innerHTML = `
+    <div class="result">
+      <img class="result-img" width="96" height="96" alt="${pendingBase.name}" src="${sprite}" />
+      <div>
+        <div style="font-weight:700;font-size:16px">${cap(pendingBase.name)} <span class="muted">#${pendingBase.dexId}</span></div>
+        <div class="chips" style="margin-top:6px">${(pendingBase.types || []).map(typeChip).join('')}</div>
+      </div>
+    </div>`;
+    };
+
+    if ($shinyToggle) $shinyToggle.addEventListener('change', renderPendingPreview);
+
     function showPreview(p) {
-        pendingBase = p;
+        pendingBase = {
+            ...p,
+            spriteShiny: p.spriteShiny || p.sprite_shiny || ''
+        };
         const moveInputs = Array.from(document.querySelectorAll('.move-input'));
         moveInputs.forEach(i => { i.value = ''; i.dataset.selectedId = ''; i.dataset.selectedEs = ''; });
 
-        $result.innerHTML = `<div class="result">
-      <img width="96" height="96" alt="${p.name}" src="${p.sprite}" />
-      <div>
-        <div style="font-weight:700;font-size:16px">${cap(p.name)} <span class="muted">#${p.dexId}</span></div>
-        <div class="chips" style="margin-top:6px">${p.types.map(typeChip).join('')}</div>
-      </div>
-    </div>`;
+        if ($shinyToggle) $shinyToggle.checked = false;
+        renderPendingPreview();
 
         document.getElementById('numInput').value = '';
         $gender.value = 'unknown';
@@ -807,18 +997,33 @@ async function ensureNatureIndex() {
             dexId: p.dexId,
             name: p.name,
             types: p.types || [],
-            sprite: p.sprite || ''
+            sprite: p.sprite || '',
+            spriteShiny: p.spriteShiny || p.sprite_shiny || '',
+            height: p.height,
+            weight: p.weight
         };
 
-        // Previsualización
-        $result.innerHTML = `
-    <div class="result">
-      <img width="96" height="96" alt="${p.name}" src="${p.sprite}" />
-      <div>
-        <div style="font-weight:700;font-size:16px">${cap(p.name)} <span class="muted">#${p.dexId}</span></div>
-        <div class="chips" style="margin-top:6px">${(p.types || []).map(typeChip).join('')}</div>
-      </div>
-    </div>`;
+        if ($shinyToggle) $shinyToggle.checked = !!p.shiny;
+
+        renderPendingPreview();
+
+        if (!pendingBase.spriteShiny) {
+            try {
+                const currentEdit = p.id;
+                fetchPokemonCore(p.dexId || p.name).then(fresh => {
+                    if (!editMode || editingId !== currentEdit) return;
+                    pendingBase = {
+                        ...pendingBase,
+                        sprite: pendingBase.sprite || fresh.sprite || '',
+                        spriteShiny: pendingBase.spriteShiny || fresh.spriteShiny || '',
+                        types: (pendingBase.types && pendingBase.types.length) ? pendingBase.types : (fresh.types || pendingBase.types),
+                        height: pendingBase.height ?? fresh.height ?? pendingBase.height,
+                        weight: pendingBase.weight ?? fresh.weight ?? pendingBase.weight
+                    };
+                    renderPendingPreview();
+                }).catch(() => { });
+            } catch { }
+        }
 
         // Muestra extras y habilita confirmar
         $extra.hidden = false;
@@ -981,14 +1186,19 @@ async function ensureNatureIndex() {
                     }
                 }
 
-                // 2) ampliar cache dinámicamente
-                for (const id of (moveIndex?.names || [])) {
+                // 2) ampliar cache dinámicamente (fetch paralelo limitado)
+                const ids = (moveIndex?.names || []).filter(id => !seen.has(id));
+                const batch = ids.slice(0, 500); // limitar por seguridad
+                const promises = batch.map(id => {
+                    if (moveEsCache[id]) return Promise.resolve({ id, es: moveEsCache[id] });
+                    return moveEs(id).then(es => ({ id, es })).catch(() => ({ id, es: null }));
+                });
+                const results = await Promise.all(promises);
+                for (const r of results) {
                     if (matches.length >= 20) break;
-                    if (seen.has(id)) continue;
-                    const es = moveEsCache[id] || await moveEs(id);
-                    if (es && es.toLowerCase().includes(q)) {
-                        seen.add(id); matches.push({ id, es });
-                    }
+                    if (!r.es) continue;
+                    const esLower = r.es.toLowerCase();
+                    if (esLower.includes(q)) { seen.add(r.id); matches.push({ id: r.id, es: r.es }); }
                 }
 
                 const list = matches.slice(0, 20);
@@ -1029,14 +1239,18 @@ async function ensureNatureIndex() {
                 }
             }
 
-            // 2) ampliar cache dinámicamente sin límite artificial
-            for (const it of (ballIndex || [])) {
+            // 2) ampliar cache dinámicamente (fetch paralelo limitado)
+            const ids = (ballIndex || []).map(it => it.id).filter(id => !seen.has(id));
+            const batch = ids.slice(0, 500);
+            const promises = batch.map(id => {
+                if (ballEsCache[id]) return Promise.resolve({ id, es: ballEsCache[id] });
+                return ballEs(id).then(es => ({ id, es })).catch(() => ({ id, es: null }));
+            });
+            const results = await Promise.all(promises);
+            for (const r of results) {
                 if (matches.length >= 20) break;
-                if (seen.has(it.id)) continue;
-                const es = ballEsCache[it.id] || await ballEs(it.id);
-                if (es && es.toLowerCase().includes(q)) {
-                    seen.add(it.id); matches.push({ id: it.id, es });
-                }
+                if (!r.es) continue;
+                if (r.es.toLowerCase().includes(q)) { seen.add(r.id); matches.push({ id: r.id, es: r.es }); }
             }
 
             if (!matches.length) { listEl.hidden = true; listEl.innerHTML = ''; return; }
@@ -1076,14 +1290,20 @@ async function ensureNatureIndex() {
                 }
             }
 
-            // 2) ampliar cache dinámicamente
-            for (const id of (natureIdList || [])) {
+            // 2) ampliar cache dinámicamente (fetch paralelo limitado)
+            const ids = (natureIdList || []).filter(id => !seen.has(id));
+            const batch = ids.slice(0, 500);
+            const promises = batch.map(id => {
+                if (natureEsCache[id]) return Promise.resolve({ id, pack: natureEsCache[id] });
+                return natureEs(id).then(pack => ({ id, pack })).catch(() => ({ id, pack: null }));
+            });
+            const results = await Promise.all(promises);
+            for (const r of results) {
                 if (matches.length >= 20) break;
-                if (seen.has(id)) continue;
-                const pack = natureEsCache[id] || await natureEs(id);
-                const es = pack?.nameEs;
+                if (!r.pack) continue;
+                const es = r.pack.nameEs;
                 if (es && es.toLowerCase().includes(q)) {
-                    seen.add(id); matches.push({ id, es, up: pack.up, down: pack.down });
+                    seen.add(r.id); matches.push({ id: r.id, es, up: r.pack.up, down: r.pack.down });
                 }
             }
 
@@ -1129,14 +1349,18 @@ async function ensureNatureIndex() {
                 }
             }
 
-            // 2) ampliar cache dinámicamente (sin límite extra)
-            for (const id of (abilityIndex || [])) {
+            // 2) ampliar cache dinámicamente (fetch paralelo limitado)
+            const ids = (abilityIndex || []).filter(id => !seen.has(id));
+            const batch = ids.slice(0, 500);
+            const promises = batch.map(id => {
+                if (abilityEsCache[id]) return Promise.resolve({ id, es: abilityEsCache[id] });
+                return abilityEs(id).then(es => ({ id, es })).catch(() => ({ id, es: null }));
+            });
+            const results = await Promise.all(promises);
+            for (const r of results) {
                 if (matches.length >= 20) break;
-                if (seen.has(id)) continue;
-                const es = abilityEsCache[id] || await abilityEs(id);
-                if (es && es.toLowerCase().includes(q)) {
-                    seen.add(id); matches.push({ id, es });
-                }
+                if (!r.es) continue;
+                if (r.es.toLowerCase().includes(q)) { seen.add(r.id); matches.push({ id: r.id, es: r.es }); }
             }
 
             if (!matches.length) { listEl.hidden = true; listEl.innerHTML = ''; return; }
@@ -1159,9 +1383,424 @@ async function ensureNatureIndex() {
         window.Bag.setupBagAutocomplete(inputEl, listEl, { minLength: 0, maxResults: 12 });
     }
 
+    // ===== SISTEMA DE INTERCAMBIOS =====
+    let currentTradeState = {
+        selectedUserId: null,
+        selectedUserEmail: null,
+        selectedUserPokemonList: [],
+        myPokemonId: null,
+        targetPokemonId: null,
+        targetUserId: null
+    };
+
+    function resetTradeState() {
+        currentTradeState = {
+            selectedUserId: null,
+            selectedUserEmail: null,
+            selectedUserPokemonList: [],
+            myPokemonId: null,
+            targetPokemonId: null,
+            targetUserId: null
+        };
+    }
+
+    async function initiateTrade() {
+        resetTradeState();
+        $tradeStep1.hidden = false;
+        $tradeStep2.hidden = true;
+        $tradeSummary.hidden = true;
+        
+        // Cargar lista de usuarios
+        try {
+            const users = await window.Supa?.listUsers?.();
+            if (!users || users.length === 0) {
+                toast('No hay otros jugadores disponibles', 'info');
+                return;
+            }
+
+            $tradeUserSelect.innerHTML = '<option value="">-- Selecciona un jugador --</option>';
+            
+            // Para cada usuario, intentar obtener su información
+            for (const user of users) {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = user.email || `Usuario ${user.id.slice(0, 8)}`;
+                $tradeUserSelect.appendChild(option);
+            }
+
+            $tradeInitDialog.showModal();
+        } catch (e) {
+            toast('Error cargando usuarios: ' + e.message, 'error');
+        }
+    }
+
+    async function loadUserPokemon(userId) {
+        try {
+            // Obtener la caja del usuario desde Supabase
+            const { data, error } = await window.sb
+                .from('poke_boxes')
+                .select('data')
+                .eq('user_id', userId)
+                .order('updated_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+            if (error || !data) {
+                toast('Este usuario no tiene una caja de Pokémon registrada', 'info');
+                return [];
+            }
+
+            const boxData = data.data || {};
+            const pokemonList = boxData.entries || [];
+            return pokemonList;
+        } catch (e) {
+            toast('Error cargando Pokémon del usuario: ' + e.message, 'error');
+            return [];
+        }
+    }
+
+    function renderUserPokemon(pokemonList) {
+        if (!pokemonList || pokemonList.length === 0) {
+            $tradeUserPokemon.innerHTML = '<p class="muted">Este usuario no tiene Pokémon.</p>';
+            return;
+        }
+
+        const html = `
+            <p style="margin:0 0 6px; font-size:12px; color:var(--muted);">Pokémon disponibles (${pokemonList.length}):</p>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                ${pokemonList.slice(0, 6).map(p => `
+                    <span class="chip" style="font-size:11px;">
+                        ${cap(p.nickname || p.name)} ${p.shiny ? '★' : ''} Nv.${p.level || '?'}
+                    </span>
+                `).join('')}
+                ${pokemonList.length > 6 ? `<span class="chip" style="font-size:11px; opacity:.7;">+${pokemonList.length - 6} más</span>` : ''}
+            </div>
+        `;
+        $tradeUserPokemon.innerHTML = html;
+    }
+
+    // Evento: seleccionar usuario
+    $tradeUserSelect?.addEventListener('change', async (e) => {
+        const userId = e.target.value;
+        if (!userId) {
+            $tradeUserInfo.style.display = 'none';
+            $tradeStep1Next.disabled = true;
+            return;
+        }
+
+        const userEmail = e.target.selectedOptions[0].textContent;
+        currentTradeState.selectedUserId = userId;
+        currentTradeState.selectedUserEmail = userEmail;
+
+        $tradeUserName.textContent = `Usuario: ${userEmail}`;
+        const pokemonList = await loadUserPokemon(userId);
+        currentTradeState.selectedUserPokemonList = pokemonList;
+        renderUserPokemon(pokemonList);
+        $tradeUserInfo.style.display = 'block';
+        $tradeStep1Next.disabled = pokemonList.length === 0;
+    });
+
+    // Siguiente desde Step 1
+    $tradeStep1Next?.addEventListener('click', () => {
+        if (!currentTradeState.selectedUserId) return;
+        
+        // Cargar Pokémon del usuario actual
+        $tradeMyPokemon.innerHTML = '<option value="">-- Selecciona --</option>';
+        db.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.id;
+            const name = p.nickname || cap(p.name);
+            option.textContent = `${name} Nv.${p.level || '?'} (${p.dexId})`;
+            $tradeMyPokemon.appendChild(option);
+        });
+
+        // Cargar Pokémon del otro usuario
+        $tradeTargetPokemon.innerHTML = '<option value="">-- Selecciona --</option>';
+        currentTradeState.selectedUserPokemonList.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.id;
+            const name = p.nickname || cap(p.name);
+            option.textContent = `${name} Nv.${p.level || '?'} (${p.dexId})`;
+            $tradeTargetPokemon.appendChild(option);
+        });
+
+        $tradeStep1.hidden = true;
+        $tradeStep2.hidden = false;
+    });
+
+    // Mostrar info de mi Pokémon
+    $tradeMyPokemon?.addEventListener('change', (e) => {
+        const pokemonId = e.target.value;
+        if (!pokemonId) {
+            $tradeMyPokemonInfo.style.display = 'none';
+            return;
+        }
+
+        const pokemon = db.find(p => p.id === pokemonId);
+        if (pokemon) {
+            currentTradeState.myPokemonId = pokemonId;
+            const info = `
+                <strong>${cap(pokemon.nickname || pokemon.name)}</strong> #${pokemon.dexId}<br>
+                Nv. ${pokemon.level || '?'} ${pokemon.gender === 'male' ? '♂️' : pokemon.gender === 'female' ? '♀️' : ''}${pokemon.shiny ? ' ★' : ''}<br>
+                ${(pokemon.types || []).map(t => cap(t)).join(' / ')}
+            `;
+            $tradeMyPokemonInfo.innerHTML = info;
+            $tradeMyPokemonInfo.style.display = 'block';
+            checkTradeStep2Ready();
+        }
+    });
+
+    // Mostrar info del Pokémon a recibir
+    $tradeTargetPokemon?.addEventListener('change', (e) => {
+        const pokemonId = e.target.value;
+        if (!pokemonId) {
+            $tradeTargetPokemonInfo.style.display = 'none';
+            return;
+        }
+
+        const pokemon = currentTradeState.selectedUserPokemonList.find(p => p.id === pokemonId);
+        if (pokemon) {
+            currentTradeState.targetPokemonId = pokemonId;
+            const info = `
+                <strong>${cap(pokemon.nickname || pokemon.name)}</strong> #${pokemon.dexId}<br>
+                Nv. ${pokemon.level || '?'} ${pokemon.gender === 'male' ? '♂️' : pokemon.gender === 'female' ? '♀️' : ''}${pokemon.shiny ? ' ★' : ''}<br>
+                ${(pokemon.types || []).map(t => cap(t)).join(' / ')}
+            `;
+            $tradeTargetPokemonInfo.innerHTML = info;
+            $tradeTargetPokemonInfo.style.display = 'block';
+            checkTradeStep2Ready();
+        }
+    });
+
+    function checkTradeStep2Ready() {
+        $tradeStep2Next.disabled = !currentTradeState.myPokemonId || !currentTradeState.targetPokemonId;
+    }
+
+    // Atrás desde Step 2
+    $tradeStep2Back?.addEventListener('click', () => {
+        $tradeStep2.hidden = true;
+        $tradeStep1.hidden = false;
+    });
+
+    // Confirmar desde Step 2
+    $tradeStep2Next?.addEventListener('click', () => {
+        const myPokemon = db.find(p => p.id === currentTradeState.myPokemonId);
+        const targetPokemon = currentTradeState.selectedUserPokemonList.find(p => p.id === currentTradeState.targetPokemonId);
+
+        $summaryMyPokemon.textContent = `${cap(myPokemon?.nickname || myPokemon?.name)} Nv.${myPokemon?.level || '?'}`;
+        $summaryTargetPokemon.textContent = `${cap(targetPokemon?.nickname || targetPokemon?.name)} Nv.${targetPokemon?.level || '?'}`;
+        $summaryTargetUser.textContent = `📬 Enviando a: ${currentTradeState.selectedUserEmail}`;
+
+        $tradeStep2.hidden = true;
+        $tradeSummary.hidden = false;
+    });
+
+    // Atrás desde resumen
+    $tradeConfirmBack?.addEventListener('click', () => {
+        $tradeSummary.hidden = true;
+        $tradeStep2.hidden = false;
+    });
+
+    // Enviar solicitud de intercambio
+    $tradeConfirmSend?.addEventListener('click', async () => {
+        try {
+            const myPokemon = db.find(p => p.id === currentTradeState.myPokemonId);
+            const targetPokemon = currentTradeState.selectedUserPokemonList.find(p => p.id === currentTradeState.targetPokemonId);
+
+            await window.Supa?.createTrade?.({
+                targetUserId: currentTradeState.selectedUserId,
+                initiatorPokemonId: currentTradeState.myPokemonId,
+                targetPokemonId: currentTradeState.targetPokemonId,
+                initiator_pokemon_data: myPokemon || null,
+                target_pokemon_data: targetPokemon || null
+            });
+
+            toast('Solicitud de intercambio enviada', 'success');
+            $tradeInitDialog.close();
+            resetTradeState();
+        } catch (e) {
+            toast('Error enviando solicitud: ' + e.message, 'error');
+        }
+    });
+
+    // Cerrar diálogos
+    $closeTradeInit?.addEventListener('click', () => {
+        $tradeInitDialog.close();
+        resetTradeState();
+    });
+
+    $closeTradePending?.addEventListener('click', () => {
+        $tradePendingDialog.close();
+    });
+
+    async function loadPendingTrades() {
+        try {
+            const currentUser = await window.Supa?.getUser?.();
+            const trades = await window.Supa?.getPendingTrades?.();
+            if (!trades || trades.length === 0) {
+                $tradePendingList.innerHTML = '<p class="muted">No tienes solicitudes pendientes.</p>';
+                return;
+            }
+
+            let html = '';
+            for (const trade of trades) {
+                // Determinar rol del usuario actual en esta solicitud
+                const isReceiver = trade.target_user_id === currentUser?.id;
+                const isInitiator = trade.initiator_id === currentUser?.id;
+
+                // Preferimos usar los datos embebidos en la solicitud si existen
+                const initiatorPokemon = trade.initiator_pokemon_data || null;
+                const targetPokemon = trade.target_pokemon_data || null;
+                const initiatorEmail = trade.initiator_email || `Usuario ${trade.initiator_id.slice(0, 8)}`;
+
+                // Texto y botones según rol/estado
+                let actionsHtml = '';
+                let subtitle = '';
+                if (isReceiver) {
+                    subtitle = 'te ha enviado una solicitud';
+                    actionsHtml = `
+                        <button class="btn accept-trade" data-trade-id="${trade.id}" data-role="receiver">✓ Aceptar</button>
+                        <button class="btn deny-trade" data-trade-id="${trade.id}">✕ Rechazar</button>
+                    `;
+                } else if (isInitiator) {
+                    if (trade.receiver_status === 'accepted' && trade.initiator_status === 'pending') {
+                        subtitle = 'tu solicitud ha sido aceptada — confirma el intercambio';
+                        actionsHtml = `<button class="btn accept-trade" data-trade-id="${trade.id}" data-role="initiator">✓ Aceptar</button>`;
+                    } else if (trade.receiver_status === 'pending') {
+                        subtitle = 'Esperando a que el receptor acepte';
+                        actionsHtml = `<button class="btn deny-trade" data-trade-id="${trade.id}">✕ Cancelar</button>`;
+                    } else {
+                        subtitle = 'Estado: ' + (trade.receiver_status || 'pendiente');
+                    }
+                } else {
+                    // no es parte — mostrar sólo info mínima
+                    subtitle = 'Solicitud entre otros usuarios';
+                }
+
+                html += `
+                    <div class="trade-card">
+                        <div class="trade-card-header">
+                            <div>
+                                <p style="margin:0; font-weight:700;">${initiatorEmail}</p>
+                                <p style="margin:4px 0 0; font-size:12px; color:var(--muted);">${subtitle}</p>
+                            </div>
+                        </div>
+                        <div class="trade-card-info">
+                            <div class="trade-card-pokemon">
+                                <strong>${cap(initiatorPokemon?.nickname || initiatorPokemon?.name || '?')}</strong><br>
+                                <span style="font-size:11px; opacity:.8;">Nv.${initiatorPokemon?.level || '?'}</span>
+                            </div>
+                            <div style="text-align:center; align-self:center;">⇄</div>
+                            <div class="trade-card-pokemon" style="border-left-color:#34d399; background:rgba(52,211,153,.1);">
+                                <strong>${cap(targetPokemon?.nickname || targetPokemon?.name || '?')}</strong><br>
+                                <span style="font-size:11px; opacity:.8;">Nv.${targetPokemon?.level || '?'}</span>
+                            </div>
+                        </div>
+                        <div class="trade-card-actions">
+                            ${actionsHtml}
+                        </div>
+                    </div>
+                `;
+            }
+                $tradePendingList.innerHTML = html;
+
+            // Agregar event listeners
+            $tradePendingList.querySelectorAll('.accept-trade').forEach(btn => {
+                btn.addEventListener('click', () => acceptPendingTrade(btn.dataset.tradeId, btn.dataset.role || 'receiver'));
+            });
+
+            $tradePendingList.querySelectorAll('.deny-trade').forEach(btn => {
+                btn.addEventListener('click', () => rejectPendingTrade(btn.dataset.tradeId));
+            });
+        } catch (e) {
+            console.error('Error cargando solicitudes:', e);
+            $tradePendingList.innerHTML = '<p class="muted">Error cargando solicitudes.</p>';
+        }
+    }
+
+    async function acceptPendingTrade(tradeId, role = 'receiver') {
+        try {
+            // Marca la aceptación para el rol correspondiente
+            const updated = await window.Supa?.acceptTrade?.(tradeId, role);
+            if (!updated) throw new Error('No se pudo aceptar la solicitud');
+
+            // Reconsultar el intercambio
+            const trade = await window.Supa?.getTradeById?.(tradeId);
+            if (!trade) throw new Error('Intercambio no encontrado');
+
+            // Si ambos han aceptado, ejecutar el swap usando los datos guardados
+            if (trade.receiver_status === 'accepted' && trade.initiator_status === 'accepted') {
+                // Cargar cajas actuales
+                const { data: initiatorBox } = await window.sb
+                    .from('poke_boxes')
+                    .select('data')
+                    .eq('user_id', trade.initiator_id)
+                    .maybeSingle();
+
+                const { data: targetBox } = await window.sb
+                    .from('poke_boxes')
+                    .select('data')
+                    .eq('user_id', trade.target_user_id)
+                    .maybeSingle();
+
+                const initiatorData = initiatorBox?.data || { entries: [] };
+                const targetData = targetBox?.data || { entries: [] };
+
+                // Preferir los datos embebidos en la solicitud (si existen)
+                const initiatorPokemon = trade.initiator_pokemon_data || initiatorData.entries?.find(p => p.id === trade.initiator_pokemon_id);
+                const targetPokemon = trade.target_pokemon_data || targetData.entries?.find(p => p.id === trade.target_pokemon_id);
+
+                if (!initiatorPokemon || !targetPokemon) {
+                    throw new Error('Faltan datos de los Pokémon para completar el intercambio');
+                }
+
+                // Quitar y añadir en iniciador
+                initiatorData.entries = (initiatorData.entries || []).filter(p => p.id !== (trade.initiator_pokemon_id || initiatorPokemon.id));
+                initiatorData.entries.push(targetPokemon);
+
+                // Quitar y añadir en receptor (target_user_id)
+                targetData.entries = (targetData.entries || []).filter(p => p.id !== (trade.target_pokemon_id || targetPokemon.id));
+                targetData.entries.push(initiatorPokemon);
+
+                // Guardar cajas (upsert)
+                await window.Supa?.updateBoxForUser?.(trade.initiator_id, initiatorData);
+                await window.Supa?.updateBoxForUser?.(trade.target_user_id, targetData);
+
+                // Si el usuario actual es el receptor, actualizar su `db` local
+                const me = await window.Supa?.getUser?.();
+                if (me && me.id === trade.target_user_id) {
+                    db = db.filter(p => p.id !== trade.target_pokemon_id);
+                    db.push(initiatorPokemon);
+                    setDirty(true);
+                    render();
+                }
+
+                // Marcar completado
+                await window.Supa?.completeTrade?.(tradeId);
+                toast('Intercambio completado', 'success');
+            } else {
+                // Si aún falta la otra parte, sólo informar
+                toast('Aceptaste la solicitud. Esperando confirmación de la otra parte.', 'info');
+            }
+
+            loadPendingTrades();
+        } catch (e) {
+            toast('Error procesando aceptación: ' + e.message, 'error');
+        }
+    }
+
+    async function rejectPendingTrade(tradeId) {
+        try {
+            await window.Supa?.rejectTrade?.(tradeId);
+            toast('Intercambio rechazado', 'info');
+            loadPendingTrades();
+        } catch (e) {
+            toast('Error rechazando intercambio: ' + e.message, 'error');
+        }
+    }
 
     // ---------- Inicialización segura ----------
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
         try { setupMoveAutocompleteES(); } catch (e) { console.error('setupMoveAutocompleteES()', e); }
         try { setupNatureAutocomplete(); } catch (e) { console.error('setupNatureAutocomplete()', e); }
         try { setupBallAutocomplete(); } catch (e) { console.error('setupBallAutocomplete()', e); }
@@ -1171,9 +1810,130 @@ async function ensureNatureIndex() {
         // refs del dropdown (hazlas con let arriba si no existen)
         $statusBtn = document.getElementById('statusBtn');
         $statusMenu = document.getElementById('statusMenu');
-        updateStatus();
+        if ($statusBtn) updateStatus();
         try { window.Bag?.init?.(); window.Bag?.onChange?.(() => { setDirty(true); }); } catch (e) { console.error('Bag init/onChange', e); }
 
+        // ===== Menú Hamburguesa =====
+        function toggleMenu() {
+            const isOpen = !$sideMenu.hidden;
+            if (isOpen) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        }
+
+        function openMenu() {
+            $sideMenu.hidden = false;
+            $menuOverlay.hidden = false;
+            $hamburgerBtn.setAttribute('aria-expanded', 'true');
+            document.body.style.overflow = 'hidden'; // evita scroll de fondo
+        }
+
+        function closeMenu() {
+            $sideMenu.hidden = true;
+            $menuOverlay.hidden = true;
+            $hamburgerBtn.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+        }
+
+        // Click en hamburguesa
+        $hamburgerBtn?.addEventListener('click', toggleMenu);
+
+        // Click en overlay
+        $menuOverlay?.addEventListener('click', closeMenu);
+
+        // Escape para cerrar
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !$sideMenu.hidden) {
+                closeMenu();
+            }
+        });
+
+        // Cerrar menú al clicar en un botón del menú
+        const menuButtons = $sideMenu?.querySelectorAll('.menu-btn') || [];
+        menuButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Espera un tick para que se ejecute el handler antes de cerrar
+                setTimeout(closeMenu, 100);
+            });
+        });
+
+        // === Suscripción realtime a intercambios ===
+        try {
+            const me = await window.Supa?.getUser?.();
+            if (me && window.Supa?.subscribeTrades) {
+                const sub = window.Supa.subscribeTrades((payload) => {
+                    const row = payload.new || payload.record || null;
+                    // si la fila nueva/actualizada afecta al usuario, recargar
+                    if (!row) return;
+                    if (row.target_user_id === me.id || row.initiator_id === me.id) {
+                        // refrescar lista en segundo plano
+                        loadPendingTrades();
+                    }
+                });
+
+                // limpiamos al salir de la página
+                window.addEventListener('beforeunload', () => sub?.unsubscribe?.());
+            }
+        } catch (e) { console.warn('Realtime trades subscription failed', e); }
+
+        // ===== Eventos del menú lateral =====
+        $sideMenuOpen?.addEventListener('click', () => {
+            document.getElementById('openInput')?.click();
+        });
+        $sideMenuSave?.addEventListener('click', () => {
+            if (typeof saveToDownload === 'function') saveToDownload();
+        });
+        $sideMenuBg?.addEventListener('click', () => {
+            document.getElementById('bgInput')?.click();
+        });
+        $sideMenuBgClear?.addEventListener('click', () => {
+            if (typeof window.setBackgroundDataUrl === 'function') window.setBackgroundDataUrl(null);
+        });
+
+        // Eventos de intercambio
+        document.getElementById('sideTradeBtn')?.addEventListener('click', async () => {
+            const usr = await window.Supa?.getUser?.();
+            if (!usr) {
+                toast('Debes iniciar sesión para usar intercambios', 'info');
+                $authDialog.showModal();
+            } else {
+                initiateTrade();
+            }
+        });
+
+        document.getElementById('sidePendingTradesBtn')?.addEventListener('click', async () => {
+            const usr = await window.Supa?.getUser?.();
+            if (!usr) {
+                toast('Debes iniciar sesión para ver solicitudes', 'info');
+                $authDialog.showModal();
+            } else {
+                loadPendingTrades();
+                $tradePendingDialog.showModal();
+            }
+        });
+
+        // Nube en el menú lateral
+        $sideCloudStatus?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const usr = await window.Supa?.getUser?.();
+            if (!usr) {
+                $authDialog.showModal();
+            }
+            // Si ya está autenticado, no hace nada aquí (botones de guardar/cargar disponibles)
+        });
+
+        $sideCloudSave?.addEventListener('click', saveToSupabase);
+        $sideCloudLoad?.addEventListener('click', loadFromSupabase);
+        $sideCloudSignout?.addEventListener('click', async () => {
+            try {
+                await window.Supa?.signOut?.();
+                __cloudEmail = '';
+                stopAutosave?.();
+                updateCloudStatus();
+            } catch {}
+        });
 
         // abrir/cerrar
         $statusBtn?.addEventListener('click', (e) => {
@@ -1189,7 +1949,7 @@ async function ensureNatureIndex() {
                 const within = el => el && (el === e.target || el.contains(e.target));
                 if (!within($statusMenu) && !within($statusBtn)) {
                     $statusMenu.hidden = true;
-                    $statusBtn.setAttribute('aria-expanded', 'false');
+                    if ($statusBtn) $statusBtn.setAttribute('aria-expanded', 'false');
                 }
             }
         });
@@ -1198,9 +1958,40 @@ async function ensureNatureIndex() {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && $statusMenu && !$statusMenu.hidden) {
                 $statusMenu.hidden = true;
-                $statusBtn.setAttribute('aria-expanded', 'false');
+                if ($statusBtn) $statusBtn.setAttribute('aria-expanded', 'false');
             }
         });
+
+// abrir / cerrar nube
+        $cloudBtn?.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  // si NO hay sesión, abre diálogo auth
+  const usr = await window.Supa?.getUser?.();
+  if (!usr) { $authDialog.showModal(); return; }
+
+  // hay sesión -> togglear menú
+  const open = !$cloudMenu?.hidden;
+  $cloudMenu.hidden = open;
+  $cloudBtn.setAttribute('aria-expanded', open ? 'false' : 'true');
+});
+
+document.addEventListener('click', (e) => {
+  if ($cloudMenu && !$cloudMenu.hidden) {
+    const within = el => el && (el === e.target || el.contains(e.target));
+    if (!within($cloudMenu) && !within($cloudBtn)) {
+      $cloudMenu.hidden = true;
+      $cloudBtn.setAttribute('aria-expanded', 'false');
+    }
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && $cloudMenu && !$cloudMenu.hidden) {
+    $cloudMenu.hidden = true;
+    $cloudBtn.setAttribute('aria-expanded', 'false');
+  }
+});
+
 
         // acciones del menú
         document.getElementById('menuOpen')?.addEventListener('click', () => {
@@ -1275,6 +2066,7 @@ async function ensureNatureIndex() {
         const num = (document.getElementById('numInput')?.value || '').trim() || null;
         const nickname = (document.getElementById('nicknameInput')?.value || '').trim() || null;
         const level = Number(document.getElementById('levelInput')?.value || 0) || null;
+        const shiny = !!$shinyToggle?.checked;
 
         // --- EDITAR ---
         if (editMode && editingId) {
@@ -1288,11 +2080,13 @@ async function ensureNatureIndex() {
                     dexId: pendingBase.dexId,
                     name: pendingBase.name,
                     types: pendingBase.types,
-                    sprite: pendingBase.sprite,
+                    sprite: pendingBase.sprite || old.sprite || '',
+                    spriteShiny: pendingBase.spriteShiny || old.spriteShiny || '',
                     height: pendingBase.height,
                     weight: pendingBase.weight,
                     moves, ball, nature, gender, ability, heldItem: heldItemNew, stats, num,
-                    nickname, level
+                    nickname, level,
+                    shiny
                 };
 
                 // Ajuste de vida para no superar el nuevo máximo
@@ -1325,11 +2119,13 @@ async function ensureNatureIndex() {
             name: pendingBase.name,
             types: pendingBase.types,
             sprite: pendingBase.sprite,
+            spriteShiny: pendingBase.spriteShiny || '',
             height: pendingBase.height,
             weight: pendingBase.weight,
-            moves, ball, nature, gender, ability, heldItem: heldItemNew, stats, num,
+            moves, ball, nature, gender, ability, heldItem: heldItemNewAdd, stats, num,
             nickname, level,
-            inTeam: false
+            inTeam: false,
+            shiny
         };
 
         // Inicializa vida actual = vida máxima
@@ -1407,6 +2203,7 @@ async function ensureNatureIndex() {
   let displayName = p.nickname?.trim() ? p.nickname : cap(p.name);
   if (p.gender === 'male')   displayName += ' ♂️';
   else if (p.gender === 'female') displayName += ' ♀️';
+  if (p.shiny) displayName += ' ★';
   $detailTitle.innerHTML = `${displayName} <span class="chip">Nv. <span class="detail-level detail-level-title">${p.level}</span></span>`;
 
 
@@ -1532,10 +2329,10 @@ const damage = calcDamageTier(mp.power);
     <div class="detail-top">
       <div class="detail-main-info">
         <div class="detail-head">
-          <img width="120" height="120" alt="${p.name}" src="${p.sprite}" />
+          <img width="120" height="120" alt="${p.name}" src="${spriteUrlOf(p)}" />
           <div>
             <div class="name-row-header">
-              <span class="pkname">${cap(p.name)}</span>
+              <span class="pkname">${cap(p.name)}${p.shiny ? ' ★' : ''}</span>
               <span class="muted">#${p.dexId}</span>
               ${ballHtml}
               ${teamHtml}
@@ -2357,11 +3154,205 @@ function updateExpUI(pid, pObj) {
             const listEl = inp.parentElement.querySelector('.move-list');
             if (listEl) listEl.innerHTML = '';
         });
+
+        pendingBase = null;
+        if ($result) $result.innerHTML = '';
+        if ($shinyToggle) $shinyToggle.checked = false;
     }
+
+// === Auth UI ===
+const $email = document.getElementById('emailInput');
+const $pass = document.getElementById('passInput');
+const $signup = document.getElementById('signupBtn');
+const $signin = document.getElementById('signinBtn');
+const $signout = document.getElementById('signoutBtn');
+const $authStatus = document.getElementById('authStatus');
+
+function setAuthUi(logged, email) {
+  if ($signup) $signup.hidden = logged;
+  if ($signin) $signin.hidden = logged;
+  if ($signout) $signout.hidden = !logged;
+  if ($email) $email.hidden = logged;
+  if ($pass) $pass.hidden = logged;
+  if ($authStatus) $authStatus.textContent = logged ? `Conectado: ${email || ''}` : 'Sin sesión';
+}
+
+(async () => {
+  try {
+    const usr = await window.Supa?.getUser?.();
+    setAuthUi(!!usr, usr?.email);
+  } catch { setAuthUi(false, ''); }
+})();
+
+$signup?.addEventListener('click', async () => {
+  try {
+    const { value: email } = $email, { value: pass } = $pass;
+    await window.Supa.signUp(email, pass);
+    alert('Registro iniciado. Verifica el email si tu proyecto lo requiere.');
+  } catch (e) { alert(e.message); }
+});
+
+$signin?.addEventListener('click', async () => {
+  try {
+    const { value: email } = $email, { value: pass } = $pass;
+    await window.Supa.signIn(email, pass);
+    setAuthUi(true, email);
+    // alert('Sesión iniciada.');
+    toast('Sesión iniciada', 'info');
+
+  } catch (e) { alert(e.message); }
+});
+
+$signout?.addEventListener('click', async () => {
+  try {
+    await window.Supa.signOut();
+    setAuthUi(false, '');
+  } catch (e) { alert(e.message); }
+});
+
+// === Botones nube ===
+document.getElementById('cloudSaveBtn')?.addEventListener('click', saveToSupabase);
+document.getElementById('cloudLoadBtn')?.addEventListener('click', loadFromSupabase);
+
+$cloudSave?.addEventListener('click', async () => {
+  if ($cloudMenu) $cloudMenu.hidden = true;
+  if ($cloudBtn) $cloudBtn.setAttribute('aria-expanded', 'false');
+  await saveToSupabase();    // esto ya hace setDirty(false)
+  updateCloudStatus();       // refresca texto del botón
+});
+
+$cloudLoad?.addEventListener('click', async () => {
+  if ($cloudMenu) $cloudMenu.hidden = true;
+  if ($cloudBtn) $cloudBtn.setAttribute('aria-expanded', 'false');
+  await loadFromSupabase();
+  updateCloudStatus();
+});
+
+$cloudOut?.addEventListener('click', async () => {
+  if ($cloudMenu) $cloudMenu.hidden = true;
+  if ($cloudBtn) $cloudBtn.setAttribute('aria-expanded', 'false');
+  try { await window.Supa?.signOut?.(); } catch {}
+  __cloudEmail = '';
+  stopAutosave?.();
+  updateCloudStatus();
+});
+
+$authClose?.addEventListener('click', () => $authDialog.close());
+
+$authIn?.addEventListener('click', async () => {
+  try {
+    await window.Supa.signIn($authEmail.value, $authPass.value);
+    __cloudEmail = $authEmail.value || '';
+    startAutosave?.();
+    updateCloudStatus();
+    $authDialog.close();
+    // alert('Sesión iniciada.');
+    toast('Sesión iniciada', 'info');
+
+  } catch (e) { alert(e.message); }
+});
+
+$authUp?.addEventListener('click', async () => {
+  try {
+    await window.Supa.signUp($authEmail.value, $authPass.value);
+    alert('Registro iniciado. Verifica el email si tu proyecto lo requiere.');
+  } catch (e) { alert(e.message); }
+});
+
+try {
+  window.sb?.auth?.onAuthStateChange(async (_event, session) => {
+    __isLoggedIn = !!session?.user;
+    __cloudEmail = session?.user?.email || '';
+    if (__isLoggedIn) startAutosave?.(); else stopAutosave?.();
+    updateCloudStatus();
+  });
+} catch {}
+
+(async () => {
+  try {
+    const usr = await window.Supa?.getUser?.();
+    __isLoggedIn = !!usr;
+    __cloudEmail = usr?.email || '';
+    updateCloudStatus();
+  } catch {}
+})();
+
+
+
+// === AUTOSAVE A SUPABASE ===
+// Cada cuánto guardar automáticamente (en ms)
+const AUTOSAVE_EVERY_MS = 300000;
+
+let __autosaveTimer = null;
+let __autosaveInFlight = false;
+let __isLoggedIn = false;
+
+// Sigue el estado de auth en tiempo real
+try {
+  window.sb?.auth?.onAuthStateChange((_event, session) => {
+    __isLoggedIn = !!session?.user;
+  });
+} catch {}
+
+// También actualiza el flag cuando se monta la UI
+(async () => {
+  try { __isLoggedIn = !!(await window.Supa?.getUser?.()); } catch {}
+})();
+
+function canAutosave() {
+  // Solo si hay sesión y hay cambios locales pendientes
+  return __isLoggedIn && typeof dirty !== 'undefined' && !!dirty;
+}
+
+async function autosaveTick() {
+  if (!canAutosave()) return;
+  if (__autosaveInFlight) return; // evita solapes
+
+  __autosaveInFlight = true;
+  try {
+    // Reutiliza guardado manual (ya limpia el dirty por dentro)
+    await saveToSupabase();
+  } catch (e) {
+    // No molestamos al usuario: solo log
+    console.warn('[autosave] fallo guardando:', e);
+  } finally {
+    __autosaveInFlight = false;
+  }
+}
+
+function startAutosave() {
+  if (__autosaveTimer) return;
+  __autosaveTimer = setInterval(autosaveTick, AUTOSAVE_EVERY_MS);
+  // Primer intento rápido al comenzar (no bloqueante)
+  setTimeout(autosaveTick, 5_000);
+}
+function stopAutosave() {
+  if (!__autosaveTimer) return;
+  clearInterval(__autosaveTimer);
+  __autosaveTimer = null;
+}
+
+// Arranca al iniciar la app
+startAutosave();
+
+// Intenta guardado al volver a la pestaña
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') autosaveTick();
+});
+
+// Antes de salir, si quedan cambios y hay sesión, intenta un guardado rápido
+window.addEventListener('beforeunload', (e) => {
+  if (canAutosave() && !__autosaveInFlight) {
+    navigator.sendBeacon && console.debug('[autosave] intento al salir');
+  }
+});
+
+
 
     // abrir/cerrar
     $statusBtn?.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (!$statusMenu) return;
         const open = $statusMenu.hasAttribute('hidden') ? false : true;
         if (open) {
             $statusMenu.hidden = true;
@@ -2418,6 +3409,85 @@ function updateExpUI(pid, pObj) {
             aL.innerHTML = '';
         }
     });
+
+    // === Guardar en Supabase (DB JSON) ===
+
+async function saveToSupabase() {
+  try {
+    // Asegura que si el fondo en LS es dataURL, lo subimos primero y guardamos su URL
+    let bg = (window.getBackgroundDataUrl && window.getBackgroundDataUrl()) || null;
+    if (bg && bg.startsWith('data:')) {
+      // convierte dataURL -> Blob y súbelo
+      const res = await fetch(bg);
+      const blob = await res.blob();
+      const file = new File([blob], 'background.png', { type: blob.type || 'image/png' });
+      try {
+        const url = await window.Supa.uploadBg(file);
+        bg = url;
+        // reflecta también en LS para siguientes sesiones
+        window.setBackgroundDataUrl?.(url);
+      } catch (e) {
+        console.warn('No se pudo subir base64 a Storage. Se guarda base64 en la DB:', e);
+      }
+    }
+
+    const bagState = window.Bag?.getState?.() || null;
+    const payload = { version: 2, entries: db, bg, bag: bagState };
+
+    const id = await window.Supa.saveBox(payload, 'Mi caja');
+    // alert('Guardado en la nube: ' + id);
+    // marca como no sucio
+    setDirty(false);
+
+updateCloudStatus();
+  } catch (e) {
+    // alert('Error al guardar en la nube: ' + e.message);
+    toast('Error al guardar: ' + (e?.message || e), 'error', 4000);
+
+  }
+  toast('Se ha guardado correctamente', 'success');
+
+}
+
+// === Cargar desde Supabase (DB JSON) ===
+async function loadFromSupabase() {
+  try {
+    const row = await window.Supa.loadBox();
+    if (!row) { alert('Aún no tienes datos guardados.'); return; }
+    const data = row.data || {};
+
+    if (Array.isArray(data.entries)) {
+      db = data.entries.map(p => ({
+        id: p.id || (crypto?.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)),
+        inTeam: !!p.inTeam,
+        ...p,
+        shiny: !!p.shiny,
+        spriteShiny: p.spriteShiny || p.sprite_shiny || ''
+      }));
+    } else {
+      db = [];
+    }
+
+    // Fondo (puede venir como URL pública)
+    if (data.bg && typeof window.applyBackground === 'function' && typeof window.setBackgroundDataUrl === 'function') {
+      window.setBackgroundDataUrl(data.bg);
+    }
+
+    // Mochila
+    if (data.bag && typeof data.bag === 'object') {
+      try { window.Bag?.setState?.(data.bag); } catch {}
+    }
+
+    render();
+    updateStatus();
+updateCloudStatus();
+    setDirty(false);
+    alert('Datos cargados de la nube.');
+  } catch (e) {
+    alert('Error al cargar de la nube: ' + e.message);
+  }
+}
+
 
     // ===== Inicio =====
     (async () => {
