@@ -10,6 +10,8 @@ function setupMoveAutocompleteES() {
     moveInputs.forEach(inp => {
         const listEl = inp.parentElement.querySelector('.move-list');
         inp.oninput = async () => {
+            inp.dataset.selectedId = '';
+            inp.dataset.selectedEs = '';
             const q = (inp.value || '').trim().toLowerCase();
             if (!q || q.length < 2) {
                 listEl.hidden = true;
@@ -48,6 +50,7 @@ function setupMoveAutocompleteES() {
                 }
             }
 
+            if (inp.value.trim().toLowerCase() !== q || !inp.isConnected || inp.dataset.selectedId) return;
             const list = matches.slice(0, 20);
             if (!list.length) {
                 listEl.hidden = true;

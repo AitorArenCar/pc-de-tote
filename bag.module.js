@@ -82,6 +82,7 @@
       qty: clampQty(it?.qty),
       sprite: it?.sprite ?? (custom ? CUSTOM_DEFAULT_ICON : null),
       effectText: it?.effectText ?? null,
+      descriptionEdited: !!it?.descriptionEdited,
       desc: null,
       pocket,
       custom,
@@ -231,6 +232,7 @@
       qty: 0,
       sprite: item.sprite ?? null,
       effectText: item.effectText ?? null,
+      descriptionEdited: !!item.descriptionEdited,
       desc: null,
       pocket: targetPocket,
       custom: !!item.custom,
@@ -241,7 +243,8 @@
       nameEs: item.nameEs || prev.nameEs || item.id,
       qty: Math.min(999, Number(prev.qty || 0) + Number(item.qty || 1)),
       sprite: item.sprite ?? prev.sprite ?? (isCustomItem(item) ? CUSTOM_DEFAULT_ICON : null),
-      effectText: item.effectText ?? prev.effectText ?? null,
+      effectText: prev.descriptionEdited ? prev.effectText : (item.effectText ?? prev.effectText ?? null),
+      descriptionEdited: !!item.descriptionEdited || !!prev.descriptionEdited,
       desc: null,
       pocket: targetPocket,
       custom: !!item.custom || !!prev.custom || String(item.id || '').startsWith('custom-'),
@@ -285,7 +288,7 @@
     const next = {
       nameEs: full.nameEs || full.name || pack.nameEs,
       sprite: full.sprite ?? pack.sprite,
-      effectText: full.effectText ?? '',
+      effectText: pack.descriptionEdited ? pack.effectText : (full.effectText ?? ''),
       machineMove: full.machineMove || pack.machineMove || '',
       machineMoveEs: full.machineMoveEs || pack.machineMoveEs || '',
       machineMoveType: full.machineMoveType || pack.machineMoveType || '',
@@ -392,6 +395,7 @@
           nameEs: displayName(pack) || pack.nameEs || id,
           pocket,
           effectText: pack.effectText ?? null,
+          descriptionEdited: !!pack.descriptionEdited,
           sprite: pack.sprite ?? null,
           custom: !!pack.custom,
           machineMove: pack.machineMove || '',
@@ -417,6 +421,7 @@
       qty: 1,
       sprite: item.sprite ?? null,
       effectText: item.effectText ?? null,
+      descriptionEdited: !!item.descriptionEdited,
       pocket,
       custom: !!item.custom || String(item.id || '').startsWith('custom-'),
       machineMove: item.machineMove || '',
@@ -500,6 +505,7 @@
           nameEs: displayName(meta) || reserved.nameEs,
           pocket: meta.pocket || reserved.pocket,
           effectText: meta.effectText || reserved.effectText || null,
+          descriptionEdited: !!meta.descriptionEdited || !!reserved.descriptionEdited,
           sprite: meta.sprite || reserved.sprite || null,
           custom: !!meta.custom || !!reserved.custom,
           machineMove: meta.machineMove || reserved.machineMove || '',
@@ -617,7 +623,7 @@
     }
     const pack = loc.pack;
     const pocketTitle = POCKET_META[loc.pocket]?.title || loc.pocket;
-    const effect = (pack.effectText || '').replace(/\s+/g, ' ').trim();
+    const effect = (pack.effectText || '').trim();
     const isCustom = isCustomItem(pack);
 
     if (isCustom) {
@@ -657,7 +663,9 @@
           </div>
         </div>
         ${renderStepper(pack)}
-        ${effect ? `<p class="bag-detail-text">${escapeHtml(effect)}</p>` : `<p class="bag-detail-text muted">Sin descripción disponible.</p>`}
+        <label for="itemEditDesc">Descripción</label>
+        <textarea id="itemEditDesc" rows="4" style="width:100%">${escapeHtml(effect)}</textarea>
+        <button id="itemSaveDesc" class="btn" type="button">Guardar descripción</button>
       </section>
     `;
   }
@@ -714,6 +722,18 @@
   }
 
   function wireDetailHandlers() {
+    const itemDesc = document.querySelector('#itemEditDesc');
+    RichText.attach(itemDesc);
+    const saveDesc = document.querySelector('#itemSaveDesc');
+    if (saveDesc) saveDesc.onclick = () => {
+      const loc = detailRef && findItemLocation(detailRef.id);
+      if (!loc) return;
+      loc.pack.effectText = itemDesc.value;
+      loc.pack.descriptionEdited = true;
+      notify();
+      render();
+    };
+    RichText.attach(document.querySelector('#customEditDesc'));
     if (detailRef) refreshMachinePack(detailRef.id);
 
     const back = document.querySelector('#bagContent .bag-back');
@@ -817,6 +837,7 @@
   }
 
   function wireCreateCustomHandlers() {
+    RichText.attach(document.querySelector('#customCreateDesc'));
     const back = document.querySelector('#bagContent .bag-back');
     if (back) back.onclick = () => { viewMode = 'list'; render(); };
 

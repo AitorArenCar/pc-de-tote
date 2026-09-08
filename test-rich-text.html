@@ -1,0 +1,74 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Pruebas del editor y STAB</title>
+<link rel="stylesheet" href="styles.css">
+<textarea id="notesBox"></textarea>
+<pre id="results"></pre>
+<script src="js/rich-text.js"></script>
+<script src="js/moves.js"></script>
+<script>
+const results = document.getElementById('results');
+function check(condition, label) {
+    if (!condition) throw new Error(label);
+    results.textContent += 'OK: ' + label + '\n';
+}
+try {
+    const input = document.getElementById('notesBox');
+    input.value = '**Texto**\n[color=#ff0000]rojo[/color]';
+    const editor = RichText.attach(input);
+    const toolbar = document.querySelector('.rich-toolbar');
+    check(input.hidden && editor.isContentEditable, 'Editor visual');
+    check(editor.querySelector('strong').textContent === 'Texto' && editor.querySelector('br'), 'Formato anterior y saltos de línea');
+    let saves = 0;
+    input.addEventListener('input', () => saves++);
+    function selectAll() {
+        editor.focus();
+        const range = document.createRange();
+        range.selectNodeContents(editor);
+        const selection = getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        editor.dispatchEvent(new MouseEvent('mouseup'));
+    }
+    editor.textContent = 'Ejemplo';
+    selectAll();
+    toolbar.querySelector('[data-command="bold"]').click();
+    check(editor.querySelector('b,strong') || editor.innerHTML.includes('font-weight'), 'Negrita directa');
+    check(saves > 0 && RichText.render(input.value).includes('Ejemplo'), 'Sincroniza guardado');
+    const color = toolbar.querySelector('input');
+    color.value = '#ff0000';
+    color.dispatchEvent(new Event('input'));
+    check(/#ff0000|rgb\(255, 0, 0\)/.test(editor.innerHTML), 'Color automático');
+    const size = toolbar.querySelector('select');
+    size.value = '5';
+    size.dispatchEvent(new Event('change'));
+    check(/size="5"|x-large/.test(editor.innerHTML), 'Tamaño directo');
+    const saved = input.value;
+    const restored = document.createElement('textarea');
+    restored.id = 'restored';
+    restored.value = saved;
+    document.body.append(restored);
+    check(RichText.attach(restored).innerHTML === RichText.render(saved), 'Reabrir conserva formato');
+    selectAll();
+    document.execCommand('delete');
+    editor.dispatchEvent(new Event('input'));
+    check(input.value === '', 'Borrar todo elimina el formato guardado');
+    editor.innerHTML = '<b></b><span style="color:red"></span>resto';
+    editor.dispatchEvent(new Event('input'));
+    check(RichText.render(input.value) === 'resto', 'Sin envoltorios vacíos');
+    check(!RichText.render('richtext:v1:<img src=x onerror=alert(1)><script>alert(1)<\/script><b>seguro</b>').includes('script'), 'HTML sanitizado');
+    window.calcDamageTier = () => 3;
+    window.DAMAGE_TIER_MAP = {3: 'media'};
+    const pokemon = {types: ['fire'], stats: {atk: 5, spa: 9}};
+    const physical = calculateMoveDamage(pokemon, {power: 60, type: 'fire', class: 'physical'});
+    const special = calculateMoveDamage(pokemon, {power: 60, type: 'fire', class: 'special'});
+    check(physical.stabBonus === 3 && physical.damage === 11, 'STAB físico 2.5 → 3');
+    check(special.stabBonus === 5 && special.damage === 17, 'STAB especial 4.5 → 5');
+    check(calculateMoveDamage(pokemon, {power:60, type:'water', class:'physical'}).stabBonus === 0, 'Sin STAB');
+    check(calculateMoveDamage(pokemon, {id:'grass-knot', type:'fire', class:'special'}).table[0]['daño'] === 17, 'STAB variable');
+    results.dataset.status = 'passed';
+} catch (error) {
+    results.dataset.status = 'failed';
+    results.textContent += error.stack;
+}
+</script>

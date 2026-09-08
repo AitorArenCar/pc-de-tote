@@ -5,7 +5,7 @@
 function computeMaxHp(p) {
     const lvl = Number(p.level || 0);
     const basePs = Number(p.stats?.hp || 0);
-    return Math.max(0, lvl * 2 + basePs);
+    return Math.max(0, (basePs * 2 + lvl) * 2);
 }
 
 function ensureHp(p) {

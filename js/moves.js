@@ -64,7 +64,7 @@ async function getAbilityInfoEs(id) {
 
 /**
  * Calcula el daño de un movimiento basado en las estadísticas del Pokémon
- * Fórmula simplificada: Daño = Potencia + Stat + (STAB ? 2 : 0)
+ * Fórmula simplificada: Daño = Potencia + Stat + (STAB ? Stat / 2 : 0)
  * @param {Object} pokemon - Objeto del Pokémon con level, types, stats, etc.
  * @param {Object} move - Objeto del movimiento con power, type, class, etc.
  * @returns {Object} - {damage: número o null, isVariablePower: bool, description: string}
@@ -179,20 +179,20 @@ const variablePowerMoves = {
 
     // Calcular STAB
     const hasSAB = pokemonTypes.includes(moveType);
-    const stabBonus = hasSAB ? 2 : 0;
+    const stabBonus = hasSAB ? Math.ceil(Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0) / 2) : 0;
 
-    // Fórmula simplificada: TierPotencia + Stat + (STAB ? 2 : 0)
+    // Fórmula simplificada: TierPotencia + Stat + (STAB ? Stat / 2 : 0)
     const finalDamage = powerTier + attackStat + stabBonus;
 
     const tierText = DAMAGE_TIER_MAP[powerTier] || 'Desconocido';
-    const stabText = hasSAB ? ' + STAB (+2)' : '';
+    const stabText = hasSAB ? ` + STAB (+${stabBonus})` : '';
     const description = `${powerTier} + ${attackStat} (stat)${stabText} = ${finalDamage}`;
 
     return {
         damage: finalDamage,
         isVariablePower: false,
         description,
-        stabApplied: hasSAB
+        stabApplied: hasSAB, stabBonus
     };
 }
 
@@ -205,14 +205,14 @@ function getVariablePowerDamage(pokemon, move, type) {
     const pokemonTypes = pokemon.types || [];
     const moveType = move.type || 'normal';
     const hasSAB = pokemonTypes.includes(moveType);
-    const stabBonus = hasSAB ? 2 : 0;
+    const stabBonus = hasSAB ? Math.ceil(Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0) / 2) : 0;
 
 switch (type) {
   case 'seismic':
     return {
       damage: null,
       isVariablePower: true,
-      description: `Daño = Nivel + ${stats.atk || 0} (stat)${hasSAB ? ' + 2 (STAB)' : ''}`,
+      description: `Daño = Nivel + ${stats.atk || 0} (stat)${hasSAB ? ` + ${stabBonus} (STAB)` : ''}`,
       table: [
         { nivel: 5, 'stat+stab': 5 + (stats.atk || 0) + stabBonus },
         { nivel: 25, 'stat+stab': 25 + (stats.atk || 0) + stabBonus },
@@ -247,7 +247,7 @@ switch (type) {
     return {
       damage: null,
       isVariablePower: true,
-      description: `Daño = 18 × estacks + ${stats.atk || 0}${hasSAB ? ' + 2 (STAB)' : ''}`,
+      description: `Daño = 18 × estacks + ${stats.atk || 0}${hasSAB ? ` + ${stabBonus} (STAB)` : ''}`,
       table: [
         { stacks: 0, daño: 0 + (stats.atk || 0) + stabBonus },
         { stacks: 1, daño: 18 + (stats.atk || 0) + stabBonus },
@@ -264,8 +264,8 @@ switch (type) {
     return {
       damage: fixedDamage + stabBonus,
       isVariablePower: true,
-      description: `Daño fijo: ${fixedDamage}${hasSAB ? ' + 2 (STAB)' : ''} = ${fixedDamage + stabBonus}`,
-      note: 'Este movimiento hace daño fijo, independiente de los stats'
+      description: `Daño fijo: ${fixedDamage}${hasSAB ? ` + ${stabBonus} (STAB)` : ''} = ${fixedDamage + stabBonus}`,
+      note: 'Daño base fijo; el STAB depende del stat de ataque'
     };
   }
 
@@ -274,7 +274,7 @@ switch (type) {
     return {
       damage: null,
       isVariablePower: true,
-      description: `Daño = 50% de los PS actuales del objetivo${hasSAB ? ' + 2 (STAB)' : ''}`,
+      description: `Daño = 50% de los PS actuales del objetivo${hasSAB ? ` + ${stabBonus} (STAB)` : ''}`,
       note: 'Necesita los PS actuales del objetivo para calcular el daño exacto'
     };
 
@@ -283,7 +283,7 @@ switch (type) {
     return {
       damage: null,
       isVariablePower: true,
-      description: `Reduce los PS del objetivo hasta igualarlos a tus PS actuales${hasSAB ? ' + 2 (STAB)' : ''}`,
+      description: `Reduce los PS del objetivo hasta igualarlos a tus PS actuales${hasSAB ? ` + ${stabBonus} (STAB)` : ''}`,
       note: 'Necesita PS actuales del usuario y del objetivo para calcular el resultado'
     };
 
@@ -292,7 +292,7 @@ switch (type) {
     return {
       damage: null,
       isVariablePower: true,
-      description: `Daño = PS actuales del usuario${hasSAB ? ' + 2 (STAB)' : ''}`,
+      description: `Daño = PS actuales del usuario${hasSAB ? ` + ${stabBonus} (STAB)` : ''}`,
       note: 'El usuario cae; requiere PS actuales del usuario para el daño exacto'
     };
 
@@ -301,7 +301,7 @@ switch (type) {
     return {
       damage: null,
       isVariablePower: true,
-      description: `Devuelve un multiplicador del daño recibido${hasSAB ? ' + 2 (STAB)' : ''}`,
+      description: `Devuelve un multiplicador del daño recibido${hasSAB ? ` + ${stabBonus} (STAB)` : ''}`,
       note: 'Necesita el daño recibido previamente para calcular el daño exacto'
     };
 
@@ -310,7 +310,7 @@ switch (type) {
     return {
       damage: level + stabBonus,
       isVariablePower: true,
-      description: `Daño = Nivel (${level})${hasSAB ? ' + 2 (STAB)' : ''} = ${level + stabBonus}`
+      description: `Daño = Nivel (${level})${hasSAB ? ` + ${stabBonus} (STAB)` : ''} = ${level + stabBonus}`
     };
   }
 
@@ -346,7 +346,7 @@ switch (type) {
       { max: 200, power: 100 },
       { max: Infinity, power: 120 }
     ];
-    const attackStat = (stats.atk || 0);
+    const attackStat = Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0);
     const rows = tiers.map(t => ({
       condicion: t.max === Infinity ? '>200 kg' : `≤ ${t.max} kg`,
       daño: calcDamageTier(t.power) + attackStat + stabBonus
@@ -369,7 +369,7 @@ switch (type) {
       { ratioMin: 2, power: 60, label: '≥ 2×' },
       { ratioMin: 1, power: 40, label: '< 2×' }
     ];
-    const attackStat = (stats.atk || 0);
+    const attackStat = Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0);
     const rows = tiers.map(t => ({
       condicion: `${t.label} (peso usuario / peso objetivo)`,
       daño: calcDamageTier(t.power) + attackStat + stabBonus
@@ -385,7 +385,7 @@ switch (type) {
 
   case 'user-hp': {
     // Eruption / Water Spout: potencia escala con PS actuales
-    const attackStat = (stats.atk || 0);
+    const attackStat = Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0);
     const examplePowers = [
       { pct: 100, power: 150 },
       { pct: 75, power: 113 },
@@ -407,7 +407,7 @@ switch (type) {
 
   case 'low-user-hp': {
     // Flail / Reversal: potencia sube cuanto menos PS tengas (tiers clásicos)
-    const attackStat = (stats.atk || 0);
+    const attackStat = Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0);
     const tiers = [
       { pctMax: 4, power: 200 },
       { pctMax: 9, power: 150 },
@@ -430,7 +430,7 @@ switch (type) {
 
   case 'target-hp': {
     // Crush Grip / Wring Out: potencia depende de PS del objetivo
-    const attackStat = (stats.atk || 0);
+    const attackStat = Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0);
     const example = [
       { pct: 100, power: 120 },
       { pct: 75, power: 90 },
@@ -452,7 +452,7 @@ switch (type) {
 
   case 'speed-ratio': {
     // Gyro Ball / Electro Ball: potencia por ratio de velocidades (ejemplos)
-    const attackStat = (stats.atk || 0);
+    const attackStat = Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0);
     const examplePowers = [
       { condicion: 'Muy desfavorable', power: 150 },
       { condicion: 'Desfavorable', power: 120 },
@@ -474,7 +474,7 @@ switch (type) {
 
   case 'pp': {
     // Trump Card: potencia depende de PP restantes (ejemplos por PP)
-    const attackStat = (stats.atk || 0);
+    const attackStat = Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0);
     const tiers = [
       { pp: 1, power: 200 },
       { pp: 2, power: 80 },
@@ -496,7 +496,7 @@ switch (type) {
 
   case 'user-boosts': {
     // Stored Power / Power Trip: potencia sube por boosts del usuario
-    const attackStat = (stats.atk || 0);
+    const attackStat = Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0);
     const examples = [0, 2, 4, 6, 8, 10, 12]; // total de etapas
     return {
       damage: null,
@@ -512,7 +512,7 @@ switch (type) {
 
   case 'target-boosts': {
     // Punishment: potencia sube por boosts del objetivo
-    const attackStat = (stats.atk || 0);
+    const attackStat = Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0);
     const examples = [0, 2, 4, 6, 8, 10, 12];
     return {
       damage: null,
@@ -537,7 +537,7 @@ switch (type) {
 
   case 'stockpile': {
     // Spit Up: potencia según Stockpile (0-3)
-    const attackStat = (stats.atk || 0);
+    const attackStat = Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0);
     const tiers = [
       { stacks: 0, power: 0 },
       { stacks: 1, power: 100 },
@@ -558,7 +558,7 @@ switch (type) {
 
   case 'random-power': {
     // Magnitude / Present (cuando hace daño): potencia aleatoria
-    const attackStat = (stats.atk || 0);
+    const attackStat = Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0);
     const examplePowers = [20, 40, 60, 80, 100, 120, 150];
     return {
       damage: null,

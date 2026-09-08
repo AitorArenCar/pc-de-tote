@@ -2,7 +2,34 @@
  * Diálogos y confirmar adición/edición de Pokémon
  */
 
+function addMoveSlot(move = null, focus = true) {
+    const container = document.querySelector('#addDialog .moves');
+    const field = document.createElement('div');
+    field.className = 'move-field';
+    field.innerHTML = '<input class="move-input" type="text" /><button class="btn move-remove" type="button" title="Quitar ataque" aria-label="Quitar ataque">×</button><div class="move-list" hidden></div>';
+    const input = field.querySelector('input');
+    input.value = move?.nameEs || '';
+    input.dataset.selectedId = move?.id || '';
+    input.dataset.selectedEs = move?.nameEs || '';
+    container.appendChild(field);
+    field.querySelector('button').onclick = () => {
+        if (container.children.length > 4) field.remove();
+        else {
+            input.value = '';
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    };
+    setupMoveAutocompleteES();
+    if (focus) input.focus();
+}
+
+function setMoveSlots(moves = []) {
+    document.querySelector('#addDialog .moves').replaceChildren();
+    for (let i = 0; i < Math.max(4, moves.length); i++) addMoveSlot(moves[i], false);
+}
+
 function resetDialog() {
+    setMoveSlots([]);
     const nameInput = document.getElementById('nameInput');
     if (nameInput) nameInput.value = '';
 

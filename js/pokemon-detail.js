@@ -91,7 +91,7 @@ async function showDetails(p) {
     }).join('');
 
     const movePacks = [];
-    const moves = (p.moves || []).slice(0, 4);
+    const moves = (p.moves || []);
     for (const m of moves) {
         if (!m?.id) { movePacks.push(null); continue; }
         try { movePacks.push(await getMoveFullEs(m.id)); } catch { movePacks.push(null); }
@@ -190,6 +190,7 @@ async function showDetails(p) {
     const $notes = document.getElementById('notesBox');
     if ($notes) {
         $notes.value = p.notes || '';
+        RichText.attach($notes);
         $notes.addEventListener('input', (e) => {
             const val = e.target.value;
             p.notes = val;
@@ -354,8 +355,8 @@ async function showDetails(p) {
 
         let pinned = false;
         function show() {
-            const text = (p.heldItem?.effectText || '').replace(/\s+/g, ' ').trim() || 'Sin descripción disponible.';
-            tip.textContent = text;
+            const text = (p.heldItem?.effectText || '').trim() || 'Sin descripción disponible.';
+            tip.innerHTML = RichText.render(text);
             const br = btn.getBoundingClientRect();
             const dr = $detailDialog.getBoundingClientRect();
             const left = Math.min(br.left - dr.left, $detailDialog.clientWidth - 340);
@@ -390,6 +391,17 @@ async function showDetails(p) {
 
     const $editDetail = document.getElementById('editDetail');
     if ($editDetail) $editDetail.onclick = () => startEdit(p);
+    document.getElementById('duplicateDetail').onclick = () => {
+        const copy = JSON.parse(JSON.stringify(p));
+        copy.id = uuid();
+        copy.inTeam = false;
+        copy.nickname = (p.nickname || cap(p.name)) + ' (copia)';
+        copy.heldItem = p.heldItem ? window.Bag?.equipDiff?.(null, p.heldItem.id) || null : null;
+        db.splice(db.findIndex(entry => entry.id === p.id) + 1, 0, copy);
+        setDirty(true);
+        render();
+        startEdit(copy);
+    };
 
     redrawHpUI();
 }
@@ -447,6 +459,7 @@ function startEdit(p) {
     $extra.hidden = false;
     $confirm.disabled = false;
 
+    setMoveSlots(p.moves || []);
     const moveInputs = Array.from(document.querySelectorAll('.move-input'));
     moveInputs.forEach((inp, i) => {
         const mv = (p.moves || [])[i] || null;
@@ -513,7 +526,7 @@ function startEdit(p) {
  */
 function setupMovesDamageTooltips(p) {
     const moveCards = document.querySelectorAll('.move-card');
-    const moves = (p.moves || []).slice(0, 4);
+    const moves = (p.moves || []);
 
     moveCards.forEach((card, index) => {
         const move = moves[index];
@@ -591,7 +604,7 @@ function setupMovesDamageTooltips(p) {
                     contentHtml += `<strong style="color:#7AC74C; font-size:14px;">${damageInfo.damage} de daño</strong>`;
                     contentHtml += `<br/><small style="color:rgba(255,255,255,.7);">${damageInfo.description}</small>`;
                     if (damageInfo.stabApplied) {
-                        contentHtml += '<br/><span style="color:#7AC74C; font-size:11px;">✓ STAB +2</span>';
+                        contentHtml += `<br/><span style="color:#7AC74C; font-size:11px;">✓ STAB +${damageInfo.stabBonus}</span>`;
                     }
                 }
 

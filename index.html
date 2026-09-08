@@ -258,6 +258,7 @@
 
                             <div class="field">
                                 <label>Ataques</label>
+                                <button class="btn" type="button" onclick="addMoveSlot()">＋ Añadir ataque</button>
                                 <div class="moves">
                                     <div class="move-field">
                                         <input class="move-input" type="text" data-slot="0"
@@ -321,6 +322,7 @@
             <header>
                 <h2 id="detailTitle" style="margin:0;font-size:18px">Detalles</h2>
                 <div class="spacer"></div>
+                <button id="duplicateDetail" class="btn" type="button">Duplicar</button>
                 <button id="editDetail" class="btn btn-primary" style="padding:6px 10px">Editar</button>
                 <button id="closeDetail" class="btn" style="padding:6px 10px">Cerrar</button>
             </header>
@@ -469,6 +471,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script src="items.api.js"></script>
+<script src="js/rich-text.js"></script>
 <script src="bag.module.js"></script>
 <script src="supabase.js"></script>
 <script src="fondo.js"></script>

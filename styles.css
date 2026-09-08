@@ -1888,3 +1888,14 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
     max-height: 40vh;
   }
 }
+.rich-toolbar { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:8px 0; }
+.rich-toolbar label { display:inline-flex; gap:6px; align-items:center; }
+.rich-toolbar input[type="color"] { width:36px; height:30px; padding:2px; }
+.rich-editor { min-height:140px; padding:12px; margin:8px 0; border:1px solid rgba(255,255,255,.2); border-radius:10px; overflow-wrap:anywhere; white-space:pre-wrap; line-height:1.5; background:rgba(255,255,255,.06); color:inherit; }
+.rich-editor:focus { outline:2px solid var(--ring); outline-offset:2px; }
+.rich-editor:empty::before { content:attr(data-placeholder); color:var(--muted); pointer-events:none; }
+.rich-toolbar button[aria-pressed="true"] { background:var(--ring); color:white; }
+.rich-editor hr, .helditem-tooltip hr { border:0; border-top:1px solid currentColor; margin:12px 0; opacity:.5; }
+.move-field { position:relative; padding-right:40px; }
+.move-remove { position:absolute; right:0; top:0; padding:6px 10px; }
+.bag-detail-text { white-space:pre-wrap; }
