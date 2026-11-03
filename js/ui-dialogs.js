@@ -29,6 +29,37 @@ function setMoveSlots(moves = []) {
 }
 
 function resetDialog() {
+    editMode = false;
+    editingId = null;
+    $query.value = '';
+    $query.disabled = false;
+    $searchBtn.disabled = false;
+    $feedback.textContent = '';
+    $matches.innerHTML = '';
+    $matches.hidden = true;
+    $extra.hidden = true;
+    $confirm.disabled = true;
+
+    for (const id of ['nicknameInput', 'levelInput', 'numInput', 'heldItemInput']) {
+        const input = document.getElementById(id);
+        if (!input) continue;
+        input.value = '';
+        input.dataset.selectedId = '';
+        input.dataset.selectedEs = '';
+    }
+    for (const stat of ['hp', 'atk', 'def', 'spa', 'spd', 'spe']) {
+        const input = document.getElementById('stat_' + stat);
+        if (input) input.value = input.defaultValue || '';
+    }
+    const genderSelect = document.getElementById('genderSelect');
+    if (genderSelect) genderSelect.value = 'unknown';
+    for (const id of ['natureMatches', 'ballMatches', 'abilityMatches', 'heldItemMatches']) {
+        const list = document.getElementById(id);
+        if (list) {
+            list.innerHTML = '';
+            list.hidden = true;
+        }
+    }
     setMoveSlots([]);
     const nameInput = document.getElementById('nameInput');
     if (nameInput) nameInput.value = '';

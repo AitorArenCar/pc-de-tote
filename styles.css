@@ -1899,3 +1899,18 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
 .move-field { position:relative; padding-right:40px; }
 .move-remove { position:absolute; right:0; top:0; padding:6px 10px; }
 .bag-detail-text { white-space:pre-wrap; }
+.pokemon-links {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 10px;
+}
+.pokemon-links-switch { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.pokemon-links select, .pokemon-links input[type="search"] { max-width: 100%; min-width: 0; padding: 8px; }
+.pokemon-links select { flex: 1 1 220px; }
+.pokemon-links details { margin-top: 10px; }
+.pokemon-links summary { cursor: pointer; }
+.pokemon-links-options { max-height: 220px; overflow-y: auto; margin: 10px 0; }
+.pokemon-links-options label:not([hidden]) { display: flex; align-items: center; gap: 8px; padding: 6px; }
+.pokemon-links-options input { width: auto; flex: 0 0 auto; }
+.pokemon-links-status:empty { display: none; }

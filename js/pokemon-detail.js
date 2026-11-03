@@ -24,6 +24,7 @@ function renderExpBlock(p) {
 }
 
 async function showDetails(p) {
+    $detailDialog.querySelectorAll('.ability-tooltip, .helditem-tooltip, .move-damage-tooltip').forEach(tip => tip.remove());
     ensureExpFields(p);
     window.POKE_INDEX?.set(p.id, p);
 
@@ -186,6 +187,8 @@ async function showDetails(p) {
     <h3 style="margin:14px 0 6px;font-size:14px">Notas</h3>
     <textarea id="notesBox" placeholder="Escribe tus notas..." style="width:95%;min-height:140px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:inherit;resize:vertical;"></textarea>
   `;
+
+    setupPokemonLinks(p, $detailContent);
 
     const $notes = document.getElementById('notesBox');
     if ($notes) {
@@ -394,6 +397,7 @@ async function showDetails(p) {
     document.getElementById('duplicateDetail').onclick = () => {
         const copy = JSON.parse(JSON.stringify(p));
         copy.id = uuid();
+        delete copy.linkGroupId;
         copy.inTeam = false;
         copy.nickname = (p.nickname || cap(p.name)) + ' (copia)';
         copy.heldItem = p.heldItem ? window.Bag?.equipDiff?.(null, p.heldItem.id) || null : null;
