@@ -31,7 +31,13 @@ function refreshHpUI(p, root) {
     const fill = root.querySelector('.hp-fill');
     const num = root.querySelector('.hp-num');
     const input = root.querySelector('.hp-input');
-    if (fill) fill.style.width = (max ? Math.round(current / max * 100) : 0) + '%';
+    const ratio = max > 0 ? current / max : 0;
+    if (fill) {
+        fill.style.width = (ratio * 100) + '%';
+        fill.style.background = ratio <= 0.125 ? '#ef4444'
+            : ratio < 0.25 ? '#f97316'
+            : ratio <= 0.5 ? '#facc15' : '#22c55e';
+    }
     if (num) num.textContent = `${current} / ${max}`;
     if (input) {
         input.max = String(max);

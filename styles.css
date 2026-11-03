@@ -1905,6 +1905,11 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
   border: 1px solid rgba(255,255,255,.15);
   border-radius: 10px;
 }
+
+.hp-markers { position: absolute; inset: 0; pointer-events: none; }
+.hp-marker { position: absolute; width: 2px; transform: translateX(-100%); background: rgba(8,15,30,.8); box-shadow: 1px 0 rgba(255,255,255,.5); }
+.hp-marker-quarter { top: 0; bottom: 0; }
+.hp-marker-eighth { top: 25%; bottom: 25%; width: 1px; }
 .pokemon-links input[type="search"] { max-width: 100%; min-width: 0; padding: 8px; }
 .pokemon-name-select { width: auto; max-width: 100%; min-width: 0; font: inherit; font-weight: 700; padding: 4px 8px; }
 .pokemon-links details { margin-top: 10px; }

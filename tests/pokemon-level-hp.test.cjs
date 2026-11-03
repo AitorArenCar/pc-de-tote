@@ -50,3 +50,14 @@ test('experience without a level up leaves current HP unchanged', () => {
     assert.equal(db[0].level, 10);
     assert.equal(db[0].hpCurrent, 33);
 });
+
+test('HP colors respect exact quarter and eighth thresholds', () => {
+    const { ctx, db, elements } = setup(100);
+    const root = { querySelector: key => elements[key] };
+    for (const [hp, color] of [[100, '#22c55e'], [51, '#22c55e'], [50, '#facc15'],
+        [25, '#facc15'], [24, '#f97316'], [12.6, '#f97316'], [12.5, '#ef4444'], [0, '#ef4444']]) {
+        db[0].hpCurrent = hp;
+        ctx.refreshHpUI(db[0], root);
+        assert.equal(elements['.hp-fill'].style.background, color, `HP: ${hp}`);
+    }
+});

@@ -59,7 +59,7 @@ async function showDetails(p) {
     const hpSection = `
     <div class="hp-box">
       <div class="hp-row">
-        <div class="hp-bar"><div class="hp-fill"></div></div>
+        <div class="hp-bar"><div class="hp-fill"></div><div class="hp-markers" aria-hidden="true">${Array.from({ length: 8 }, (_, i) => `<span class="hp-marker ${i % 2 ? 'hp-marker-quarter' : 'hp-marker-eighth'}" style="left:${(i + 1) * 12.5}%"></span>`).join('')}</div></div>
         <div class="hp-num"></div>
         <div class="hp-ctrl">
           <button class="btn hp-minus">−</button>
@@ -213,20 +213,13 @@ async function showDetails(p) {
 
     // HP UI setup
     const box = $detailContent.querySelector('.hp-box');
-    const $fill = box.querySelector('.hp-fill');
-    const $num = box.querySelector('.hp-num');
     const $input = box.querySelector('.hp-input');
     const $minus = box.querySelector('.hp-minus');
     const $plus = box.querySelector('.hp-plus');
     const $full = box.querySelector('.hp-full');
 
     function redrawHpUI() {
-        const maxHp = computeMaxHp(p);
-        const cur = Math.min(Math.max(0, p.hpCurrent ?? 0), maxHp);
-        $input.max = String(maxHp);
-        $input.value = String(cur);
-        $fill.style.width = maxHp ? Math.round(cur / maxHp * 100) + '%' : '0%';
-        $num.textContent = `${cur} / ${maxHp}`;
+        refreshHpUI(p, box);
     }
 
     $input.addEventListener('input', () => {
