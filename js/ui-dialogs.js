@@ -29,6 +29,7 @@ function setMoveSlots(moves = []) {
 }
 
 function resetDialog() {
+    document.getElementById('pokemonLinkEditor')?.remove();
     editMode = false;
     editingId = null;
     $query.value = '';
@@ -193,7 +194,12 @@ function setupConfirmBtn() {
                     db[idx].hpCurrent = maxHpEdit;
                 }
 
-                setDirty(true);
+                const linkEditor = document.getElementById('pokemonLinkEditor');
+                if (linkEditor?.dataset.pid === editingId) {
+                    savePokemonLinks(db[idx], Array.from(linkEditor.querySelectorAll('input:checked'), input => input.value));
+                } else {
+                    setDirty(true);
+                }
                 render();
             }
 

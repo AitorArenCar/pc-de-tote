@@ -522,6 +522,7 @@ function startEdit(p) {
     const lvl = document.getElementById('levelInput');
     if (lvl) lvl.value = p.level || '';
 
+    setupPokemonLinkEditor(p);
     $dialog.showModal();
 }
 
