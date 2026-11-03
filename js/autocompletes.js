@@ -2,10 +2,10 @@
  * Autocompletes específicos: movimientos, items, naturaleza, habilidad
  */
 
-// Autocomplete de movimientos (solo ES)
+// Autocomplete de movimientos por nombre en español o identificador en inglés
 function setupMoveAutocompleteES() {
     const moveInputs = Array.from(document.querySelectorAll('.move-input'));
-    moveInputs.forEach(inp => inp.placeholder = "Buscar movimiento en español…");
+    moveInputs.forEach(inp => inp.placeholder = "Buscar movimiento en español o inglés…");
 
     moveInputs.forEach(inp => {
         const listEl = inp.parentElement.querySelector('.move-list');
@@ -26,7 +26,7 @@ function setupMoveAutocompleteES() {
 
             // Cache ES conocida
             for (const [id, es] of Object.entries(moveEsCache)) {
-                if (es && es.toLowerCase().includes(q) && !seen.has(id)) {
+                if (es && (es.toLowerCase().includes(q) || id.includes(q)) && !seen.has(id)) {
                     seen.add(id);
                     matches.push({ id, es });
                 }
@@ -34,7 +34,10 @@ function setupMoveAutocompleteES() {
 
             // Ampliar cache dinámicamente
             const ids = (moveIndex?.names || []).filter(id => !seen.has(id));
-            const batch = ids.slice(0, 500);
+            const batch = [...new Set([
+                ...ids.filter(id => id.includes(q)),
+                ...ids.slice(0, 500)
+            ])];
             const promises = batch.map(id => {
                 if (moveEsCache[id]) return Promise.resolve({ id, es: moveEsCache[id] });
                 return moveEs(id).then(es => ({ id, es })).catch(() => ({ id, es: null }));
@@ -42,11 +45,10 @@ function setupMoveAutocompleteES() {
             const results = await Promise.all(promises);
             for (const r of results) {
                 if (matches.length >= 20) break;
-                if (!r.es) continue;
-                const esLower = r.es.toLowerCase();
-                if (esLower.includes(q)) {
+                const esLower = (r.es || '').toLowerCase();
+                if (esLower.includes(q) || r.id.includes(q)) {
                     seen.add(r.id);
-                    matches.push({ id: r.id, es: r.es });
+                    matches.push({ id: r.id, es: r.es || r.id });
                 }
             }
 
