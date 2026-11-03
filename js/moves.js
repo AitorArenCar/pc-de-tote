@@ -2,6 +2,8 @@
  * Sistemas de movimientos y detalles de ataques
  */
 
+let moveDescriptionsEsPromise = null;
+
 async function getMoveFullEs(id) {
     if (moveDetailCache[id]) return moveDetailCache[id];
     const r = await fetch(`${API}/move/${id}`);
@@ -19,6 +21,11 @@ async function getMoveFullEs(id) {
     const esFlavors = (d.flavor_text_entries || []).filter(x => x.language?.name === 'es');
     if (esFlavors.length) {
         descEs = esFlavors[0].flavor_text.replace(/\f|\n/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+    if (!descEs) {
+        moveDescriptionsEsPromise ||= loadDataJson('moveDescriptions_es_v1', {});
+        const descriptions = await moveDescriptionsEsPromise;
+        descEs = descriptions?.[d.name] || '';
     }
 
     const effectChance = d.effect_chance || null;
