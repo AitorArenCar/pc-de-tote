@@ -1937,3 +1937,5 @@ background: linear-gradient(90deg, rgba(214, 255, 143, 1) 0%, rgba(75, 247, 17, 
 }
 .poke-drop-before::before { left: -9px; }
 .poke-drop-after::after { right: -9px; }
+.tera-toggle { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 13px; }
+.tera-toggle input { width: auto; }

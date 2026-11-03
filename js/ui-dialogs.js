@@ -28,7 +28,15 @@ function setMoveSlots(moves = []) {
     for (let i = 0; i < Math.max(4, moves.length); i++) addMoveSlot(moves[i], false);
 }
 
+function setupTeraTypeSelect(value = '') {
+    const select = document.getElementById('teraTypeSelect');
+    select.replaceChildren(new Option('Sin teratipo', ''));
+    Object.keys(TYPE_META).forEach(type => select.add(new Option(typeEs(type), type)));
+    select.value = value;
+}
+
 function resetDialog() {
+    setupTeraTypeSelect();
     document.getElementById('pokemonLinkEditor')?.remove();
     editMode = false;
     editingId = null;
@@ -167,6 +175,8 @@ function setupConfirmBtn() {
         const level = Number(document.getElementById('levelInput')?.value || 0) || null;
         const shinyToggle = document.getElementById('shinyToggle');
         const shiny = !!shinyToggle?.checked;
+        const selectedTeraType = document.getElementById('teraTypeSelect').value;
+        const teraType = Object.hasOwn(TYPE_META, selectedTeraType) ? selectedTeraType : null;
 
         // EDITAR
         if (editMode && editingId) {
@@ -186,7 +196,8 @@ function setupConfirmBtn() {
                     height: pendingBase.height,
                     weight: pendingBase.weight,
                     moves, ball, nature, gender, ability, heldItem: heldItemNew, stats, num,
-                    nickname, level, shiny
+                    nickname, level, shiny, teraType,
+                    teraActive: !!teraType && old.teraType === teraType && !!old.teraActive
                 };
 
                 applyHpRatio(db[idx], hpRatio);
@@ -225,6 +236,7 @@ function setupConfirmBtn() {
             moves, ball, nature, gender, ability, heldItem: heldItemNewAdd, stats, num,
             nickname, level,
             inTeam: false,
+            teraType, teraActive: false,
             shiny
         };
 

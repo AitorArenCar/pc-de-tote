@@ -189,6 +189,20 @@ async function showDetails(p) {
   `;
 
     setupPokemonLinks(p, $detailTitle);
+    if (p.teraType && Object.hasOwn(TYPE_META, p.teraType)) {
+        const label = document.createElement('label');
+        label.className = 'tera-toggle';
+        const toggle = document.createElement('input');
+        toggle.type = 'checkbox';
+        toggle.checked = !!p.teraActive;
+        label.append(toggle, document.createTextNode(` Activar Tera: ${typeEs(p.teraType)} (ofensivo)`));
+        $detailContent.querySelector('.chips').after(label);
+        toggle.addEventListener('change', () => {
+            p.teraActive = toggle.checked;
+            setDirty(true);
+            $detailDialog.querySelectorAll('.move-damage-tooltip').forEach(tip => { tip.style.display = 'none'; });
+        });
+    }
 
     const $notes = document.getElementById('notesBox');
     if ($notes) {
@@ -409,6 +423,7 @@ async function showDetails(p) {
 }
 
 function startEdit(p) {
+    setupTeraTypeSelect(p.teraType || '');
     editMode = true;
     editingId = p.id;
 
@@ -606,11 +621,10 @@ function setupMovesDamageTooltips(p) {
                 } else {
                     contentHtml += `<strong style="color:#7AC74C; font-size:14px;">${damageInfo.damage} de daño</strong>`;
                     contentHtml += `<br/><small style="color:rgba(255,255,255,.7);">${damageInfo.description}</small>`;
-                    if (damageInfo.stabApplied) {
-                        contentHtml += `<br/><span style="color:#7AC74C; font-size:11px;">✓ STAB +${damageInfo.stabBonus}</span>`;
-                    }
                 }
 
+                const stab = calculateStab(p, moveData);
+                if (stab.applied) contentHtml += `<br/><small>${stab.text} = +${stab.bonus} de STAB</small>`;
                 damageTooltip.innerHTML = contentHtml;
 
                 const br = card.getBoundingClientRect();

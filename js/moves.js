@@ -76,6 +76,19 @@ async function getAbilityInfoEs(id) {
  * @param {Object} move - Objeto del movimiento con power, type, class, etc.
  * @returns {Object} - {damage: número o null, isVariablePower: bool, description: string}
  */
+function calculateStab(pokemon, move) {
+    const stat = Number((move.class === 'physical' ? pokemon.stats?.atk : pokemon.stats?.spa) || 0);
+    const original = move.class !== 'status' && (pokemon.types || []).includes(move.type);
+    const tera = move.class !== 'status' && pokemon.teraActive && !!pokemon.teraType && pokemon.teraType === move.type;
+    const originalBonus = original ? Math.ceil(stat / 2) : 0;
+    // Round the combined halves once so matching original + Tera equals the full stat.
+    const teraBonus = tera ? (original ? stat - originalBonus : Math.ceil(stat / 2)) : 0;
+    const parts = [];
+    if (original) parts.push(`STAB original (+${originalBonus})`);
+    if (tera) parts.push(`STAB Tera (+${teraBonus})`);
+    return { bonus: originalBonus + teraBonus, applied: !!(original || tera), text: parts.join(' + ') };
+}
+
 function calculateMoveDamage(pokemon, move) {
     if (!pokemon || !move) return { damage: null, isVariablePower: false, description: 'Sin datos' };
 
@@ -185,14 +198,15 @@ const variablePowerMoves = {
     const attackStat = isPhysical ? (stats.atk || 0) : (stats.spa || 0);
 
     // Calcular STAB
-    const hasSAB = pokemonTypes.includes(moveType);
-    const stabBonus = hasSAB ? Math.ceil(Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0) / 2) : 0;
+    const stab = calculateStab(pokemon, move);
+    const hasSAB = stab.applied;
+    const stabBonus = stab.bonus;
 
     // Fórmula simplificada: TierPotencia + Stat + (STAB ? Stat / 2 : 0)
     const finalDamage = powerTier + attackStat + stabBonus;
 
     const tierText = DAMAGE_TIER_MAP[powerTier] || 'Desconocido';
-    const stabText = hasSAB ? ` + STAB (+${stabBonus})` : '';
+    const stabText = hasSAB ? ` + ${stab.text}` : '';
     const description = `${powerTier} + ${attackStat} (stat)${stabText} = ${finalDamage}`;
 
     return {
@@ -211,8 +225,9 @@ function getVariablePowerDamage(pokemon, move, type) {
     const stats = pokemon.stats || {};
     const pokemonTypes = pokemon.types || [];
     const moveType = move.type || 'normal';
-    const hasSAB = pokemonTypes.includes(moveType);
-    const stabBonus = hasSAB ? Math.ceil(Number(move.class === 'physical' ? stats.atk || 0 : stats.spa || 0) / 2) : 0;
+    const stab = calculateStab(pokemon, move);
+    const hasSAB = stab.applied;
+    const stabBonus = stab.bonus;
 
 switch (type) {
   case 'seismic':
