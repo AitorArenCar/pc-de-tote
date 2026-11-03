@@ -83,10 +83,9 @@ function calculateStab(pokemon, move) {
     const originalBonus = original ? Math.ceil(stat / 2) : 0;
     // Round the combined halves once so matching original + Tera equals the full stat.
     const teraBonus = tera ? (original ? stat - originalBonus : Math.ceil(stat / 2)) : 0;
-    const parts = [];
-    if (original) parts.push(`STAB original (+${originalBonus})`);
-    if (tera) parts.push(`STAB Tera (+${teraBonus})`);
-    return { bonus: originalBonus + teraBonus, applied: !!(original || tera), text: parts.join(' + ') };
+    const bonus = originalBonus + teraBonus;
+    const text = `STAB +${bonus} (${tera ? 'potenciado por Tera' : 'sin potenciar por Tera'})`;
+    return { bonus, applied: !!(original || tera), text };
 }
 
 function calculateMoveDamage(pokemon, move) {

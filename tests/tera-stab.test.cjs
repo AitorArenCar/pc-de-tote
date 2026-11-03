@@ -12,7 +12,8 @@ test('matching original and Tera add the whole stat, including odd stats', () =>
     const result = ctx.calculateMoveDamage(pokemon, move);
     assert.equal(result.stabBonus, 9);
     assert.equal(result.damage, 22);
-    assert.match(result.description, /STAB original \(\+5\).*STAB Tera \(\+4\)/);
+    assert.match(result.description, /STAB \+9 \(potenciado por Tera\)/);
+    assert.doesNotMatch(result.description, /original|\+5|\+4/);
 });
 test('new offensive type adds half the appropriate stat and preserves original STAB', () => {
     const p = { ...pokemon, teraType: 'fire' };
@@ -23,6 +24,7 @@ test('new offensive type adds half the appropriate stat and preserves original S
 });
 test('disabled or unconfigured Tera provides no extra bonus, status moves do no damage', () => {
     assert.equal(ctx.calculateStab({ ...pokemon, teraActive: false }, move).bonus, 5);
+    assert.equal(ctx.calculateStab({ ...pokemon, teraActive: false }, move).text, 'STAB +5 (sin potenciar por Tera)');
     assert.equal(ctx.calculateStab({ ...pokemon, teraType: null }, move).bonus, 5);
     assert.equal(ctx.calculateMoveDamage(pokemon, { ...move, class: 'status' }).damage, null);
 });

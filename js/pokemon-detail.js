@@ -624,7 +624,7 @@ function setupMovesDamageTooltips(p) {
                 }
 
                 const stab = calculateStab(p, moveData);
-                if (stab.applied) contentHtml += `<br/><small>${stab.text} = +${stab.bonus} de STAB</small>`;
+                if (stab.applied) contentHtml += `<br/><small>${stab.text}</small>`;
                 damageTooltip.innerHTML = contentHtml;
 
                 const br = card.getBoundingClientRect();
