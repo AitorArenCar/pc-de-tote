@@ -119,6 +119,7 @@ function ensureExpFields(p) {
 // Concede EXP con carry-over de nivel
 function grantExp(p, amount) {
     ensureExpFields(p);
+    const hpRatio = hpRatioOf(p);
     const expMax = p.expMax || 10;
     let levelsUp = 0;
 
@@ -130,7 +131,8 @@ function grantExp(p, amount) {
         levelsUp += 1;
     }
 
-    syncLinkedPokemonState(p);
+    if (levelsUp > 0) applyHpRatio(p, hpRatio);
+    syncLinkedPokemonState(p, hpRatio);
     setDirty(true);
     updateExpUI(p.id, p);
 
@@ -177,6 +179,8 @@ function refreshDetailInline(p) {
 
     const titleLvl = document.querySelector('.detail-level-title');
     if (titleLvl) titleLvl.textContent = p.level;
+
+    refreshHpUI(p, root);
 
     updateExpUI(p.id, p);
 }

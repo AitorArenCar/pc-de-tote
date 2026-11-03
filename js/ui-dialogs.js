@@ -173,6 +173,7 @@ function setupConfirmBtn() {
             const idx = db.findIndex(x => x.id === editingId);
             if (idx !== -1) {
                 const old = db[idx];
+                const hpRatio = hpRatioOf(old);
                 const heldItemNew = window.Bag && window.Bag.equipDiff ? window.Bag.equipDiff(old.heldItem || null, nextHeldId) : (old.heldItem || null);
 
                 db[idx] = {
@@ -188,12 +189,7 @@ function setupConfirmBtn() {
                     nickname, level, shiny
                 };
 
-                const maxHpEdit = computeMaxHp(db[idx]);
-                if (typeof db[idx].hpCurrent !== 'number' || isNaN(db[idx].hpCurrent)) {
-                    db[idx].hpCurrent = maxHpEdit;
-                } else if (db[idx].hpCurrent > maxHpEdit) {
-                    db[idx].hpCurrent = maxHpEdit;
-                }
+                applyHpRatio(db[idx], hpRatio);
 
                 const linkEditor = document.getElementById('pokemonLinkEditor');
                 if (linkEditor?.dataset.pid === editingId) {

@@ -15,6 +15,30 @@ function ensureHp(p) {
     return { max, current: p.hpCurrent };
 }
 
+function hpRatioOf(p) {
+    const { max, current } = ensureHp(p);
+    return max > 0 ? current / max : 0;
+}
+
+function applyHpRatio(p, ratio) {
+    const max = computeMaxHp(p);
+    p.hpCurrent = ratio > 0 && max > 0
+        ? Math.min(max, Math.max(1, Math.round(max * ratio))) : 0;
+}
+
+function refreshHpUI(p, root) {
+    const { max, current } = ensureHp(p);
+    const fill = root.querySelector('.hp-fill');
+    const num = root.querySelector('.hp-num');
+    const input = root.querySelector('.hp-input');
+    if (fill) fill.style.width = (max ? Math.round(current / max * 100) : 0) + '%';
+    if (num) num.textContent = `${current} / ${max}`;
+    if (input) {
+        input.max = String(max);
+        input.value = String(current);
+    }
+}
+
 function medPocket() {
     return window.Bag?.getState?.()?.pockets?.medicine || {};
 }

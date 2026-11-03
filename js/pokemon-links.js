@@ -4,11 +4,11 @@ function linkedPokemon(p) {
         (p.linkGroupId && entry.linkGroupId === p.linkGroupId));
 }
 
-function syncLinkedPokemonState(p) {
+function syncLinkedPokemonState(p, hpRatio = null) {
     if (!p.linkGroupId) return;
     ensureExpFields(p);
     const hp = ensureHp(p);
-    const ratio = hp.max > 0 ? hp.current / hp.max : 0;
+    const ratio = hpRatio ?? (hp.max > 0 ? hp.current / hp.max : 0);
     for (const entry of linkedPokemon(p)) {
         if (entry.id === p.id) continue;
         entry.level = p.level;
