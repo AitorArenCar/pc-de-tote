@@ -406,7 +406,7 @@ async function showDetails(p) {
         copy.inTeam = false;
         copy.nickname = (p.nickname || cap(p.name)) + ' (copia)';
         copy.heldItem = p.heldItem ? window.Bag?.equipDiff?.(null, p.heldItem.id) || null : null;
-        db.splice(db.findIndex(entry => entry.id === p.id) + 1, 0, copy);
+        db.push(copy);
         setDirty(true);
         render();
         startEdit(copy);

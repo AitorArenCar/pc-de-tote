@@ -236,7 +236,6 @@ function setupConfirmBtn() {
         entry.hpCurrent = maxHpNew;
 
         db.push(entry);
-        db.sort((a, b) => a.dexId - b.dexId);
         const linkEditor = document.getElementById('pokemonLinkEditor');
         if (linkEditor && !linkEditor.dataset.pid) {
             const selectedIds = Array.from(linkEditor.querySelectorAll('input:checked'), input => input.value);

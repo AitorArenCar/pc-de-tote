@@ -2,7 +2,77 @@
  * Renderizado del grid y tarjetas de Pokémon
  */
 
+let draggedPokemonId = null;
+
+function movePokemonToPosition(id, position) {
+    const from = db.findIndex(p => p.id === id);
+    if (from < 0 || !Number.isInteger(position) || position < 1 || position > db.length) return false;
+    const to = position - 1;
+    if (from === to) return false;
+    const [pokemon] = db.splice(from, 1);
+    db.splice(to, 0, pokemon);
+    setDirty(true);
+    render();
+    const movedCard = Array.from($grid.children).find(card => card.dataset.pid === id);
+    movedCard?.querySelector('.poke-move')?.focus();
+    return true;
+}
+
+function setupPokemonOrdering(card, p) {
+    const move = document.createElement('button');
+    move.type = 'button';
+    move.className = 'poke-move';
+    move.textContent = '↕ Mover';
+    move.title = 'Arrastra para ordenar o pulsa para elegir una posición';
+    move.setAttribute('aria-label', `Mover ${p.nickname || p.name} a otra posición`);
+    move.draggable = true;
+    move.addEventListener('click', event => {
+        event.stopPropagation();
+        const current = db.findIndex(entry => entry.id === p.id) + 1;
+        const answer = prompt(`Posición para ${p.nickname || cap(p.name)} (1–${db.length}):`, String(current));
+        if (answer === null) return;
+        const position = Number(answer.trim());
+        if (!Number.isInteger(position) || position < 1 || position > db.length) {
+            alert(`Introduce una posición entre 1 y ${db.length}.`);
+            return;
+        }
+        movePokemonToPosition(p.id, position);
+    });
+    move.addEventListener('dragstart', event => {
+        draggedPokemonId = p.id;
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', p.id);
+        event.dataTransfer.setDragImage(card, card.offsetWidth / 2, 20);
+        card.classList.add('poke-dragging');
+    });
+    move.addEventListener('dragend', () => {
+        draggedPokemonId = null;
+        card.classList.remove('poke-dragging');
+        $grid.querySelectorAll('.poke-drop-target').forEach(el => el.classList.remove('poke-drop-target'));
+    });
+    card.addEventListener('dragover', event => {
+        if (!draggedPokemonId || draggedPokemonId === p.id) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+        card.classList.add('poke-drop-target');
+    });
+    card.addEventListener('dragleave', event => {
+        if (!card.contains(event.relatedTarget)) card.classList.remove('poke-drop-target');
+    });
+    card.addEventListener('drop', event => {
+        if (!draggedPokemonId) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const id = draggedPokemonId;
+        draggedPokemonId = null;
+        card.classList.remove('poke-drop-target');
+        movePokemonToPosition(id, db.findIndex(entry => entry.id === p.id) + 1);
+    });
+    card.append(move);
+}
+
 function render() {
+    draggedPokemonId = null;
     $grid.innerHTML = '';
     if (!db.length) {
         $empty.hidden = false;
@@ -25,6 +95,7 @@ function render() {
         const img = document.createElement('img');
         img.alt = p.name;
         img.loading = 'lazy';
+        img.draggable = false;
         const cardSprite = spriteUrlOf(p);
         img.src = cardSprite;
 
@@ -105,6 +176,7 @@ function render() {
         card.addEventListener('click', () => showDetails(p));
         card.style.position = 'relative';
         card.append(tag, img, name, tbtn, del);
+        setupPokemonOrdering(card, p);
         $grid.appendChild(card);
     }
 

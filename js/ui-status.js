@@ -129,7 +129,7 @@ function toggleTeam(p) {
 
 function showTeamList() {
     const $teamContent = document.getElementById('teamContent');
-    const team = db.filter(x => x.inTeam).sort((a, b) => a.dexId - b.dexId);
+    const team = db.filter(x => x.inTeam);
 
     if (!team.length) {
         $teamContent.innerHTML = `<div class="muted" style="padding:12px">No tienes Pokémon en el equipo todavía.</div>`;
