@@ -6,6 +6,12 @@ async function ensurePokemonIndex() {
     if (pokemonIndex) return pokemonIndex;
     const cached = JSON.parse(localStorage.getItem('pokeIndex_v1') || 'null');
     if (cached?.names?.length) {
+        const fromFile = await loadDataJson('pokeIndex_v1', null);
+        if (fromFile?.names?.length) {
+            const known = new Set(cached.names);
+            cached.names.push(...fromFile.names.filter(name => !known.has(name)));
+            localStorage.setItem('pokeIndex_v1', JSON.stringify(cached));
+        }
         pokemonIndex = cached;
         return cached;
     }
