@@ -2,6 +2,22 @@
  * Sistema de intercambios (trades)
  */
 
+function tradeForms(pokemon, entries) {
+    if (!pokemon) return [];
+    return entries.filter(entry => entry.id === pokemon.id ||
+        (pokemon.linkGroupId && entry.linkGroupId === pokemon.linkGroupId));
+}
+
+function tradeFormsSummary(forms) {
+    return forms.map(p => `${cap(p.name || '?')}${p.nickname ? ' (' + p.nickname + ')' : ''} Nv.${p.level || '?'}`).join(' + ');
+}
+
+function tradeSnapshotFormsHtml(pokemon) {
+    const forms = pokemon?.__linkedForms;
+    return Array.isArray(forms) && forms.length > 1
+        ? `<p class="small">Incluye ${forms.length} formas: ${escapeHtml(tradeFormsSummary(forms))}</p>` : '';
+}
+
 let __tradesSubscription = null;
 let __tradesSubscribedUserId = null;
 let __activeTradeTab = 'received';
@@ -346,8 +362,8 @@ function setupTradeEvents() {
         const myPokemon = db.find(p => p.id === currentTradeState.myPokemonId);
         const targetPokemon = currentTradeState.selectedUserPokemonList.find(p => p.id === currentTradeState.targetPokemonId);
 
-        $summaryMyPokemon.textContent = `${cap(myPokemon?.nickname || myPokemon?.name)} Nv.${myPokemon?.level || '?'}`;
-        $summaryTargetPokemon.textContent = `${cap(targetPokemon?.nickname || targetPokemon?.name)} Nv.${targetPokemon?.level || '?'} (${currentTradeState.selectedUserBoxName || 'Mi caja'})`;
+        $summaryMyPokemon.textContent = tradeFormsSummary(tradeForms(myPokemon, db));
+        $summaryTargetPokemon.textContent = `${tradeFormsSummary(tradeForms(targetPokemon, currentTradeState.selectedUserPokemonList))} (${currentTradeState.selectedUserBoxName || 'Mi caja'})`;
         $summaryTargetUser.textContent = `📬 Enviando a: ${currentTradeState.selectedUserEmail}`;
 
         $tradeStep2.hidden = true;
@@ -493,11 +509,13 @@ async function loadPendingTrades() {
                         <div class="trade-card-pokemon">
                             <strong>${cap(initiatorPokemon?.nickname || initiatorPokemon?.name || '?')}</strong><br>
                             <span style="font-size:11px; opacity:.8;">Nv.${initiatorPokemon?.level || '?'} · ${escapeHtml(initiatorBoxName)}</span>
+                            ${tradeSnapshotFormsHtml(initiatorPokemon)}
                         </div>
                         <div style="text-align:center; align-self:center;">⇄</div>
                         <div class="trade-card-pokemon" style="border-left-color:#34d399; background:rgba(52,211,153,.1);">
                             <strong>${cap(targetPokemon?.nickname || targetPokemon?.name || '?')}</strong><br>
                             <span style="font-size:11px; opacity:.8;">Nv.${targetPokemon?.level || '?'} · ${escapeHtml(targetBoxName)}</span>
+                            ${tradeSnapshotFormsHtml(targetPokemon)}
                         </div>
                     </div>
                     <div class="trade-card-actions">

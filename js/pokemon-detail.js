@@ -34,7 +34,7 @@ async function showDetails(p) {
     if (p.shiny) displayName += ' ★';
 
     const $detailTitle = document.getElementById('detailTitle');
-    $detailTitle.innerHTML = `${displayName} <span class="chip">Nv. <span class="detail-level detail-level-title">${p.level}</span></span>`;
+    $detailTitle.innerHTML = `<span class="detail-title-name">${escapeHtml(displayName)}</span> <span class="chip">Nv. <span class="detail-level detail-level-title">${p.level}</span></span>`;
 
     const natUp = p.nature?.up || null, natDown = p.nature?.down || null;
     const natName = p.nature?.nameEs || '—';
@@ -188,7 +188,7 @@ async function showDetails(p) {
     <textarea id="notesBox" placeholder="Escribe tus notas..." style="width:95%;min-height:140px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:inherit;resize:vertical;"></textarea>
   `;
 
-    setupPokemonLinks(p, $detailContent);
+    setupPokemonLinks(p, $detailTitle);
 
     const $notes = document.getElementById('notesBox');
     if ($notes) {
@@ -232,21 +232,25 @@ async function showDetails(p) {
     $input.addEventListener('input', () => {
         const v = Number($input.value || 0);
         p.hpCurrent = Math.min(Math.max(0, v), computeMaxHp(p));
+        syncLinkedPokemonState(p);
         setDirty(true);
         redrawHpUI();
     });
     $minus.addEventListener('click', () => {
         p.hpCurrent = Math.max(0, (p.hpCurrent || 0) - 1);
+        syncLinkedPokemonState(p);
         setDirty(true);
         redrawHpUI();
     });
     $plus.addEventListener('click', () => {
         p.hpCurrent = Math.min(computeMaxHp(p), (p.hpCurrent || 0) + 1);
+        syncLinkedPokemonState(p);
         setDirty(true);
         redrawHpUI();
     });
     $full.addEventListener('click', () => {
         p.hpCurrent = computeMaxHp(p);
+        syncLinkedPokemonState(p);
         setDirty(true);
         redrawHpUI();
     });
@@ -266,6 +270,7 @@ async function showDetails(p) {
         if (!bagConsumeByEsName(def.name)) return;
 
         p.hpCurrent = next;
+        syncLinkedPokemonState(p);
         setDirty(true);
         redrawHpUI();
 

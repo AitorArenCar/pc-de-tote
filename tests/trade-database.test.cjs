@@ -27,6 +27,7 @@ test('atomic trades and revision protection in PostgreSQL', async t => {
       grant all on public.poke_boxes, public.trades to authenticated;
     `);
     await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/migrations/20261103_atomic_trades.sql'), 'utf8'));
+    await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/migrations/20261103_linked_form_trades.sql'), 'utf8'));
     await asUser(alice);
     const a = await rpc('save_box_v2', [null, { entries: [{ id: 'a', name: 'Alice Pokemon', hp: 17 }], bag: { coins: 2 } }, 'Alice', 0]);
     await asUser(bob);
@@ -61,8 +62,8 @@ test('atomic trades and revision protection in PostgreSQL', async t => {
       const rows = await boxes();
       const nextA = rows.find(r => r.id === a.id).data;
       const nextB = rows.find(r => r.id === b.id).data;
-      assert.deepEqual(nextA.entries, b.data.entries);
-      assert.deepEqual(nextB.entries, a.data.entries);
+      assert.deepEqual(nextA.entries, b.data.entries.map(p => ({ ...p, inTeam: false })));
+      assert.deepEqual(nextB.entries, a.data.entries.map(p => ({ ...p, inTeam: false })));
       assert.deepEqual(nextA.bag, a.data.bag); assert.deepEqual(nextB.bag, b.data.bag);
       assert.equal(nextA.revision, 2); assert.equal(nextB.revision, 2);
     });
@@ -91,6 +92,74 @@ test('atomic trades and revision protection in PostgreSQL', async t => {
     await t.test('cancelled request cannot be accepted', async () => {
       await rpc('reject_trade_v2', [overlapping.id]);
       await assert.rejects(rpc('accept_box_trade_v2', [overlapping.id]), /not pending/);
+    });
+
+    async function linkedFixture() {
+      await asUser(alice);
+      const a = await rpc('save_box_v2', [null, { entries: [
+        { id: 'base', name: 'Base', linkGroupId: 'same-group', hpCurrent: 12, inTeam: true },
+        { id: 'mega', name: 'Mega', linkGroupId: 'same-group', notes: 'keep me' },
+        { id: 'untouched-a', name: 'Other' }
+      ], bag: { coins: 9 } }, 'Forms A', 0]);
+      await asUser(bob);
+      const b = await rpc('save_box_v2', [null, { entries: [
+        { id: 'normal', name: 'Normal', linkGroupId: 'same-group' },
+        { id: 'attack', name: 'Attack', linkGroupId: 'same-group' },
+        { id: 'defense', name: 'Defense', linkGroupId: 'same-group' },
+        { id: 'untouched-b', name: 'Other' }
+      ] }, 'Forms B', 0]);
+      await asUser(alice);
+      const trade = await rpc('create_trade_v3', [{ target_user_id: bob, initiator_box_id: a.id,
+        target_box_id: b.id, initiator_pokemon_id: 'mega', target_pokemon_id: 'attack',
+        initiator_pokemon_data: { __linkedForms: [] } }]);
+      await asUser(bob);
+      return { a, b, trade };
+    }
+    await t.test('all linked forms move atomically with fresh group IDs and server snapshots', async () => {
+      const { a, b, trade } = await linkedFixture();
+      assert.equal(trade.initiator_pokemon_data.__linkedForms.length, 2);
+      assert.equal(trade.target_pokemon_data.__linkedForms.length, 3);
+      await rpc('accept_box_trade_v3', [trade.id]);
+      const rows = await boxes();
+      const nextA = rows.find(r => r.id === a.id).data;
+      const nextB = rows.find(r => r.id === b.id).data;
+      assert.deepEqual(nextA.entries.map(p => p.id), ['untouched-a', 'normal', 'attack', 'defense']);
+      assert.deepEqual(nextB.entries.map(p => p.id), ['untouched-b', 'base', 'mega']);
+      const incomingA = nextA.entries.slice(1), incomingB = nextB.entries.slice(1);
+      assert.equal(new Set(incomingA.map(p => p.linkGroupId)).size, 1);
+      assert.equal(new Set(incomingB.map(p => p.linkGroupId)).size, 1);
+      assert.notEqual(incomingA[0].linkGroupId, 'same-group');
+      assert.notEqual(incomingA[0].linkGroupId, incomingB[0].linkGroupId);
+      assert.ok([...incomingA, ...incomingB].every(p => p.inTeam === false));
+      assert.equal(incomingB[0].hpCurrent, 12);
+      assert.equal(incomingB[1].notes, 'keep me');
+      assert.deepEqual(nextA.bag, { coins: 9 });
+      const after = await boxes();
+      await rpc('accept_box_trade_v3', [trade.id]);
+      assert.deepEqual(await boxes(), after);
+    });
+    await t.test('changed group membership rejects entire trade', async () => {
+      const { b, trade } = await linkedFixture();
+      b.data.entries = b.data.entries.filter(p => p.id !== 'defense');
+      await rpc('save_box_v2', [b.id, b.data, b.name, 1]);
+      const before = await boxes();
+      await assert.rejects(rpc('accept_box_trade_v3', [trade.id]), /Han cambiado las formas/);
+      assert.deepEqual(await boxes(), before);
+    });
+    await t.test('duplicate incoming linked form rejects entire trade', async () => {
+      const { b, trade } = await linkedFixture();
+      b.data.entries.push({ id: 'base' });
+      await rpc('save_box_v2', [b.id, b.data, b.name, 1]);
+      const before = await boxes();
+      await assert.rejects(rpc('accept_box_trade_v3', [trade.id]), /already exists/);
+      assert.deepEqual(await boxes(), before);
+    });
+    await t.test('legacy pending request cannot silently transfer extra forms', async () => {
+      const { trade } = await linkedFixture();
+      await db.query("update public.trades set initiator_pokemon_data = initiator_pokemon_data - '__linkedForms' where id = $1", [trade.id]);
+      const before = await boxes();
+      await assert.rejects(rpc('accept_box_trade_v2', [trade.id]), /nueva solicitud/);
+      assert.deepEqual(await boxes(), before);
     });
   } finally { await db.close(); }
 });

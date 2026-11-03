@@ -130,6 +130,8 @@ function grantExp(p, amount) {
         levelsUp += 1;
     }
 
+    syncLinkedPokemonState(p);
+    setDirty(true);
     updateExpUI(p.id, p);
 
     if (levelsUp > 0) {
@@ -144,6 +146,8 @@ function grantExp(p, amount) {
 function setExp(p, value) {
     ensureExpFields(p);
     p.exp = Math.max(0, Math.min(p.expMax, Number(value) || 0));
+    syncLinkedPokemonState(p);
+    setDirty(true);
     return p;
 }
 

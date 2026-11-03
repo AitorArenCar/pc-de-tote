@@ -241,7 +241,7 @@ async function getUser() {
       created_at: new Date().toISOString()
     };
 
-    const { data, error } = await sb.rpc('create_trade_v2', { p_trade: row });
+    const { data, error } = await sb.rpc('create_trade_v3', { p_trade: row });
 
     if (error) throw error;
     return data;
@@ -285,7 +285,7 @@ async function getUser() {
   }
 
   async function acceptBoxTrade(tradeId) {
-    const { data, error } = await sb.rpc('accept_box_trade_v2', { p_trade_id: tradeId });
+    const { data, error } = await sb.rpc('accept_box_trade_v3', { p_trade_id: tradeId });
     if (error) throw error;
     return data;
   }

@@ -107,6 +107,7 @@ function resetDialog() {
     if ($result) $result.innerHTML = '';
     const shinyToggle = document.getElementById('shinyToggle');
     if (shinyToggle) shinyToggle.checked = false;
+    setupPokemonLinkEditor();
 }
 
 // Evento: confirmar añadir/editar Pokémon
@@ -236,7 +237,14 @@ function setupConfirmBtn() {
 
         db.push(entry);
         db.sort((a, b) => a.dexId - b.dexId);
-        setDirty(true);
+        const linkEditor = document.getElementById('pokemonLinkEditor');
+        if (linkEditor && !linkEditor.dataset.pid) {
+            const selectedIds = Array.from(linkEditor.querySelectorAll('input:checked'), input => input.value);
+            const stateSource = db.find(p => p.id === selectedIds[0]) || entry;
+            savePokemonLinks(entry, selectedIds, stateSource);
+        } else {
+            setDirty(true);
+        }
         render();
         $dialog.close();
     });
