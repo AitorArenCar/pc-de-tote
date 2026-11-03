@@ -33,3 +33,21 @@ test('variable damage uses the same Tera bonus', () => {
     const result = ctx.calculateMoveDamage(p, { ...move, id: 'acrobatics', type: 'flying' });
     assert.equal(result.table[0]['daño'], 22);
 });
+
+test('activating Tera disables every other form; deactivating preserves other selections', () => {
+    const db = [
+        { id: 'a', teraType: 'water', teraActive: true },
+        { id: 'b', teraType: 'fire', teraActive: true },
+        { id: 'c', teraType: 'grass', teraActive: false }
+    ];
+    let saves = 0;
+    const context = vm.createContext({ db, setDirty: () => saves++ });
+    vm.runInContext(fs.readFileSync(path.join(__dirname, '../js/pokemon-detail.js'), 'utf8'), context);
+    context.setPokemonTeraActive(db[2], true);
+    assert.deepEqual(db.map(p => p.teraActive), [false, false, true]);
+    context.setPokemonTeraActive(db[0], false);
+    assert.equal(db[2].teraActive, true);
+    context.setPokemonTeraActive(db[2], false);
+    assert.ok(db.every(p => !p.teraActive));
+    assert.equal(saves, 3);
+});

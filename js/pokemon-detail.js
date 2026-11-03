@@ -23,6 +23,16 @@ function renderExpBlock(p) {
   `;
 }
 
+function setPokemonTeraActive(p, active) {
+    p.teraActive = !!active && !!p.teraType;
+    if (p.teraActive) {
+        db.forEach(entry => {
+            if (entry.id !== p.id) entry.teraActive = false;
+        });
+    }
+    setDirty(true);
+}
+
 async function showDetails(p) {
     $detailDialog.querySelectorAll('.ability-tooltip, .helditem-tooltip, .move-damage-tooltip').forEach(tip => tip.remove());
     ensureExpFields(p);
@@ -198,8 +208,8 @@ async function showDetails(p) {
         label.append(toggle, document.createTextNode(` Activar Tera: ${typeEs(p.teraType)} (ofensivo)`));
         $detailContent.querySelector('.chips').after(label);
         toggle.addEventListener('change', () => {
-            p.teraActive = toggle.checked;
-            setDirty(true);
+            setPokemonTeraActive(p, toggle.checked);
+            toggle.checked = !!p.teraActive;
             $detailDialog.querySelectorAll('.move-damage-tooltip').forEach(tip => { tip.style.display = 'none'; });
         });
     }
@@ -411,6 +421,7 @@ async function showDetails(p) {
         copy.id = uuid();
         delete copy.linkGroupId;
         copy.inTeam = false;
+        copy.teraActive = false;
         copy.nickname = (p.nickname || cap(p.name)) + ' (copia)';
         copy.heldItem = p.heldItem ? window.Bag?.equipDiff?.(null, p.heldItem.id) || null : null;
         db.push(copy);
