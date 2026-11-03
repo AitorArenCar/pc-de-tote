@@ -181,6 +181,7 @@ async function serializeAppState() {
 
 function applyAppState(data, { silent = false } = {}) {
     if (!data || typeof data !== 'object') return;
+    __cloudSyncConflict = false;
 
     __applyingRemoteSync = true;
     try {
@@ -228,7 +229,22 @@ function queueCloudSync() {
     }, CLOUD_SYNC_DEBOUNCE_MS);
 }
 
-async function saveToSupabase({ manual = false, reason = 'manual' } = {}) {
+let __cloudSavePromise = null;
+let __cloudSyncConflict = false;
+
+async function saveToSupabase(options = {}) {
+    if (__cloudSavePromise) {
+        await __cloudSavePromise;
+        if (!dirty) return;
+        return saveToSupabase(options);
+    }
+    if (__cloudSyncConflict) throw new Error('La caja cambió en la nube. Exporta tus cambios locales y vuelve a cargar la caja antes de guardar.');
+    __cloudSavePromise = performCloudSave(options);
+    try { return await __cloudSavePromise; }
+    finally { __cloudSavePromise = null; }
+}
+
+async function performCloudSave({ manual = false, reason = 'manual' } = {}) {
     if (!__isLoggedIn && !(await window.Supa?.getUser?.())) {
         if (manual) $authDialog?.showModal?.();
         return;
@@ -238,10 +254,15 @@ async function saveToSupabase({ manual = false, reason = 'manual' } = {}) {
     __syncDebounceTimer = null;
 
     const savingLocalChangeAt = __lastLocalChangeAt;
+    const savingBoxId = currentBoxId;
+    const savingCloudBoxId = currentCloudBoxId;
+    const expectedRevision = Number(__lastCloudRevision || 0);
     __autosaveInFlight = true;
     try {
         const payload = await serializeAppState();
-        const row = await window.Supa.saveBox(payload, currentBoxName || 'Mi caja', currentCloudBoxId || null);
+        if (currentBoxId !== savingBoxId) throw new Error('La caja activa cambió durante el guardado. Vuelve a guardar.');
+        const row = await window.Supa.saveBox(payload, currentBoxName || 'Mi caja', savingCloudBoxId || null, expectedRevision);
+        if (currentBoxId !== savingBoxId) return row;
         rememberCloudRow(row);
 
         if (!__lastLocalChangeAt || __lastLocalChangeAt === savingLocalChangeAt) {
@@ -255,6 +276,7 @@ async function saveToSupabase({ manual = false, reason = 'manual' } = {}) {
         if (manual) toast(reason === 'backup' ? 'Copia guardada' : 'Datos sincronizados', 'success');
         return row;
     } catch (e) {
+        if (String(e?.message || '').includes('BOX_REVISION_CONFLICT')) __cloudSyncConflict = true;
         console.warn('[cloud-sync] fallo guardando:', e);
         toast('Error al sincronizar: ' + (e?.message || e), 'error', 4000);
         throw e;
@@ -307,6 +329,7 @@ async function syncOnLogin({ userChanged = false } = {}) {
     }
 
     if (userChanged) {
+        __cloudSyncConflict = false;
         dirty = false;
         __lastLocalChangeAt = '';
         __lastCloudRevision = 0;
@@ -338,7 +361,12 @@ async function syncOnLogin({ userChanged = false } = {}) {
     const row = currentCloudBoxId
         ? (currentUserRows.find(item => String(item.id) === String(currentCloudBoxId)) || await window.Supa.loadBox(currentCloudBoxId))
         : (currentUserRows[0] || await window.Supa.loadBox(null));
-    if (row) rememberCloudRow(row);
+    // Keep the revision associated with local edits; adopting the remote revision
+    // here would allow stale local data to overwrite an exchange at login.
+    if (row && !dirty && !__lastLocalChangeAt) rememberCloudRow(row);
+    if (row && (dirty || __lastLocalChangeAt) && String(currentCloudBoxId || '') !== String(row.id)) {
+        throw new Error('Hay cambios locales sin una caja de nube asociada. Expórtalos antes de cargar la caja de la nube.');
+    }
 
     if (row || !userChanged) {
         await maybeCreateDailyBackup(row?.data || null);
@@ -369,6 +397,12 @@ async function subscribeOwnBox() {
             if (currentCloudBoxId && row?.id && String(row.id) !== String(currentCloudBoxId)) return;
             const data = row?.data;
             if (!data || data.deviceId === __deviceId) return;
+
+            if (dirty || __autosaveInFlight) {
+                // Keep local edits and their original revision. The server rejects
+                // an outdated save, allowing the user to export before reloading.
+                return;
+            }
 
             const remoteRevision = Number(data.revision || 0);
             const remoteTime = data.updatedAt || row?.updated_at || '';
@@ -522,11 +556,12 @@ async function switchBox(box, { loadCloud = true } = {}) {
 
     try {
         backup();
-        if (dirty && __isLoggedIn && !__applyingRemoteSync) {
+        if ((dirty || __cloudSavePromise) && __isLoggedIn && !__applyingRemoteSync) {
             await saveToSupabase({ reason: 'switch-box' });
         }
     } catch (e) {
         console.warn('[box-switch] no se pudo guardar la caja anterior:', e);
+        throw e;
     }
 
     setActiveBoxRecord(next);
@@ -591,8 +626,9 @@ async function renameActiveBoxFromPrompt() {
 
     if (currentCloudBoxId && (await window.Supa?.getUser?.())) {
         try {
-            const row = await window.Supa?.renameBox?.(currentCloudBoxId, name);
-            if (row) rememberCloudRow(row);
+            await window.Supa.renameBox(currentCloudBoxId, name);
+            // Renaming does not load the returned entries, so it must not adopt
+            // their revision and make stale local entries look current.
         } catch (e) {
             toast('No se pudo renombrar en la nube: ' + (e?.message || e), 'error', 4000);
         }

@@ -360,6 +360,8 @@ function setupTradeEvents() {
     });
 
     $tradeConfirmSend?.addEventListener('click', async () => {
+        if ($tradeConfirmSend.disabled) return;
+        $tradeConfirmSend.disabled = true;
         try {
             if (typeof saveToSupabase === 'function') {
                 await saveToSupabase({ reason: 'trade-send' });
@@ -397,6 +399,8 @@ function setupTradeEvents() {
             await updatePendingTradesBadge();
         } catch (e) {
             toast('Error enviando solicitud: ' + e.message, 'error');
+        } finally {
+            $tradeConfirmSend.disabled = false;
         }
     });
 
@@ -542,153 +546,54 @@ function tradeSubtitle(trade, { isReceiver, isInitiator }) {
     return 'solicitud de intercambio';
 }
 
-function cleanTradePokemonForBox(pokemon) {
-    if (!pokemon || typeof pokemon !== 'object') return null;
-    const { __boxId, __cloudBoxId, __boxName, ...clean } = pokemon;
-    return clean;
-}
+const __acceptingTrades = new Set();
 
-function withNextBoxRevision(boxData) {
-    const now = new Date().toISOString();
-    return {
-        ...(boxData || {}),
-        version: Math.max(3, Number(boxData?.version || 3)),
-        revision: Number(boxData?.revision || 0) + 1,
-        deviceId: __deviceId,
-        updatedAt: now
-    };
-}
-
-async function findTradePokemonBox(userId, pokemonId, preferredBoxId = null) {
-    if (preferredBoxId) {
-        const preferredBox = await window.Supa?.getBoxById?.(preferredBoxId);
-        const entries = Array.isArray(preferredBox?.data?.entries) ? preferredBox.data.entries : [];
-        if (entries.some(p => p.id === pokemonId)) return preferredBox;
-    }
-
-    const boxes = await window.Supa?.listUserBoxes?.(userId);
-    return (boxes || []).find(box => {
-        const entries = Array.isArray(box?.data?.entries) ? box.data.entries : [];
-        return entries.some(p => p.id === pokemonId);
-    }) || null;
-}
-
-async function completeTradeUsingBoxIds(trade) {
-    const preferredInitiatorBoxId = trade.initiator_box_id || trade.initiator_pokemon_data?.__cloudBoxId || null;
-    const preferredTargetBoxId = trade.target_box_id || trade.target_pokemon_data?.__cloudBoxId || null;
-
-    const [initiatorBox, targetBox] = await Promise.all([
-        findTradePokemonBox(trade.initiator_id, trade.initiator_pokemon_id, preferredInitiatorBoxId),
-        findTradePokemonBox(trade.target_user_id, trade.target_pokemon_id, preferredTargetBoxId)
-    ]);
-
-    if (!initiatorBox?.data) throw new Error('No se encontró la caja del jugador que envió la solicitud.');
-    if (!targetBox?.data) throw new Error('No se encontró tu caja seleccionada para este intercambio.');
-    const initiatorBoxId = initiatorBox.id;
-    const targetBoxId = targetBox.id;
-
-    const initiatorEntries = Array.isArray(initiatorBox.data.entries) ? initiatorBox.data.entries : [];
-    const targetEntries = Array.isArray(targetBox.data.entries) ? targetBox.data.entries : [];
-    const initiatorPokemon = initiatorEntries.find(p => p.id === trade.initiator_pokemon_id);
-    const targetPokemon = targetEntries.find(p => p.id === trade.target_pokemon_id);
-
-    if (!initiatorPokemon) {
-        const boxName = trade.initiator_pokemon_data?.__boxName || initiatorBox.name || 'la caja del otro jugador';
-        throw new Error(`El Pokémon que te iban a enviar ya no está en "${boxName}".`);
-    }
-    if (!targetPokemon) {
-        const boxName = trade.target_pokemon_data?.__boxName || targetBox.name || 'tu caja seleccionada';
-        throw new Error(`Tu Pokémon ya no está en "${boxName}".`);
-    }
-
-    const cleanInitiatorPokemon = cleanTradePokemonForBox(initiatorPokemon);
-    const cleanTargetPokemon = cleanTradePokemonForBox(targetPokemon);
-    const nextInitiatorData = withNextBoxRevision({
-        ...initiatorBox.data,
-        entries: initiatorEntries
-            .filter(p => p.id !== trade.initiator_pokemon_id)
-            .concat(cleanTargetPokemon)
-    });
-    const nextTargetData = withNextBoxRevision({
-        ...targetBox.data,
-        entries: targetEntries
-            .filter(p => p.id !== trade.target_pokemon_id)
-            .concat(cleanInitiatorPokemon)
-    });
-
-    await window.Supa?.updateBoxById?.(initiatorBoxId, nextInitiatorData, initiatorBox.name || nextInitiatorData.boxName || 'Mi caja');
-    await window.Supa?.updateBoxById?.(targetBoxId, nextTargetData, targetBox.name || nextTargetData.boxName || 'Mi caja');
-    await window.Supa?.markTradeCompleted?.(trade.id);
-
-    if (String(currentCloudBoxId || '') === String(targetBoxId)) {
-        applyAppState?.(nextTargetData, { silent: true });
-    }
-
-    return true;
+async function refreshActiveTradeBox(trade) {
+    const boxIds = [trade.initiator_box_id, trade.target_box_id,
+        trade.initiator_pokemon_data?.__cloudBoxId, trade.target_pokemon_data?.__cloudBoxId];
+    const boxId = currentCloudBoxId;
+    if (!boxId || !boxIds.some(id => String(id || '') === String(boxId))) return;
+    // Do not erase edits made while the request was in flight.
+    if (dirty || __autosaveInFlight) return;
+    const row = await window.Supa.getBoxById(boxId);
+    if (String(currentCloudBoxId) !== String(boxId) || dirty || __autosaveInFlight) return;
+    if (!row?.data) throw new Error('No se pudo recargar la caja del intercambio.');
+    rememberCloudRow(row);
+    applyAppState(row.data, { silent: true });
 }
 
 async function acceptPendingTrade(tradeId, role = 'receiver') {
+    if (__acceptingTrades.has(tradeId)) return;
+    __acceptingTrades.add(tradeId);
+    let completed = false;
     try {
-        const trade = await window.Supa?.getTradeById?.(tradeId);
+        const trade = await window.Supa.getTradeById(tradeId);
+        const user = await window.Supa.getUser();
         if (!trade) throw new Error('Intercambio no encontrado');
-
-        if (role !== 'receiver') {
-            throw new Error('Este intercambio solo necesita aceptación del receptor.');
+        if (role !== 'receiver' || trade.target_user_id !== user?.id) {
+            throw new Error('Solo el receptor puede aceptar este intercambio.');
         }
-
-        const requestedCloudBoxId = trade.target_box_id || trade.target_pokemon_data?.__cloudBoxId || null;
-        if (requestedCloudBoxId && String(currentCloudBoxId || '') !== String(requestedCloudBoxId)) {
-            await refreshCloudBoxCatalog?.();
-            const requestedBox = (__boxCatalog || []).find(box =>
-                String(box.cloudId || '') === String(requestedCloudBoxId) ||
-                String(box.id || '') === `cloud-${requestedCloudBoxId}`
-            );
-            if (requestedBox) {
-                await switchBox?.(requestedBox, { loadCloud: true });
-            }
+        if (trade.status !== 'pending' && trade.status !== 'completed') {
+            throw new Error('El intercambio ya no está pendiente.');
         }
+        if (dirty || __cloudSavePromise) await saveToSupabase({ reason: 'trade-accept' });
 
-        if (dirty && typeof saveToSupabase === 'function') {
-            await saveToSupabase({ reason: 'trade-accept' });
-        }
-
-        if (typeof window.Supa?.acceptBoxTrade === 'function') {
-            try {
-                await window.Supa.acceptBoxTrade(tradeId);
-                toast('Intercambio completado', 'success');
-                await loadPendingTrades();
-                await updatePendingTradesBadge();
-                return;
-            } catch (e) {
-                console.warn('[trades] accept_box_trade falló, usando fallback cliente:', e);
-            }
-        }
-
-        const completedByBoxId = await completeTradeUsingBoxIds(trade);
-        if (completedByBoxId) {
-            toast('Intercambio completado', 'success');
-            await loadPendingTrades();
-            await updatePendingTradesBadge();
-            return;
-        }
-
-        const myPokemon = db.find(p => p.id === trade.target_pokemon_id);
-        if (!myPokemon) {
-            const boxName = trade.target_pokemon_data?.__boxName || 'la caja seleccionada';
-            throw new Error(`Ese Pokémon ya no está en tu caja activa. Cambia a "${boxName}" y vuelve a intentarlo, o rechaza la solicitud.`);
-        }
-
-        const updated = await window.Supa?.acceptTrade?.(tradeId, 'receiver');
-        if (!updated) throw new Error('No se pudo aceptar la solicitud');
+        // A failed or ambiguous RPC must never trigger client-side transfers.
+        await window.Supa.acceptBoxTrade(tradeId);
+        completed = true;
+        await refreshActiveTradeBox(trade);
         toast('Intercambio completado', 'success');
-
         await loadPendingTrades();
         await updatePendingTradesBadge();
     } catch (e) {
-        toast('Error procesando aceptación: ' + e.message, 'error');
+        const message = completed
+            ? 'El intercambio se completó, pero no se pudo actualizar la vista. Recarga la caja: '
+            : 'No se pudo confirmar el intercambio. Consulta el historial antes de reintentar: ';
+        toast(message + e.message, 'error');
+    } finally {
+        __acceptingTrades.delete(tradeId);
     }
 }
-
 async function rejectPendingTrade(tradeId) {
     try {
         await window.Supa?.rejectTrade?.(tradeId);
@@ -742,7 +647,8 @@ async function setupTradesSubscription() {
                 const from = row.initiator_email || 'otro jugador';
                 toast(`Has recibido una solicitud de intercambio de ${from}`, 'info', 5000);
             } else if (row.status === 'completed') {
-                toast('Intercambio completado. Tu caja se actualizará automáticamente.', 'success', 5000);
+                await refreshActiveTradeBox(row);
+                toast('Intercambio completado. Si tienes cambios locales pendientes, exporta y recarga la caja.', 'success', 5000);
             } else if (row.status === 'rejected') {
                 toast('Una solicitud de intercambio fue cancelada o rechazada.', 'info', 5000);
             }
